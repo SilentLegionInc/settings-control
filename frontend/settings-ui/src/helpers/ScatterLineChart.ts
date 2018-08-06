@@ -1,0 +1,32 @@
+import { Scatter, mixins } from 'vue-chartjs';
+const { reactiveProp } = mixins;
+
+export default {
+    extends: Scatter,
+    mixins: [reactiveProp],
+    props: ['options'],
+    mounted() {
+        // this.chartData is created in the mixin.
+        // If you want to pass options please create a local options object
+        this.renderChart(this.chartData, {
+            scales: {
+                xAxes: [{
+                    scaleLabel: {
+                        labelString: 'X',
+                        display: true,
+                    },
+                    type: 'time',
+                    position: 'bottom',
+                }],
+                yAxes: [{
+                    scaleLabel: {
+                        labelString: 'Y',
+                        display: true,
+                    },
+                    type: 'linear',
+                    position: 'left',
+                }],
+            },
+        });
+    },
+};
