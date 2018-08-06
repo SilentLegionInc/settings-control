@@ -26,7 +26,7 @@
       <li><a href="https://vue-loader.vuejs.org" target="_blank">vue-loader</a></li>
       <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
     </ul>
-    <a :href="url"><button class="btn btn-dark">My VK page</button></a>
+    <a :href="url"><button class="btn btn-dark">My VK page (Status: {{ getString() }})</button></a>
   </div>
 </template>
 
@@ -37,6 +37,14 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 export default class HelloWorld extends Vue {
   @Prop() private msg!: string;
   @Prop() private url!: string;
+
+  private getString(): string {
+      if (this.url.search('silence') !== -1) {
+          return 'Ok'!;
+      } else {
+          return 'Not okay!';
+      }
+  }
 }
 </script>
 
