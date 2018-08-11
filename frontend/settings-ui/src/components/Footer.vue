@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<footer class="footer navbar-light bg-light">
+		<footer class="footer">
 			<span>Developed by Silence & Befezdow 2k18</span>
 		</footer>
 		<div></div>
@@ -18,5 +18,6 @@
 		text-align: center;
 		padding-top: 15px;
 		padding-bottom: 15px;
+		background: #f8f9fa;
 	}
 </style>

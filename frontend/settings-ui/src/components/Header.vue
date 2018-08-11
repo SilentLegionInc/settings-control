@@ -3,7 +3,7 @@
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <ul class="navbar-nav">
                 <li>
-                    <button type="button" class="btn btn-dark">
+                    <button type="button" class="btn btn-dark" @click="onHamburgerClicked">
                         <i class="fa fa-bars"></i>
                     </button>
                 </li>
@@ -26,7 +26,11 @@
     import { Component, Vue } from 'vue-property-decorator';
 
     @Component
-    export default class Header extends Vue {}
+    export default class Header extends Vue {
+        private onHamburgerClicked() {
+            this.$emit('onHamburger');
+        }
+    }
 </script>
 
 <style scoped>

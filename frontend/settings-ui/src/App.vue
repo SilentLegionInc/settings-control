@@ -1,16 +1,10 @@
 <template>
     <div id="app">
-        <app-header></app-header>
+        <app-header @onHamburger="onSidebarOpened"></app-header>
 
-        <div class="row" style="width: 100%">
-            <div class="col-md-2">
-                <app-sidebar></app-sidebar>
-            </div>
+        <app-sidebar :isOpen="sidebarIsOpened" @closeSidebar="onSidebarClosed"></app-sidebar>
 
-            <div class="content col-md-10">
-                <router-view/>
-            </div>
-        </div>
+        <router-view class="content"></router-view>
 
 	    <app-footer></app-footer>
     </div>
@@ -31,6 +25,15 @@
         },
     })
     export default class App extends Vue {
+        private sidebarIsOpened: boolean = false;
+
+        private onSidebarOpened() {
+            this.sidebarIsOpened = true;
+        }
+
+        private onSidebarClosed() {
+            this.sidebarIsOpened = false;
+        }
     }
 </script>
 
