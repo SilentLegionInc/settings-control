@@ -1,53 +1,41 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Demo page</router-link> |
-      <router-link to="/about">About</router-link> |
-      <router-link to="/graphics">Graphics</router-link>
+    <div id="app">
+        <app-header></app-header>
+
+        <div class="row" style="width: 100%">
+            <div class="col-md-2">
+                <app-sidebar></app-sidebar>
+            </div>
+
+            <div class="content col-md-10">
+                <router-view/>
+            </div>
+        </div>
+
+	    <app-footer></app-footer>
     </div>
-    <hr>
-    <router-view class="content"/>
-    <hr>
-    <div class="footer">
-      Developed by Silence & Befezdow 2k18
-    </div>
-  </div>
 </template>
 
-<style lang="scss">
-html, body {
-  height: 100%;
-}
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  color: #2c3e50;
-}
-#nav {
-  padding: 30px;
-  background: cadetblue;
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-    &.router-link-exact-active {
-      color: #42b983;
+<script lang="ts">
+    import { Component, Vue } from 'vue-property-decorator';
+    import Header from './components/Header.vue';
+    import Sidebar from './components/Sidebar.vue';
+    import Footer from './components/Footer.vue';
+
+    @Component({
+        el: '#app',
+        components: {
+            'app-header': Header,
+            'app-sidebar': Sidebar,
+	        'app-footer': Footer,
+        },
+    })
+    export default class App extends Vue {
     }
-  }
-}
-.content {
-  padding: 20px;
-  flex: 1 0 auto;
-}
+</script>
 
-.footer {
-  flex-shrink: 0;
-  padding: 20px;
-  background: aqua;
-}
-
+<style lang="scss">
+    .content {
+        padding: 10px !important;
+    }
 </style>

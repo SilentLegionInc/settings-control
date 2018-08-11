@@ -1,33 +1,22 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Home from './views/Home.vue';
-import Chart from './views/Charts.vue';
 import BootstrapVue from 'bootstrap-vue';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
+import 'font-awesome/css/font-awesome.css';
+import './styles.scss';
+
+import Example from './components/Example.vue';
 
 Vue.use(Router);
 Vue.use(BootstrapVue);
 
 export default new Router({
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: Home,
-    },
-    {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue'),
-    },
-    {
-      path: '/graphics',
-      name: 'graphics',
-      component: Chart,
-    },
-  ],
+    routes: [
+        {
+            path: '/',
+            name: 'home',
+            component: Example,
+        },
+    ],
 });
