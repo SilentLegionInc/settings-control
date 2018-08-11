@@ -27,7 +27,7 @@
         components: {
             'app-header': Header,
             'app-sidebar': Sidebar,
-	        'app-footer': Footer,
+            'app-footer': Footer,
         },
     })
     export default class App extends Vue {
