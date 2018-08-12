@@ -3,8 +3,8 @@ from jinja2 import Template, Environment, FileSystemLoader, select_autoescape
 from src.logger import Logger
 from src.settings import Settings
 import os
-from flask_bootstrap import Bootstrap
 from flask import jsonify
+from flask_cors import CORS
 
 env = Environment(
     loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), "templates/")),
@@ -12,8 +12,7 @@ env = Environment(
 )
 
 app = Flask(__name__)
-Bootstrap(app)
-
+CORS(app)
 
 my_list = [{'a': 4, 'b': 2}, {'a': 9, 'b': 3}]
 
