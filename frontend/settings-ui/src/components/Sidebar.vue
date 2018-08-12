@@ -9,21 +9,23 @@
                 <a href="#" @click="switchMonitorList">
                     Мониторинг
 
-                    <i class="fa"
-                       :class="{ 'fa-chevron-down': !monitorIsOpen, 'fa-chevron-up': monitorIsOpen }"
-                       aria-hidden="true">
-                    </i>
+                    <transition name="flip" mode="out-in">
+                        <i v-if="!monitorIsOpen" key="1" class="fa fa-chevron-down" aria-hidden="true"></i>
+                        <i v-else key="2" class="fa fa-chevron-up" aria-hidden="true"></i>
+                    </transition>
                 </a>
 
-                <ul class="list-container" :style="monitorListStyle">
-                    <li>
-                        <a href="#">Графики</a>
-                    </li>
+                <transition name="monitor">
+                    <ul v-if="monitorIsOpen" class="list-container">
+                        <li>
+                            <a href="#">Графики</a>
+                        </li>
 
-                    <li>
-                        <a href="#">Таблицы</a>
-                    </li>
-                </ul>
+                        <li>
+                            <a href="#">Таблицы</a>
+                        </li>
+                    </ul>
+                </transition>
             </li>
 
             <li>
@@ -120,6 +122,29 @@
 
     .list-container {
         overflow: hidden;
+    }
+
+    .flip-enter, .flip-leave-to {
+        transform: rotateX(90deg);
+    }
+
+    .flip-leave, .flip-enter-to {
+        transform: rotateX(0deg);
+    }
+
+    .flip-enter-active, .flip-leave-active {
+        transition: transform 0.2s;
+    }
+
+    .monitor-enter, .monitor-leave-to {
         height: 0;
+    }
+
+    .monitor-enter-to, .monitor-leave {
+        height: 73px;
+    }
+
+    .monitor-enter-active, .monitor-leave-active {
+        transition: height 0.4s;
     }
 </style>
