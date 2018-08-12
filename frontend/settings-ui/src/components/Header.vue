@@ -15,7 +15,7 @@
 
             <ul class="navbar-nav ml-auto">
                 <li>
-                    Current user
+                    Current machine
                 </li>
             </ul>
         </nav>

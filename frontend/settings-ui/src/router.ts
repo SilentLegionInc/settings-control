@@ -6,7 +6,8 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 import 'font-awesome/css/font-awesome.css';
 import './styles.scss';
 
-import Example from './components/Example.vue';
+import Test from './components/Test.vue';
+import Home from './components/Home.vue';
 
 Vue.use(Router);
 Vue.use(BootstrapVue);
@@ -16,7 +17,12 @@ export default new Router({
         {
             path: '/',
             name: 'home',
-            component: Example,
+            component: Home,
+        },
+        {
+            path: '/test',
+            name: 'test',
+            component: Test,
         },
     ],
 });

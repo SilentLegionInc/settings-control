@@ -4,9 +4,9 @@
 
         <app-sidebar :isOpen="sidebarIsOpened" @closeSidebar="onSidebarClosed"></app-sidebar>
 
-        <router-view class="content"></router-view>
+        <router-view id="app-content"/>
 
-	    <app-footer></app-footer>
+        <app-footer id="app-footer"></app-footer>
     </div>
 </template>
 
@@ -38,7 +38,22 @@
 </script>
 
 <style lang="scss">
-    .content {
-        padding: 10px !important;
+    html, body {
+        height: 100%;
+    }
+
+    #app {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    #app-content {
+        padding: 10px;
+        flex: 1 0 auto;
+    }
+
+    #app-footer {
+        flex-shrink: 0;
     }
 </style>
