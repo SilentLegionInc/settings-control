@@ -28,10 +28,7 @@
         private name: string = 'привет';
 
         private created() {
-            axios.get('http://127.0.0.1:5000/config', {
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                }}).then(answer => {
+            axios.get('http://127.0.0.1:5000/api/config').then(answer => {
                 this.settings = answer.data;
             });
         }
@@ -39,14 +36,14 @@
         private UpdateConfig() {
             console.log('New configs');
             console.log(this.settings);
-            axios.post('http://127.0.0.1:5000/config', this.settings).then(answer => {
+            axios.post('http://127.0.0.1:5000/api/config', this.settings).then(answer => {
                 console.log(answer)
             });
         }
 
         private ResetConfig() {
             console.log('Reset');
-            axios.get('http://127.0.0.1:5000/config').then(answer => {
+            axios.get('http://127.0.0.1:5000/api/config').then(answer => {
                 this.settings = answer.data;
             });
         }
