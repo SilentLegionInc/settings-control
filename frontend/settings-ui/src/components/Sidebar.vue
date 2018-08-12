@@ -6,9 +6,16 @@
 
         <ul>
             <li>
-                <a href="#">Мониторинг</a>
+                <a href="#" @click="switchMonitorList">
+                    Мониторинг
 
-                <ul>
+                    <i class="fa"
+                       :class="{ 'fa-chevron-down': !monitorIsOpen, 'fa-chevron-up': monitorIsOpen }"
+                       aria-hidden="true">
+                    </i>
+                </a>
+
+                <ul class="list-container" :style="monitorListStyle">
                     <li>
                         <a href="#">Графики</a>
                     </li>
@@ -33,11 +40,17 @@
     export default class Sidebar extends Vue {
         @Prop() private isOpen: boolean = false;
 
+        private monitorIsOpen: boolean = false;
+
         get currentStyle(): object {
             return {
                 'width': this.isOpen ? '20%' : '0',
-                'min-width': this.isOpen ? '200px' : '0',
+                'min-width': this.isOpen ? '250px' : '0',
             };
+        }
+
+        get monitorListStyle(): object {
+            return {'height': this.monitorIsOpen ? '20%' : '0'};
         }
 
         private created() {
@@ -56,6 +69,10 @@
 
         private close() {
             this.$emit('closeSidebar');
+        }
+
+        private switchMonitorList() {
+            this.monitorIsOpen = !this.monitorIsOpen;
         }
     }
 </script>
@@ -99,5 +116,10 @@
         right: 0;
         font-size: 30px;
         padding: 0 10px 0 0;
+    }
+
+    .list-container {
+        overflow: hidden;
+        height: 0;
     }
 </style>
