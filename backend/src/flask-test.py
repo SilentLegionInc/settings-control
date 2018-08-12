@@ -1,10 +1,9 @@
-from flask import Flask, request, redirect, url_for
+from flask import Flask, request, redirect, url_for, jsonify
+from flask_cors import CORS
 from jinja2 import Template, Environment, FileSystemLoader, select_autoescape
 from src.logger import Logger
 from src.settings import Settings
 import os
-from flask import jsonify
-from flask_cors import CORS
 
 env = Environment(
     loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), "templates/")),
@@ -33,9 +32,13 @@ def add():
     return redirect(url_for('main'))
 
 
-@app.route('/config')
+@app.route('/config', methods=['GET', 'POST'])
 def get_config():
-    return jsonify(Settings().load_current_server_config())
+    if request.method == 'GET':
+        return jsonify(Settings().load_current_server_config())
+    elif request.method == 'POST':
+        result = Settings().save_server_config(request.get_json())
+        return jsonify(result)
 
 
 @app.route('/ui/config')
