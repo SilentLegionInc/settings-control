@@ -1,10 +1,28 @@
 <template>
     <div class="sidebar" v-bind:style="currentStyle">
-        <a href="#" class="closebtn" @click="close"><i class="fa fa-times" aria-hidden="true"></i></a>
-        <router-link to="/settings">Настройки</router-link>
-        <a href="#">Element 2</a>
-        <a href="#">Element 3</a>
-        <a href="#">Element 4</a>
+        <a href="#" class="closebtn" @click="close">
+            <i class="fa fa-times" aria-hidden="true"></i>
+        </a>
+
+        <ul>
+            <li>
+                <a href="#">Мониторинг</a>
+
+                <ul>
+                    <li>
+                        <a href="#">Графики</a>
+                    </li>
+
+                    <li>
+                        <a href="#">Таблицы</a>
+                    </li>
+                </ul>
+            </li>
+
+            <li>
+                <a href="#">Настройки</a>
+            </li>
+        </ul>
     </div>
 </template>
 
@@ -52,16 +70,22 @@
         background-color: #e6e8e9;
         overflow-x: hidden;
         transition: 0.5s;
-        padding-top: 30px;
+        padding-top: 40px;
         white-space: nowrap;
     }
 
+    .sidebar ul {
+        padding-left: 30px;
+    }
+
+    .sidebar ul li {
+        list-style-type: none;
+    }
+
     .sidebar a {
-        padding: 8px 8px 8px 32px;
         text-decoration: none;
         font-size: 25px;
         color: black;
-        display: block;
         transition: 0.3s;
     }
 
