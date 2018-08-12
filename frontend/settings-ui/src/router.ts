@@ -7,6 +7,7 @@ import 'font-awesome/css/font-awesome.css';
 import './styles.scss';
 
 import Example from './components/Example.vue';
+import Settings from './components/Settings.vue';
 
 Vue.use(Router);
 Vue.use(BootstrapVue);
@@ -17,6 +18,11 @@ export default new Router({
             path: '/',
             name: 'home',
             component: Example,
+        },
+        {
+            path: '/settings',
+            name: 'settings',
+            component: Settings,
         },
     ],
 });

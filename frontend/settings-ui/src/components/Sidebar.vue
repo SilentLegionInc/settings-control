@@ -1,7 +1,7 @@
 <template>
     <div class="sidebar" v-bind:style="currentStyle">
         <a href="#" class="closebtn" @click="close"><i class="fa fa-times" aria-hidden="true"></i></a>
-        <a href="#">Element 1</a>
+        <router-link to="/settings">Настройки</router-link>
         <a href="#">Element 2</a>
         <a href="#">Element 3</a>
         <a href="#">Element 4</a>

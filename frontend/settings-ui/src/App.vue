@@ -15,6 +15,7 @@
     import Header from './components/Header.vue';
     import Sidebar from './components/Sidebar.vue';
     import Footer from './components/Footer.vue';
+    import Settings from './components/Settings.vue';
 
     @Component({
         el: '#app',
@@ -22,6 +23,7 @@
             'app-header': Header,
             'app-sidebar': Sidebar,
             'app-footer': Footer,
+            'app-settings': Settings
         },
     })
     export default class App extends Vue {
