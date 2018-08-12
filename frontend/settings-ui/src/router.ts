@@ -8,6 +8,7 @@ import './styles.scss';
 
 import Test from './components/Test.vue';
 import Home from './components/Home.vue';
+import Settings from './components/Settings.vue';
 
 Vue.use(Router);
 Vue.use(BootstrapVue);
@@ -23,6 +24,11 @@ export default new Router({
             path: '/test',
             name: 'test',
             component: Test,
+        },
+        {
+            path: '/settings',
+            name: 'settings',
+            component: Settings,
         },
     ],
 });

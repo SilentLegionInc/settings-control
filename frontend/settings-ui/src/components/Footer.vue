@@ -3,7 +3,6 @@
 		<footer class="footer">
 			<span>Developed by Silence & Befezdow 2k18</span>
 		</footer>
-		<div></div>
 	</div>
 </template>
 
