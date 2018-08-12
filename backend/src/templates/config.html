@@ -6,9 +6,18 @@
 </head>
 <body>
     <form method="post" action="/new_config">
+        <table>
         {% for key in config %}
-            {{ key }}: <input type="text" name="{{ key }}" placeholder="{{ config[key] }}"><br>
+            <tr>
+                <td>
+                    {{ key }}:
+                </td>
+                <td>
+                    <input type="text" name="{{ key }}" placeholder="{{ config[key] }}">
+                </td>
+            </tr>
         {% endfor %}
+        </table>
         <button type="submit" class="btn btn-default">Update</button>
     </form>
 </body>

@@ -4,6 +4,7 @@ from src.logger import Logger
 from src.settings import Settings
 import os
 from flask_bootstrap import Bootstrap
+from flask import jsonify
 
 env = Environment(
     loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), "templates/")),
@@ -35,5 +36,10 @@ def add():
 
 @app.route('/config')
 def get_config():
+    return jsonify(Settings().load_current_server_config())
+
+
+@app.route('/ui/config')
+def get_ui_config():
     return env.get_template('config.html').render(config=Settings().load_current_server_config())
 
