@@ -18,18 +18,24 @@
                 <transition name="monitor">
                     <ul v-if="monitorIsOpen" class="list-container">
                         <li>
-                            <a href="#">Графики</a>
+                            <router-link to="/chart_statistics">
+                                Графики
+                            </router-link>
                         </li>
 
                         <li>
-                            <a href="#">Таблицы</a>
+                            <router-link to="/table_statistics">
+                                Таблицы
+                            </router-link>
                         </li>
                     </ul>
                 </transition>
             </li>
 
             <li>
-                <a href="#">Настройки</a>
+                <router-link to="/settings">
+                    Конфигурация
+                </router-link>
             </li>
         </ul>
     </div>
