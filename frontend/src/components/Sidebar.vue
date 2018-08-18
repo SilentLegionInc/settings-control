@@ -18,13 +18,13 @@
                 <transition name="monitor">
                     <ul v-if="monitorIsOpen" class="list-container">
                         <li>
-                            <router-link to="/chart_statistics">
+                            <router-link to="/chart_statistics" @click.native="close">
                                 Графики
                             </router-link>
                         </li>
 
                         <li>
-                            <router-link to="/table_statistics">
+                            <router-link to="/table_statistics" @click.native="close">
                                 Таблицы
                             </router-link>
                         </li>
@@ -33,7 +33,7 @@
             </li>
 
             <li>
-                <router-link to="/settings">
+                <router-link to="/settings" @click.native="close">
                     Конфигурация
                 </router-link>
             </li>

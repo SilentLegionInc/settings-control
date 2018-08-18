@@ -18,14 +18,21 @@
             </div>
             <div class="col-md-2"></div>
         </div>
+
+        <app-login-modal></app-login-modal>
     </div>
 </template>
 
 <script lang="ts">
-    import { Component, Prop, Vue, Inject } from 'vue-property-decorator';
+    import { Component, Vue } from 'vue-property-decorator';
+    import LoginModal from './LoginModal.vue';
     import axios from 'axios';
 
-    @Component
+    @Component({
+        components: {
+            'app-login-modal': LoginModal,
+        },
+    })
     export default class Settings extends Vue {
         // @Inject('getCurrentSettings') private getCurrentSettings: any;
         private settings: any = {};
@@ -54,5 +61,5 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 </style>
