@@ -1,13 +1,8 @@
-.header {
-  background-color: #DFB887;
-  height: 35px;
-  width: 100%;
-  opacity: .9;
-  margin-bottom: 10px;
+.navbar-brand {
+    margin-left: 15px;
+    font-weight: bold;
+    font-size: 25px;
 }
-
-.container {
-  width: 1200px;
-  margin: 0 auto;
-  border: 10px solid #0c5460;
+.navbar {
+    background: #7395AE;
 }
