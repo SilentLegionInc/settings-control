@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts">
-    import {Component, Prop, Vue, Inject} from 'vue-property-decorator';
+    import { Component, Prop, Vue, Inject } from 'vue-property-decorator';
     import axios from 'axios';
 
     @Component
@@ -41,7 +41,7 @@
             console.log('New configs');
             console.log(this.settings);
             axios.post('http://127.0.0.1:5000/api/config', this.settings).then(answer => {
-                console.log(answer)
+                console.log(answer);
             });
         }
 
