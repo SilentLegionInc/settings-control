@@ -14,7 +14,7 @@
                 <button class="btn btn-lg btn-success" @click="UpdateConfig()">Update</button>
             </div>
             <div class="col-md-5" align="right">
-                <button class="btn btn-lg btn-primary" @click="ResetConfig()">Reset</button>
+                <button class="btn btn-lg btn-danger" @click="ResetConfig()">Reset</button>
             </div>
             <div class="col-md-2"></div>
         </div>

@@ -1,0 +1,21 @@
+@font-face {
+    font-family: "Apercu";
+    src: url(../src/assets/ApercuPro.ttf) format("truetype");
+}
+
+.btn-primary {
+    background: #3b556a;
+    border: #273a4b;
+    transition: background 0.3s, color 0.3s;
+}
+
+.btn-primary:hover {
+    background: #4f6e83;
+}
+
+.btn-primary:focus,.btn-primary:active {
+    outline: none !important;
+    box-shadow: 0 0 1px 2px #4f6e83 !important;
+    background: #B0A295 !important;
+    color: #273a4b !important;
+}

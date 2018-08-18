@@ -48,11 +48,14 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        font-family: Apercu, serif;
     }
 
     #app-content {
         padding: 10px;
+        margin: 0;
         flex: 1 0 auto;
+        background: #9FB9CF;
     }
 
     #app-footer {

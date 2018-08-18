@@ -92,7 +92,7 @@
         z-index: 1;
         top: 0;
         left: 0;
-        background-color: #e6e8e9;
+        background-color: #557A95;
         overflow-x: hidden;
         transition: 0.5s;
         padding-top: 40px;
@@ -115,7 +115,7 @@
     }
 
     .sidebar a:hover {
-        color: darkgrey;
+        color: #B0A295;
     }
 
     .sidebar .closebtn {
