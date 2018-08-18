@@ -1,5 +1,5 @@
 <template>
-    <modal name="login-modal" :clickToClose="false">
+    <modal name="login-modal" :clickToClose="false" :height="'auto'" :adaptive="true">
         <div style="height: 100%; margin: 0 10px 0 10px">
             <div class="header">
                 Sign in
@@ -7,12 +7,24 @@
 
             <div class="flex-container">
                 <div class="content">
-                    Content
+                    <div class="row form-group">
+                        <div class="col-md-12">
+                            <label for="login-input">Username</label>
+                            <input type="text" class="form-control" id="login-input" placeholder="Username">
+                        </div>
+                    </div>
+
+                    <div class="row form-group">
+                        <div class="col-md-12">
+                            <label for="password-input">Password</label>
+                            <input type="text" class="form-control" id="password-input" placeholder="Password">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="footer" align="right">
-                    <button class="btn btn-danger" @click="hideModal">Cancel</button>
-                    <button class="btn btn-success" @click="hideModal">Sign in</button>
+                    <button class="btn btn-danger" @click="onCancel">Cancel</button>
+                    <button class="btn btn-success" @click="onLogin">Sign in</button>
                 </div>
             </div>
         </div>
@@ -37,6 +49,15 @@
         private hideModal () {
             this.$modal.hide('login-modal');
         }
+
+        private onCancel() {
+            this.hideModal();
+        }
+
+        private onLogin() {
+            this.hideModal();
+            this.$emit('logged');
+        }
     }
 </script>
 
@@ -49,6 +70,7 @@
 
     .content {
         flex: 1 1 auto;
+        margin-top: 15px;
     }
 
     .footer {
@@ -65,5 +87,12 @@
 
     .btn {
         margin-left: 10px;
+    }
+
+    label {
+        font-size: 13px;
+        font-weight: bold;
+        margin-left: 5px;
+        margin-bottom: 0;
     }
 </style>
