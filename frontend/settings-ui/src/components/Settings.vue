@@ -1,18 +1,22 @@
 <template>
     <div>
         <div class="row form-group" v-for="(setting_value, setting_key) in settings">
+            <div class="col-md-2"></div>
             <label class="col-md-3 col-form-label" :for="setting_key">{{setting_key}}</label>
-            <div class="col-md-9">
+            <div class="col-md-5">
                 <input class="form-control" type="text" :id="setting_key" v-model="settings[setting_key]" :placeholder="setting_key"/>
             </div>
+            <div class="col-md-2"></div>
         </div>
         <div class="row">
+            <div class="col-md-2"></div>
             <div class="col-md-3">
                 <button class="btn btn-lg btn-success" @click="UpdateConfig()">Update</button>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-5" align="right">
                 <button class="btn btn-lg btn-primary" @click="ResetConfig()">Reset</button>
             </div>
+            <div class="col-md-2"></div>
         </div>
     </div>
 </template>
@@ -51,5 +55,4 @@
 </script>
 
 <style scoped>
-
 </style>
