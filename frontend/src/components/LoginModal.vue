@@ -10,14 +10,14 @@
                     <div class="row form-group">
                         <div class="col-md-12">
                             <label for="login-input">Username</label>
-                            <input type="text" class="form-control" id="login-input" placeholder="Username">
+                            <input type="text" class="form-control" id="login-input" placeholder="Username" required>
                         </div>
                     </div>
 
                     <div class="row form-group">
                         <div class="col-md-12">
                             <label for="password-input">Password</label>
-                            <input type="text" class="form-control" id="password-input" placeholder="Password">
+                            <input type="text" class="form-control" id="password-input" placeholder="Password" required>
                         </div>
                     </div>
                 </div>

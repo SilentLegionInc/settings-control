@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="settings">
+        <div class="col-md-12" v-if="settings">
             <div class="row form-group" v-for="(setting_value, setting_key) in settings">
                 <div class="col-md-2"></div>
                 <label class="col-md-3 col-form-label" :for="setting_key">{{setting_key}}</label>
