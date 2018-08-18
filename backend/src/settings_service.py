@@ -4,7 +4,7 @@ import json
 import os
 
 
-class Settings(metaclass=Singleton):
+class SettingsService(metaclass=Singleton):
     def __init__(self, config_path=os.getcwd() + '/config.conf'):
         self.config_path = config_path
         self.config = {}

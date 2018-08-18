@@ -1,0 +1,13 @@
+.header {
+  background-color: #DFB887;
+  height: 35px;
+  width: 100%;
+  opacity: .9;
+  margin-bottom: 10px;
+}
+
+.container {
+  width: 1200px;
+  margin: 0 auto;
+  border: 10px solid #0c5460;
+}
