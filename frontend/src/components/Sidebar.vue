@@ -18,13 +18,13 @@
                 <transition name="monitor">
                     <ul v-if="monitorIsOpen" class="list-container">
                         <li>
-                            <router-link to="/chart_statistics">
+                            <router-link to="/chart_statistics" @click.native="close">
                                 Графики
                             </router-link>
                         </li>
 
                         <li>
-                            <router-link to="/table_statistics">
+                            <router-link to="/table_statistics" @click.native="close">
                                 Таблицы
                             </router-link>
                         </li>
@@ -33,7 +33,7 @@
             </li>
 
             <li>
-                <router-link to="/settings">
+                <router-link to="/settings" @click.native="close">
                     Конфигурация
                 </router-link>
             </li>
@@ -92,7 +92,7 @@
         z-index: 1;
         top: 0;
         left: 0;
-        background-color: #e6e8e9;
+        background-color: #557A95;
         overflow-x: hidden;
         transition: 0.5s;
         padding-top: 40px;
@@ -115,7 +115,7 @@
     }
 
     .sidebar a:hover {
-        color: darkgrey;
+        color: #B0A295;
     }
 
     .sidebar .closebtn {

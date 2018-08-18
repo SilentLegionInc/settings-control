@@ -1,21 +1,23 @@
 <template>
     <div>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <nav class="navbar">
             <ul class="navbar-nav">
                 <li>
-                    <button type="button" class="btn btn-dark" @click="onHamburgerClicked">
+                    <button type="button" class="btn btn-primary" @click="onHamburgerClicked">
                         <i class="fa fa-bars"></i>
                     </button>
                 </li>
             </ul>
 
             <div class="navbar-brand">
-                Project name
+                Configuration tool
             </div>
 
             <ul class="navbar-nav ml-auto">
                 <li>
-                    Current machine
+                    <router-link id="machine-name" to="/">
+                        АМТС
+                    </router-link>
                 </li>
             </ul>
         </nav>
@@ -36,5 +38,22 @@
 <style scoped>
     .navbar-brand {
         margin-left: 15px;
+        font-weight: bold;
+        font-size: 25px;
+    }
+    .navbar {
+        background: #7395AE;
+    }
+
+     #machine-name {
+         font-weight: bolder;
+         text-decoration: none;
+         font-size: 20px;
+         color: black;
+         transition: color 0.3s;
+     }
+
+    #machine-name:hover {
+        color: #B0A295;
     }
 </style>
