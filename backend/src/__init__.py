@@ -6,6 +6,7 @@ from flask_bcrypt import Bcrypt
 from werkzeug.urls import url_parse
 from src.logger import Logger
 from src.settings_service import SettingsService
+from src.logs_service import LogsService
 from src.forms import LoginForm
 from src.models import User
 import os
@@ -94,5 +95,8 @@ def ui_config():
         return render_template('config.html', config=SettingsService().load_current_server_config())
 
 
+@app.route('/api/logs', methods=['GET'])
+def logs():
+    return jsonify(LogsService().get_logs(request.args.get('limit', 1), request.args.get('offset', 0)))
 
 
