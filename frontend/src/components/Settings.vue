@@ -37,7 +37,7 @@
     })
     export default class Settings extends Vue {
         // @Inject('getCurrentSettings') private getCurrentSettings: any;
-        private settings: object = null;
+        private settings: any = null;
         private name: string = 'привет';
 
         private loadData() {

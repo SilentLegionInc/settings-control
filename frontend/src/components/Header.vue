@@ -42,7 +42,7 @@
         font-size: 25px;
     }
     .navbar {
-        background: #7395AE;
+        background: #7DAEDF;
     }
 
      #machine-name {

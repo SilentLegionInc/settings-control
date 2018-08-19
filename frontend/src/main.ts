@@ -8,8 +8,11 @@ import 'font-awesome/css/font-awesome.css';
 import './styles.scss';
 import vmodal from 'vue-js-modal';
 
+const moment = require('vue-moment');
+
 Vue.use(BootstrapVue);
 Vue.use(vmodal);
+Vue.use(moment);
 
 Vue.config.productionTip = false;
 

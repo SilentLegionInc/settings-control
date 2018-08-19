@@ -6,6 +6,7 @@ import Home from './components/Home.vue';
 import Settings from './components/Settings.vue';
 import TableStatistics from './components/TableStatistics.vue';
 import ChartStatistics from './components/ChartStatistics.vue';
+import Logs from './components/Logs.vue';
 
 Vue.use(Router);
 
@@ -35,6 +36,11 @@ export default new Router({
             path: '/chart_statistics',
             name: 'chart-statistics',
             component: ChartStatistics,
+        },
+        {
+            path: '/logs',
+            name: 'logs',
+            component: Logs,
         },
     ],
 });

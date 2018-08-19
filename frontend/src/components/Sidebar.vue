@@ -7,7 +7,7 @@
         <ul>
             <li>
                 <a href="#" @click="switchMonitorList">
-                    Мониторинг
+                    Statistics
 
                     <transition name="flip" mode="out-in">
                         <i v-if="!monitorIsOpen" key="1" class="fa fa-chevron-down" aria-hidden="true"></i>
@@ -19,13 +19,13 @@
                     <ul v-if="monitorIsOpen" class="list-container">
                         <li>
                             <router-link to="/chart_statistics" @click.native="close">
-                                Графики
+                                Charts
                             </router-link>
                         </li>
 
                         <li>
                             <router-link to="/table_statistics" @click.native="close">
-                                Таблицы
+                                Tables
                             </router-link>
                         </li>
                     </ul>
@@ -34,7 +34,13 @@
 
             <li>
                 <router-link to="/settings" @click.native="close">
-                    Конфигурация
+                    Configuration
+                </router-link>
+            </li>
+
+            <li>
+                <router-link to="/logs" @click.native="close">
+                    Logs
                 </router-link>
             </li>
         </ul>
@@ -92,7 +98,7 @@
         z-index: 1;
         top: 0;
         left: 0;
-        background-color: #557A95;
+        background-color: #6387b2;
         overflow-x: hidden;
         transition: 0.5s;
         padding-top: 40px;
