@@ -23,7 +23,7 @@
             'app-header': Header,
             'app-sidebar': Sidebar,
             'app-footer': Footer,
-            'app-settings': Settings,
+            'app-settings': Settings
         },
     })
     export default class App extends Vue {

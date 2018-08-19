@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div style="margin-bottom: 30px">
+        <div class="mb-3">
             <h2 align="center">Конфигурация сервера</h2>
         </div>
         <div v-if="settings">
@@ -15,8 +15,7 @@
                     <button class="btn btn-danger" @click="ResetConfig()">
                         Reset
                     </button>
-                    &nbsp;
-                    <button class="btn btn-success" @click="UpdateConfig()">
+                    <button class="ml-3 btn btn-success" @click="UpdateConfig()">
                         Update
                     </button>
                 </div>
