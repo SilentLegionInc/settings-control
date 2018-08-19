@@ -8,25 +8,25 @@ import {LogLevel} from "../models/LogModel";
             <thead class="custom-table-header">
                 <tr>
                     <th>№</th>
+                    <th>Time</th>
                     <th>Type</th>
                     <th>Title</th>
                     <th>Message</th>
-                    <th>Time</th>
                 </tr>
             </thead>
 
             <tbody class="custom-table-body">
                 <tr v-for="log in logs">
                     <td>{{ log.id }}</td>
-                    <td>{{ log.type | logLevelToString }}</td>
                     <td>{{ log.time | moment("DD.MM.YYYY hh:mm:ss.SSS") }}</td>
+                    <td>{{ log.type | logLevelToString }}</td>
                     <td>{{ log.title }}</td>
                     <td>{{ log.message }}</td>
                 </tr>
             </tbody>
         </table>
 
-        <div class="col-md-12">
+        <div class="col-md-12 margin-top-sm">
             <b-pagination class="pagination-nav"
                           size="md"
                           :total-rows="dbElementsCount"

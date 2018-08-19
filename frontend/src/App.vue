@@ -16,6 +16,7 @@
     import Sidebar from './components/Sidebar.vue';
     import Footer from './components/Footer.vue';
     import Settings from './components/Settings.vue';
+    import LineChart from './services/LineChart';
 
     @Component({
         el: '#app',
@@ -24,6 +25,7 @@
             'app-sidebar': Sidebar,
             'app-footer': Footer,
             'app-settings': Settings,
+            'app-line-chart': LineChart
         },
     })
     export default class App extends Vue {

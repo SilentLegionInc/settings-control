@@ -1,3 +1,5 @@
+@import "help-styles";
+
 @font-face {
     font-family: "Apercu";
     src: url(../src/assets/ApercuPro.ttf) format("truetype");
@@ -19,3 +21,8 @@
     background: #B0A295 !important;
     color: #273a4b !important;
 }
+
+//canvas#line_chart {
+//    margin: 0 auto;
+//}
+
