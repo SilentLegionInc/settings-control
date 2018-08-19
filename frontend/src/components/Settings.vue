@@ -1,23 +1,25 @@
 <template>
     <div>
-        <div class="col-md-12" v-if="settings">
+        <div style="margin-bottom: 30px">
+            <h2 align="center">Конфигурация сервера</h2>
+        </div>
+        <div v-if="settings">
             <div class="row form-group" v-for="(setting_value, setting_key) in settings">
-                <div class="col-md-2"></div>
-                <label class="col-md-3 col-form-label" :for="setting_key">{{setting_key}}</label>
+                <label class="offset-md-2 col-md-3 col-form-label" :for="setting_key">{{setting_key}}</label>
                 <div class="col-md-5">
                     <input class="form-control" type="text" :id="setting_key" v-model="settings[setting_key]" :placeholder="setting_key"/>
                 </div>
-                <div class="col-md-2"></div>
             </div>
-            <div class="row">
-                <div class="col-md-2"></div>
-                <div class="col-md-3">
-                    <button class="btn btn-lg btn-success" @click="UpdateConfig()">Update</button>
+            <div class="row form-group">
+                <div class="col-md-6 offset-md-4" align="right">
+                    <button class="btn btn-danger" @click="ResetConfig()">
+                        Reset
+                    </button>
+                    &nbsp;
+                    <button class="btn btn-success" @click="UpdateConfig()">
+                        Update
+                    </button>
                 </div>
-                <div class="col-md-5" align="right">
-                    <button class="btn btn-lg btn-danger" @click="ResetConfig()">Reset</button>
-                </div>
-                <div class="col-md-2"></div>
             </div>
         </div>
 
@@ -37,28 +39,21 @@
     })
     export default class Settings extends Vue {
         // @Inject('getCurrentSettings') private getCurrentSettings: any;
-        private settings: object = null;
-        private name: string = 'привет';
+        private settings: any = null;
 
-        private loadData() {
-            axios.get('http://127.0.0.1:5000/api/config').then(answer => {
-                this.settings = answer.data;
-            });
+        private async loadData() {
+            const answer = await axios.get('http://127.0.0.1:5000/api/config');
+            this.settings = answer.data;
         }
 
-        private UpdateConfig() {
+        private async UpdateConfig() {
             console.log('New configs');
-            console.log(this.settings);
-            axios.post('http://127.0.0.1:5000/api/config', this.settings).then(answer => {
-                console.log(answer);
-            });
+            const answer = await axios.post('http://127.0.0.1:5000/api/config', this.settings);
+            console.log(answer);
         }
 
-        private ResetConfig() {
-            console.log('Reset');
-            axios.get('http://127.0.0.1:5000/api/config').then(answer => {
-                this.settings = answer.data;
-            });
+        private async ResetConfig() {
+            await this.loadData();
         }
     }
 </script>
