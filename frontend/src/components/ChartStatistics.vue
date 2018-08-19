@@ -47,6 +47,8 @@
             ]
         };
         private options = { responsive: true, maintainAspectRatio: false};
+
+        // This is not reactive
         private addPoint() {
             this.datasets.labels.push(new Date().toDateString());
             this.datasets.datasets.forEach(elem => {
@@ -54,6 +56,7 @@
             })
         }
 
+        // this is reactive
         private generateDataSets() {
             this.datasets = {
                 labels: ['label One ' + new Date().toDateString(), 'label Two' + new Date().toDateString()],
