@@ -1,12 +1,15 @@
-import { Line } from 'vue-chartjs';
+import { Line, mixins } from 'vue-chartjs';
 import { Component, Vue, Prop } from 'vue-property-decorator';
+const { reactiveProp } = mixins;
 
-@Component
+@Component({
+    mixins: [Line, reactiveProp],
+})
 export default class LineChart extends Line {
-    @Prop() public datasets!: any;
+    @Prop() public chartData!: any;
     @Prop() public options!: any;
 
     private mounted() {
-        this.renderChart(this.datasets, this.options);
+        this.renderChart(this.chartData, this.options);
     }
 }

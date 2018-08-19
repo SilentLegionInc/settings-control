@@ -43,7 +43,7 @@
 
         private showModal () {
             this.$modal.show('login-modal', {}, {
-                clickToClose: false
+                clickToClose: false,
             });
         }
         private hideModal () {
