@@ -41,13 +41,14 @@ import {LogLevel} from "../models/LogModel";
 <script lang="ts">
     import {Component, Vue} from 'vue-property-decorator';
     import {LogLevel, LogModel} from '../models/LogModel';
+    import axios from 'axios';
 
     @Component
     export default class Logs extends Vue {
         private logs: LogModel[] = [];
         private elementsPerPage: number = 20;
         private _currentPage: number;
-        private dbElementsCount: number;
+        private dbElementsCount: number = 0;
 
         mounted() {
             this.currentPage = 1;
@@ -55,7 +56,11 @@ import {LogLevel} from "../models/LogModel";
 
         set currentPage(newPage: number) {
             this._currentPage = newPage;
-            this.mockedLoadData(this._currentPage);
+            this.loadData(this._currentPage).then();
+        }
+
+        get currentPage() {
+            return this._currentPage;
         }
 
         private mockedLoadData(page: number) {
@@ -63,7 +68,7 @@ import {LogLevel} from "../models/LogModel";
             let data: LogModel[] = [];
             for (let i = 0; i < this.dbElementsCount; ++i) {
                 const t = i + 1;
-                data.push(new LogModel(t, 0, `Title ${t}`, `Very very very long message without any information ${t}`));
+                data.push(new LogModel(t, new Date(), 0, `Title ${t}`, `Very very very long message without any information ${t}`));
             }
 
             const offset = (page - 1) * this.elementsPerPage;
@@ -75,6 +80,15 @@ import {LogLevel} from "../models/LogModel";
             console.log(data);
             this.logs = data.slice(0, limit);
             console.log(this.logs);
+        }
+
+        private async loadData(page: number) {
+            const offset = (page - 1) * this.elementsPerPage;
+            const limit = this.elementsPerPage;
+            const response = await axios.get('http://127.0.0.1:5000/api/logs', { params: { limit: limit, offset: offset } });
+            this.dbElementsCount = response.data.count;
+            console.log(response);
+            this.logs = response.data.result.map(elem => new LogModel(elem.id, elem.time, elem.type, elem.title, elem.message));
         }
     }
 
