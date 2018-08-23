@@ -47,7 +47,7 @@ import {LogLevel} from "../models/LogModel";
     export default class Logs extends Vue {
         private logs: LogModel[] = [];
         private elementsPerPage: number = 20;
-        private _currentPage: number;
+        private _currentPage: number = 1;
         private dbElementsCount: number = 0;
 
         mounted() {
@@ -88,7 +88,7 @@ import {LogLevel} from "../models/LogModel";
             const response = await axios.get('http://127.0.0.1:5000/api/logs', { params: { limit: limit, offset: offset } });
             this.dbElementsCount = response.data.count;
             console.log(response);
-            this.logs = response.data.result.map(elem => new LogModel(elem.id, elem.time, elem.type, elem.title, elem.message));
+            this.logs = response.data.result.map((elem: any) => new LogModel(elem.id, elem.time, elem.type, elem.title, elem.message));
         }
     }
 
@@ -118,7 +118,7 @@ import {LogLevel} from "../models/LogModel";
     }
 
     .custom-table-header {
-        background: #7395AE;
+        background: rgb(190, 190, 190);
     }
 
     .custom-table-header tr {
@@ -135,6 +135,6 @@ import {LogLevel} from "../models/LogModel";
     }
 
     .custom-table-body tr:nth-child(even) {
-        background: #DBE5F0;
+        background: rgb(240, 240, 240);
     }
 </style>

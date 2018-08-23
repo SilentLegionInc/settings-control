@@ -5,24 +5,20 @@
     src: url(../src/assets/ApercuPro.ttf) format("truetype");
 }
 
-.btn-primary {
-    background: #3b556a;
-    border: #273a4b;
-    transition: background 0.3s, color 0.3s;
+@font-face {
+    font-family: "BookmanBold";
+    src: url(../src/assets/BookmanBold.ttf) format("truetype");
 }
 
-.btn-primary:hover {
-    background: #4f6e83;
+.clickable {
+    font-weight: bolder;
+    text-decoration: none !important;
+    font-size: 20px;
+    color: black;
+    transition: color 0.3s;
 }
 
-.btn-primary:focus,.btn-primary:active {
-    outline: none !important;
-    box-shadow: 0 0 1px 2px #4f6e83 !important;
-    background: #B0A295 !important;
-    color: #273a4b !important;
+.clickable:hover {
+    color: #DAB6C8;
 }
-
-//canvas#line_chart {
-//    margin: 0 auto;
-//}
 

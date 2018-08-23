@@ -1,12 +1,12 @@
 <template>
     <div class="sidebar" v-bind:style="currentStyle">
-        <a href="#" class="closebtn" @click="close">
+        <a href="#" class="closebtn clickable" @click="close">
             <i class="fa fa-times" aria-hidden="true"></i>
         </a>
 
         <ul>
             <li>
-                <a href="#" @click="switchMonitorList">
+                <a href="#" class="clickable" @click="switchMonitorList">
                     Statistics
 
                     <transition name="flip" mode="out-in">
@@ -18,13 +18,13 @@
                 <transition name="monitor">
                     <ul v-if="monitorIsOpen" class="list-container">
                         <li>
-                            <router-link to="/chart_statistics" @click.native="close">
+                            <router-link class="clickable" to="/chart_statistics" @click.native="close">
                                 Charts
                             </router-link>
                         </li>
 
                         <li>
-                            <router-link to="/table_statistics" @click.native="close">
+                            <router-link class="clickable" to="/table_statistics" @click.native="close">
                                 Tables
                             </router-link>
                         </li>
@@ -33,13 +33,13 @@
             </li>
 
             <li>
-                <router-link to="/settings" @click.native="close">
+                <router-link class="clickable" to="/settings" @click.native="close">
                     Configuration
                 </router-link>
             </li>
 
             <li>
-                <router-link to="/logs" @click.native="close">
+                <router-link class="clickable" to="/logs" @click.native="close">
                     Logs
                 </router-link>
             </li>
@@ -98,7 +98,7 @@
         z-index: 1;
         top: 0;
         left: 0;
-        background-color: #6387b2;
+        background-color: #7b88d3;
         overflow-x: hidden;
         transition: 0.5s;
         padding-top: 40px;
@@ -114,14 +114,7 @@
     }
 
     .sidebar a {
-        text-decoration: none;
         font-size: 25px;
-        color: black;
-        transition: 0.3s;
-    }
-
-    .sidebar a:hover {
-        color: #B0A295;
     }
 
     .sidebar .closebtn {
