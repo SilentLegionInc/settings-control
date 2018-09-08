@@ -32,10 +32,30 @@ login.login_view = 'login'
 
 # Here routes starts. I can't move it to separate file
 
+
 @login.user_loader
 def load_user(user_id):
     # mocked!
     return User()
+
+
+@app.route('/login_test')
+def login_test():
+    if not current_user.is_authenticated:
+        user = User()
+        login_user(user)
+
+
+@app.route('/logout_test')
+def logout_test():
+    if current_user.is_authenticated:
+        logout_user()
+
+
+@app.route('/secure')
+@login_required
+def secure():
+    return 'It is secret'
 
 
 @app.route('/')
