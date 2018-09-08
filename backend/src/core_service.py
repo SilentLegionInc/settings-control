@@ -1,15 +1,35 @@
 from src.singleton import Singleton
 from src.logger import Logger
+from enum import Enum
 from subprocess import Popen
+from subprocess import check_output
 from subprocess import DEVNULL
-from subprocess import STDOUT
+from threading import Thread
 import os
+import re
+import time
+
+
+class ProcessStatus(Enum):
+    DEFAULT = -1,
+    SUCCESS = 0,
+    ERROR = 1
 
 
 class CoreService(metaclass=Singleton):
-    def __init__(self, exec_path):
+    def __init__(self, exec_path, qmake_path, sources_path):
         self.exec_path = exec_path
+        self.qmake_path = qmake_path
+        self.sources_path = sources_path
         self.main_proc = None
+
+        self.compile_status = ProcessStatus.DEFAULT
+        self.compile_output = None
+        self.compile_thread = None
+
+        self.update_status = ProcessStatus.DEFAULT
+        self.update_output = None
+        self.update_thread = None
 
     def run_core(self, exec_output=DEVNULL):
         if not self.main_proc or self.main_proc.poll() is not None:
@@ -27,22 +47,38 @@ class CoreService(metaclass=Singleton):
     def get_exit_code(self):
         return self.main_proc.poll() if self.main_proc else None
 
-    def update_libraries(self):
+    def _update_libraries(self):
         #TODO add update handler
         pass
 
-    def compile_core(self):
-        #TODO need to add new thread witch will make project build and when it will finish, we will get result_status of this thread and output as a string
-        #TODO add compile handler
-        # cd to project folder
-        # qmake_path = 'path/to/qmake'
-        # sources_path = 'path/to/sources'
-        # out = check_output([qmake_path, os.path.join(sources_path, '*.pro')])
-        pass
+    def _compile_core(self):
+        if self.compile_status is None:
+            Logger().error_message('Can\'t run several compile processes at time.')
+            return
 
+        self.compile_status = None
+        self.compile_output = None
+
+        # self.compile_output = check_output([self.qmake_path, os.path.join(self.sources_path, '*.pro')]).decode('ascii')
+        self.compile_output = check_output(os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'wait_plug')).decode('ascii')
+
+        regex = re.compile('(error)+', re.IGNORECASE)
+        if regex.match(self.compile_output) is None:
+            self.compile_status = ProcessStatus.SUCCESS
+        else:
+            self.compile_status = ProcessStatus.ERROR
+
+    def compile_core(self):
+        self.compile_thread = Thread(name='compile_core', target=self._compile_core)
+        self.compile_thread.start()
 
 if __name__ == '__main__':
     path = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'wait_plug')
-    core = CoreService(path)
-    core.run_core(None)
-    core.main_proc.wait()
+    core = CoreService(path, '', '')
+    core.compile_core()
+    time.sleep(1)
+    while core.compile_status is None:
+        print('wait')
+        time.sleep(1)
+    print(core.compile_output)
+
