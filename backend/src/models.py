@@ -1,5 +1,8 @@
 # mocked user model
-class User:
+from src import db
+
+
+class User(db.Model):
 
     def __init__(self):
         self._id = 1
