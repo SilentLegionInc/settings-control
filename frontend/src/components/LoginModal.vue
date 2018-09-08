@@ -10,14 +10,14 @@
                     <div class="row form-group">
                         <div class="col-md-12">
                             <label for="login-input">Username</label>
-                            <input type="text" class="form-control" id="login-input" placeholder="Username" required>
+                            <input type="text" class="form-control" id="login-input" placeholder="Username" required v-model="login">
                         </div>
                     </div>
 
                     <div class="row form-group">
                         <div class="col-md-12">
                             <label for="password-input">Password</label>
-                            <input type="text" class="form-control" id="password-input" placeholder="Password" required>
+                            <input type="password" class="form-control" id="password-input" placeholder="Password" required v-model="password">
                         </div>
                     </div>
                 </div>
@@ -32,11 +32,13 @@
 </template>
 
 <script lang="ts">
-    import { Component, Vue } from 'vue-property-decorator';
+    import { Component, Vue, Prop } from 'vue-property-decorator';
+    import axios from 'axios';
 
     @Component
     export default class LoginModal extends Vue {
-
+        login: string = '';
+        password: string = '';
         private mounted() {
             this.showModal();
         }
@@ -55,8 +57,21 @@
         }
 
         private onLogin() {
-            this.hideModal();
-            this.$emit('logged');
+            // this.hideModal();
+            const auth = {
+                'login': this.login,
+                'password': this.password
+            };
+            axios.post('http://127.0.0.1:5000/api/login', auth).then(result => {
+                if (result.status === 200) {
+                    this.hideModal();
+                    // add cookies
+                    this.$emit('logged');
+                } else {
+                    console.log('incorrect username')
+                }
+            });
+
         }
     }
 </script>

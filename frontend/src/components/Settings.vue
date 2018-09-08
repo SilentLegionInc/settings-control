@@ -23,6 +23,7 @@
         </div>
 
         <app-login-modal @logged="loadData"></app-login-modal>
+
     </div>
 </template>
 
