@@ -1,13 +1,10 @@
 # mocked user model
-from src import db
 
 
-class User(db.Model):
+class User:
 
     def __init__(self):
         self._id = 1
-        self._login = 'Silence'
-        self._password = 'Silent'
 
     @property
     def is_authenticated(self):
