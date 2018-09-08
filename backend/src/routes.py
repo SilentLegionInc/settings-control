@@ -1,4 +1,4 @@
-from src import login, app, SettingsService, Logger
+from src import login, app, SettingsService, Logger, bcrypt
 from flask_login import login_user, login_required, logout_user, current_user
 from flask import request, redirect, url_for, jsonify, render_template, flash
 from werkzeug.urls import url_parse
@@ -11,25 +11,6 @@ from src.models import User
 def load_user(user_id):
     # mocked!
     return User()
-
-
-@app.route('/login_test')
-def login_test():
-    if not current_user.is_authenticated:
-        user = User()
-        login_user(user)
-
-
-@app.route('/logout_test')
-def logout_test():
-    if current_user.is_authenticated:
-        logout_user()
-
-
-@app.route('/secure')
-@login_required
-def secure():
-    return 'It is secret'
 
 
 @app.route('/')
@@ -45,9 +26,13 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         Logger().info_message('Submit login')
-        user = os.environ.get('settings_login')
-        if user is None or user != form.username.data \
-                or not bcrypt.check_password_hash(os.environ['settings_password'], form.password.data):
+        user_info = '{}:{}'.format(form.username.data, form.password.data)
+        user_hash = app.config.get('USER_AUTH_HASH', None)
+        if not user_hash:
+            Logger().critical_message('user auth hash is None!')
+            flash('Auth error. Please check user hash on server side')
+            return redirect(url_for('index'))
+        if not bcrypt.check_password_hash(user_hash, user_info):
             Logger().critical_message('Incorrect!')
             flash('Invalid username or password')
             return redirect(url_for('login'))
