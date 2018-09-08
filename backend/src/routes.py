@@ -9,7 +9,9 @@ from src.models import User
 
 @login.user_loader
 def load_user(user_id):
-    # mocked!
+    if user_id != app.config.get('USER_AUTH_HASH'):
+        Logger().critical_message('Uncorrect user id in loader {}'.format(user_id))
+        return None
     return User()
 
 
@@ -33,7 +35,7 @@ def login():
             flash('Auth error. Please check user hash on server side')
             return redirect(url_for('index'))
         if not bcrypt.check_password_hash(user_hash, user_info):
-            Logger().critical_message('Incorrect!')
+            Logger().critical_message('Incorrect username/password')
             flash('Invalid username or password')
             return redirect(url_for('login'))
         login_user(User(), remember=form.remember_me.data)
@@ -48,14 +50,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
-
-
-@app.route('/api/config', methods=['GET', 'POST'])
-def config():
-    if request.method == 'GET':
-        return jsonify(SettingsService().load_current_server_config())
-    elif request.method == 'POST':
-        return jsonify(SettingsService().save_server_config(request.get_json()))
 
 
 @app.route('/config', methods=['GET', 'POST'])
@@ -79,3 +73,27 @@ def logs():
     return jsonify(LogsService().get_logs(request.args.get('limit', 1), request.args.get('offset', 0)))
 
 
+def api_authorization(func):
+    def wrapper(*args, **kwargs):
+        auth_header = request.headers.get('authorization', '', str)
+        auth = auth_header.split(" ")[1] if auth_header else ''
+        Logger().info_message('my token "{}"'.format(auth))
+        if not auth:
+            Logger().critical_message('unauth {}'.format(auth))
+        else:
+            Logger().info_message('{}:{}'.format(app.config.get('USER_AUTH_HASH'), auth))
+            if bcrypt.check_password_hash(app.config.get('USER_AUTH_HASH'), auth):
+                Logger().info_message('Successful login')
+            else:
+                Logger().info_message('Incorrect username\password')
+        return func(*args, **kwargs)
+    return wrapper
+
+
+@app.route('/api/config', methods=['GET', 'POST'])
+@api_authorization
+def config():
+    if request.method == 'GET':
+        return jsonify(SettingsService().load_current_server_config())
+    elif request.method == 'POST':
+        return jsonify(SettingsService().save_server_config(request.get_json()))
