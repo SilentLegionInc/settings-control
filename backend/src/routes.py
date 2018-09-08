@@ -1,6 +1,6 @@
 from src import login, app, SettingsService, Logger, bcrypt
 from flask_login import login_user, login_required, logout_user, current_user
-from flask import request, redirect, url_for, jsonify, render_template, flash
+from flask import request, redirect, url_for, jsonify, render_template, flash, Response
 from werkzeug.urls import url_parse
 from src.logs_service import LogsService
 from src.forms import LoginForm
@@ -10,7 +10,7 @@ from src.models import User
 @login.user_loader
 def load_user(user_id):
     if user_id != app.config.get('USER_AUTH_HASH'):
-        Logger().critical_message('Uncorrect user id in loader {}'.format(user_id))
+        Logger().critical_message('Incorrect user id in loader {}'.format(user_id))
         return None
     return User()
 
@@ -54,7 +54,7 @@ def logout():
 
 @app.route('/config', methods=['GET', 'POST'])
 @login_required
-def ui_config():
+def config():
     if request.method == 'GET':
         return render_template('config.html', config=SettingsService().load_current_server_config())
     elif request.method == 'POST':
@@ -69,31 +69,45 @@ def ui_config():
 
 
 @app.route('/api/logs', methods=['GET'])
-def logs():
+def api_logs():
     return jsonify(LogsService().get_logs(request.args.get('limit', 1), request.args.get('offset', 0)))
 
 
+# decorator for check authorization via token
 def api_authorization(func):
     def wrapper(*args, **kwargs):
         auth_header = request.headers.get('authorization', '', str)
         auth = auth_header.split(" ")[1] if auth_header else ''
-        Logger().info_message('my token "{}"'.format(auth))
         if not auth:
-            Logger().critical_message('unauth {}'.format(auth))
+            Logger().critical_message('No auth token: {}'.format(auth))
+            return Response('You need to authorize to access this url', 401)
         else:
             Logger().info_message('{}:{}'.format(app.config.get('USER_AUTH_HASH'), auth))
             if bcrypt.check_password_hash(app.config.get('USER_AUTH_HASH'), auth):
                 Logger().info_message('Successful login')
             else:
                 Logger().info_message('Incorrect username\password')
+                return Response('Incorrect username or password', 401)
         return func(*args, **kwargs)
     return wrapper
 
 
 @app.route('/api/config', methods=['GET', 'POST'])
 @api_authorization
-def config():
+def api_config():
     if request.method == 'GET':
         return jsonify(SettingsService().load_current_server_config())
     elif request.method == 'POST':
         return jsonify(SettingsService().save_server_config(request.get_json()))
+
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    info = request.get_json()
+    username = info.get('login')
+    password = info.get('password')
+    auth_str = '{}:{}'.format(username, password)
+    if bcrypt.check_password_hash(app.config.get('USER_AUTH_HASH'), auth_str):
+        return Response('Success', 200)
+    else:
+        return Response('Incorrect username or password', 400)
