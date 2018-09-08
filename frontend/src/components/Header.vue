@@ -3,9 +3,9 @@
         <nav class="navbar">
             <ul class="navbar-nav">
                 <li>
-                    <button type="button" class="btn btn-primary" @click="onHamburgerClicked">
-                        <i class="fa fa-bars"></i>
-                    </button>
+                    <a href="#" @click="onHamburgerClicked">
+                        <i class="fa fa-bars clickable" style="font-size: 180%"></i>
+                    </a>
                 </li>
             </ul>
 
@@ -15,7 +15,7 @@
 
             <ul class="navbar-nav ml-auto">
                 <li>
-                    <router-link id="machine-name" to="/">
+                    <router-link class="clickable" to="/">
                         АМТС
                     </router-link>
                 </li>
@@ -40,20 +40,11 @@
         margin-left: 15px;
         font-weight: bold;
         font-size: 25px;
+        font-family: BookmanBold, serif;
     }
     .navbar {
-        background: #7DAEDF;
-    }
-
-     #machine-name {
-         font-weight: bolder;
-         text-decoration: none;
-         font-size: 20px;
-         color: black;
-         transition: color 0.3s;
-     }
-
-    #machine-name:hover {
-        color: #B0A295;
+        background-color: #6f7bbf;
+        padding-top: 4px;
+        padding-bottom: 4px;
     }
 </style>

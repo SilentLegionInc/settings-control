@@ -57,7 +57,7 @@
         padding: 10px;
         margin: 0;
         flex: 1 0 auto;
-        background: #bfdaf0;
+        background: #E8EBEA;
     }
 
     #app-footer {
