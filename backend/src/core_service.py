@@ -17,11 +17,13 @@ class ProcessStatus(Enum):
 
 
 class CoreService(metaclass=Singleton):
-    def __init__(self, exec_path, qmake_path, sources_path):
+    def __init__(self, exec_path, qmake_path, sources_path, repos_path, repos):
         self.exec_path = exec_path
         self.qmake_path = qmake_path
         self.sources_path = sources_path
         self.main_proc = None
+        self.repos = repos
+        self.repos_path = repos_path
 
         self.compile_status = ProcessStatus.DEFAULT
         self.compile_output = None
@@ -48,8 +50,16 @@ class CoreService(metaclass=Singleton):
         return self.main_proc.poll() if self.main_proc else None
 
     def _update_libraries(self):
-        #TODO add update handler
-        pass
+        regex = re.compile('/[A-Za-z0-9]+')
+        for repo_url, repo_branch in self.repos:
+            folder_name = regex.find(repo_url)[1::]
+            folder_path = os.path.join(self.repos_path, folder_name)
+            if os.path.exists(folder_path):
+                #TODO cd folder, git reset --hard, git checkout branch, git pull
+                pass
+            else:
+                #TODO git clone, git checkout branch
+                pass
 
     def _compile_core(self):
         if self.compile_status is None:
@@ -60,6 +70,7 @@ class CoreService(metaclass=Singleton):
         self.compile_output = None
 
         # self.compile_output = check_output([self.qmake_path, os.path.join(self.sources_path, '*.pro')]).decode('ascii')
+        # self. compile_output += check_output('cd {} && make'.format(self.sources_path)).decode('ascii')
         self.compile_output = check_output(os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'wait_plug')).decode('ascii')
 
         regex = re.compile('(error)+', re.IGNORECASE)
@@ -74,9 +85,8 @@ class CoreService(metaclass=Singleton):
 
 if __name__ == '__main__':
     path = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'wait_plug')
-    core = CoreService(path, '', '')
+    core = CoreService(path, '', '', {}, '')
     core.compile_core()
-    time.sleep(1)
     while core.compile_status is None:
         print('wait')
         time.sleep(1)
