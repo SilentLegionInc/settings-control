@@ -10,9 +10,9 @@ from settings_service import SettingsService
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
-app.config['SECRET_KEY'] = SettingsService().server_config['secret']
-app.config['USER_AUTH_HASH'] = SettingsService().server_config['authorization']
-app.secret_key = SettingsService().server_config['secret']
+app.config['SECRET_KEY'] = SettingsService().private_server_config['secret']
+app.secret_key = app.config['SECRET_KEY']
+# app.config['USER_AUTH_HASH'] = SettingsService().server_config['authorization']
 
 cors = CORS(app)
 
