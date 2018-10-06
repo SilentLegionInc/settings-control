@@ -7,6 +7,8 @@ import re
 from singleton import Singleton
 from logger import Logger
 from core_service import ProcessStatus
+from multiprocessing import Process
+from git import Repo
 
 
 class GitService(metaclass=Singleton):
@@ -27,13 +29,31 @@ class GitService(metaclass=Singleton):
         private_key = key.private_bytes(
             crypto_serialization.Encoding.PEM,
             crypto_serialization.PrivateFormat.PKCS8,
-            crypto_serialization.NoEncryption())
+            crypto_serialization.NoEncryption()
+        ).decode('utf-8')
         public_key = key.public_key().public_bytes(
             crypto_serialization.Encoding.OpenSSH,
             crypto_serialization.PublicFormat.OpenSSH
-        )
+        ).decode('utf-8')
         return private_key, public_key
         
+    def run_update_repo(self, repo_url ,is_lib = True):
+        # p = Process(target=f, args=('bob',))
+        # p.start()
+        # p.join()
+        pass
+        
+    def _update_repo(self, repo_url, is_lib):
+        regex = re.compile('/[A-Za-z0-9]+')
+        folder_name = regex.find(repo_url)[1::]
+        folder_path = os.path.join(self.repos_path, folder_name)
+        if os.path.isdir(folder_path):
+            # git reset --hard
+            # git pull
+            pass
+        else:
+            #git clone
+            pass
         
     
     def _update_libraries(self):
