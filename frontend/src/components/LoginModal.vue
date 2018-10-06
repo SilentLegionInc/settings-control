@@ -62,7 +62,8 @@
                 'login': this.login,
                 'password': this.password
             };
-            axios.post('http://127.0.0.1:5000/api/login', auth).then(result => {
+            axios.post('http://127.0.0.1:5000/api/login', auth).
+            then(result => {
                 if (result.status === 200) {
                     this.hideModal();
                     // add cookies
@@ -70,6 +71,10 @@
                 } else {
                     console.log('incorrect username')
                 }
+            }).
+            catch(err => {
+                console.log(err);
+                console.log('incorrect username')
             });
 
         }
