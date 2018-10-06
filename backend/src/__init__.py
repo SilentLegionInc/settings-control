@@ -11,9 +11,9 @@ from src.settings_service import SettingsService
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
-app.config['SECRET_KEY'] = SettingsService().config['secret']
-app.config['USER_AUTH_HASH'] = SettingsService().config['authorization']
-app.secret_key = SettingsService().config['secret']
+app.config['SECRET_KEY'] = SettingsService().server_config['secret']
+app.config['USER_AUTH_HASH'] = SettingsService().server_config['authorization']
+app.secret_key = SettingsService().server_config['secret']
 
 cors = CORS(app)
 
