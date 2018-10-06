@@ -1,5 +1,5 @@
-from src.singleton import Singleton
-from src.logger import Logger
+from singleton import Singleton
+from logger import Logger
 from enum import Enum
 from subprocess import Popen
 from subprocess import check_output

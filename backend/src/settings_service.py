@@ -1,5 +1,5 @@
-from src.singleton import Singleton
-from src.logger import Logger
+from singleton import Singleton
+from logger import Logger
 import json
 import os
 

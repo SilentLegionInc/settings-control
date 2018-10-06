@@ -4,9 +4,9 @@ from cryptography.hazmat.backends import default_backend as crypto_default_backe
 import os
 import re
 
-from src.singleton import Singleton
-from src.logger import Logger
-from src.core_service import ProcessStatus
+from singleton import Singleton
+from logger import Logger
+from core_service import ProcessStatus
 
 
 class GitService(metaclass=Singleton):

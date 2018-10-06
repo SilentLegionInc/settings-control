@@ -1,10 +1,10 @@
-from src import login, app, SettingsService, Logger, bcrypt
+from __init__ import login, app, SettingsService, Logger, bcrypt
 from flask_login import login_user, login_required, logout_user, current_user
 from flask import request, redirect, url_for, jsonify, render_template, flash, Response
 from werkzeug.urls import url_parse
-from src.logs_service import LogsService
-from src.forms import LoginForm
-from src.models import User
+from logs_service import LogsService
+from forms import LoginForm
+from models import User
 
 
 @login.user_loader
