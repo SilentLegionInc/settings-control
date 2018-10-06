@@ -83,6 +83,7 @@ class CoreService(metaclass=Singleton):
         self.compile_thread = Thread(name='compile_core', target=self._compile_core)
         self.compile_thread.start()
 
+
 if __name__ == '__main__':
     path = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', 'wait_plug')
     core = CoreService(path, '', '', {}, '')
