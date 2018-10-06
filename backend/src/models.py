@@ -1,5 +1,5 @@
 # mocked user model
-from __init__ import app
+from main import app
 
 
 class User:

@@ -1,4 +1,6 @@
-from __init__ import login, app, SettingsService, Logger, bcrypt
+from main import login, app, bcrypt
+from logger import Logger
+from settings_service import SettingsService
 from flask_login import login_user, login_required, logout_user, current_user
 from flask import request, redirect, url_for, jsonify, render_template, flash, Response
 from werkzeug.urls import url_parse

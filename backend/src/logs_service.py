@@ -4,6 +4,7 @@ import os
 import sqlite3
 from sqlite3 import Error
 
+
 class LogsService(metaclass=Singleton):
     def get_logs(self, limit, offset):
         try:
