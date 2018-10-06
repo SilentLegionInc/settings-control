@@ -1,11 +1,11 @@
 # mocked user model
-from main import app
+from settings_service import SettingsService
 
 
 class User:
 
     def __init__(self):
-        self._id = app.config.get('USER_AUTH_HASH')
+        self._id = SettingsService().server_config.get('USER_AUTH_HASH')
 
     @property
     def is_authenticated(self):
