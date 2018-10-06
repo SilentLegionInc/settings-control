@@ -56,16 +56,16 @@ def logout():
 @login_required
 def config():
     if request.method == 'GET':
-        return render_template('config.html', config=SettingsService().load_current_server_config())
+        return render_template('config.html', config=SettingsService().load_core_config())
     elif request.method == 'POST':
-        result = SettingsService().load_current_server_config()
+        result = SettingsService().load_core_config()
         for key in request.form:
             result[key] = request.form.get(key)
-        if SettingsService().save_server_config(result)['code'] == 0:
+        if SettingsService().save_core_config(result)['code'] == 0:
             Logger().info_message('Saved')
         else:
             Logger().info_message('Error')
-        return render_template('config.html', config=SettingsService().load_current_server_config())
+        return render_template('config.html', config=SettingsService().load_core_config())
 
 
 @app.route('/api/logs', methods=['GET'])
@@ -96,9 +96,9 @@ def api_authorization(func):
 @api_authorization
 def api_config():
     if request.method == 'GET':
-        return jsonify(SettingsService().load_current_server_config())
+        return jsonify(SettingsService().load_core_config())
     elif request.method == 'POST':
-        return jsonify(SettingsService().save_server_config(request.get_json()))
+        return jsonify(SettingsService().save_core_config(request.get_json()))
 
 
 @app.route('/api/login', methods=['POST'])
@@ -110,4 +110,4 @@ def api_login():
     if bcrypt.check_password_hash(app.config.get('USER_AUTH_HASH'), auth_str):
         return Response('Success', 200)
     else:
-        return Response('Incorrect username or password', 400)
+        return Response('Incorrect username or password', 401)
