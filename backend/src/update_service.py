@@ -72,6 +72,7 @@ class UpdateService(metaclass=Singleton):
     # return_dict - словарь, в который по ключу key складывается результат асинхронной операции.
     # return_dict должен представлять собой инстанс multiprocessing.Manager().dict() иначе данные не будут расшарены между процессами
     def create_ssh_key_async(self, return_dict, key='create_ssh_key_result'):
+        return_dict[key] = None
         p = Process(target=self._create_ssh_key, args=(return_dict, key))
         p.start()
         return p
@@ -120,6 +121,7 @@ class UpdateService(metaclass=Singleton):
     # return_dict - словарь, в который по ключу key складывается результат асинхронной операции.
     # return_dict должен представлять собой инстанс multiprocessing.Manager().dict() иначе данные не будут расшарены между процессами
     def upgrade_lib_async(self, lib_path, return_dict, key='upgrade_lib_result'):
+        return_dict[key] = None
         p = Process(target=self._upgrade_lib, args=(lib_path, return_dict, key))
         p.start()
         return p
@@ -145,6 +147,18 @@ class UpdateService(metaclass=Singleton):
     # return_dict - словарь, в который по ключу key складывается результат асинхронной операции.
     # return_dict должен представлять собой инстанс multiprocessing.Manager().dict() иначе данные не будут расшарены между процессами
     def update_and_upgrade_lib_async(self, lib_repo_url, return_dict, key='update_and_upgrade_lib_result'):
+        return_dict[key] = None
         p = Process(target=self._update_and_upgrade_lib, args=(lib_repo_url, return_dict, key))
         p.start()
         return p
+
+
+if __name__ == '__main__':
+    from multiprocessing import Manager
+    
+    service = UpdateService()
+    manager = Manager()
+    d = manager.dict()
+    p = service.create_ssh_key_async(d, 'qwerty')
+    p.join()
+    print(d)
