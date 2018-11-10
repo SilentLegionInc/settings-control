@@ -159,6 +159,6 @@ if __name__ == '__main__':
     service = UpdateService()
     manager = Manager()
     d = manager.dict()
-    p = service.create_ssh_key_async(d, 'qwerty')
-    p.join()
+    process = service.create_ssh_key_async(d, 'qwerty')
+    process.join()
     print(d)
