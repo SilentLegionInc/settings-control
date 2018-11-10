@@ -12,6 +12,8 @@ from logs_service import LogsService
 from forms import LoginForm
 from models import User
 from helpers import check_user_credentials
+from update_service import UpdateService
+from core_service import CoreService
 
 
 # Init flask application
@@ -126,6 +128,25 @@ def api_config():
         return jsonify(SettingsService().get_core_config(reload_from_disk=True))
     elif request.method == 'POST':
         return jsonify(SettingsService().save_core_config(request.get_json()))
+
+
+@app.route('/api/compile_core', methods=['POST'])
+# @api_authorization
+def api_compile_core():
+    import time
+    params = request.get_json()
+    if params.get('with_dependencies', False):
+        dependencies = SettingsService().core_build_config.get('dependencies', [])
+        for dep in dependencies:
+            Logger().info_message('Updating lib: {}'.format(dep), 'Compile Core: ')
+            UpdateService().update_and_upgrade_lib_sync(dep)
+
+    CoreService().compile_core()
+    while CoreService().compile_status is None:
+        print('wait')
+        time.sleep(1)
+
+    return jsonify({'compile_status': CoreService().compile_status})
 
 
 @app.route('/api/login', methods=['POST'])
