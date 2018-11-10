@@ -146,7 +146,7 @@ def api_compile_core():
         print('wait')
         time.sleep(1)
 
-    return jsonify({'compile_status': CoreService().compile_status})
+    return jsonify({'compile_status': CoreService().compile_status.value})
 
 
 @app.route('/api/login', methods=['POST'])

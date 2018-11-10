@@ -57,14 +57,14 @@ class CoreService(metaclass=Singleton):
         self.compile_status = None
         self.compile_output = None
 
-        self.compile_output = check_output([self.qmake_path,
+        self.compile_output = check_output('{} {} -o {}'.format(self.qmake_path,
                                             os.path.join(self.sources_path, '*.pro'),
-                                            '-o {}'.format(self.build_path)]).decode('ascii')
-        self.compile_output += check_output('cd {} && make'.format(self.build_path)).decode('ascii')
+                                            self.build_path), shell=True).decode('ascii')
+        self.compile_output += check_output('cd {} && make'.format(self.build_path), shell=True).decode('ascii')
         config_file_name = SettingsService().core_build_config['core']['config_path']
         config_file_path = os.path.join(self.sources_path, config_file_name)
         target_config_path = os.path.join(self.build_path, config_file_name)
-        self.compile_output += check_output('cp {} {}'.format(config_file_path, target_config_path))
+        self.compile_output += check_output('cp {} {}'.format(config_file_path, target_config_path), shell=True).decode('ascii')
 
         regex = re.compile('(error)+', re.IGNORECASE)
         if regex.match(self.compile_output) is None:
