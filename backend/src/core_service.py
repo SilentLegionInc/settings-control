@@ -19,12 +19,12 @@ class ProcessStatus(Enum):
 
 class CoreService(metaclass=Singleton):
     def __init__(self):
-        run_file_name = SettingsService().core_build_config['core']['executable_name']
-        self.build_path = os.path.join(SettingsService().server_config['core_build_path'], run_file_name)
+        repo_name = SettingsService().core_build_config['core']['repo_name']
+        self.build_path = os.path.join(SettingsService().server_config['core_build_path'], repo_name)
         if not os.path.exists(self.build_path):
             os.makedirs(self.build_path)
         self.qmake_path = SettingsService().server_config['qmake_path']
-        self.sources_path = SettingsService().server_config['core_src_path']
+        self.sources_path = os.path.join(SettingsService().server_config['core_src_path'], repo_name)
         
         self.main_proc = None
         self.compile_status = ProcessStatus.DEFAULT
@@ -57,10 +57,14 @@ class CoreService(metaclass=Singleton):
         self.compile_status = None
         self.compile_output = None
 
-        self.compile_output = check_output([self.qmake_path,
+        self.compile_output = check_output('{} {} -o {}'.format(self.qmake_path,
                                             os.path.join(self.sources_path, '*.pro'),
-                                            '-o {}'.format(self.build_path)]).decode('ascii')
-        self.compile_output += check_output('cd {} && make'.format(self.build_path)).decode('ascii')
+                                            self.build_path), shell=True).decode('ascii')
+        self.compile_output += check_output('cd {} && make'.format(self.build_path), shell=True).decode('ascii')
+        config_file_name = SettingsService().core_build_config['core']['config_path']
+        config_file_path = os.path.join(self.sources_path, config_file_name)
+        target_config_path = os.path.join(self.build_path, config_file_name)
+        self.compile_output += check_output('cp {} {}'.format(config_file_path, target_config_path), shell=True).decode('ascii')
 
         regex = re.compile('(error)+', re.IGNORECASE)
         if regex.match(self.compile_output) is None:
