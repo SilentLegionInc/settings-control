@@ -19,7 +19,10 @@ class ProcessStatus(Enum):
 
 class CoreService(metaclass=Singleton):
     def __init__(self):
-        self.build_path = SettingsService().server_config['core_build_path']
+        run_file_name = SettingsService().core_build_config['core']['executable_name']
+        self.build_path = os.path.join(SettingsService().server_config['core_build_path'], run_file_name)
+        if not os.path.exists(self.build_path):
+            os.makedirs(self.build_path)
         self.qmake_path = SettingsService().server_config['qmake_path']
         self.sources_path = SettingsService().server_config['core_src_path']
         
@@ -30,14 +33,15 @@ class CoreService(metaclass=Singleton):
 
     def run_core(self, exec_output=DEVNULL):
         if not self.main_proc or self.main_proc.poll() is not None:
-            run_file_name = SettingsService.core_build_config['core']['executable_name']
+            run_file_name = SettingsService().core_build_config['core']['executable_name']
             self.main_proc = Popen(os.path.join(self.build_path, run_file_name), stdout=exec_output, stderr=exec_output)
         else:
             Logger().error_message('Core is already running. You can\'t run more than one per time.')
 
     def stop_core(self):
         if self.main_proc and self.main_proc.poll() is None:
-            self.main_proc.kill()
+            # if it will not die. Use kill()
+            self.main_proc.terminate()
 
     def core_is_active(self):
         return self.main_proc and self.main_proc.poll() is None
@@ -53,8 +57,10 @@ class CoreService(metaclass=Singleton):
         self.compile_status = None
         self.compile_output = None
 
-        self.compile_output = check_output([self.qmake_path, os.path.join(self.sources_path, '*.pro')]).decode('ascii')
-        self.compile_output += check_output('cd {} && make'.format(self.sources_path)).decode('ascii')
+        self.compile_output = check_output([self.qmake_path,
+                                            os.path.join(self.sources_path, '*.pro'),
+                                            '-o {}'.format(self.build_path)]).decode('ascii')
+        self.compile_output += check_output('cd {} && make'.format(self.build_path)).decode('ascii')
 
         regex = re.compile('(error)+', re.IGNORECASE)
         if regex.match(self.compile_output) is None:
