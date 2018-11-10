@@ -1,10 +1,10 @@
 from settings_service import SettingsService
 from logger import Logger
 from flask import flash
-from main import bcrypt
 
 
 def check_user_credentials(username, password):
+    from main import bcrypt
     user_info = '{}:{}'.format(username, password)
     user_hash = SettingsService().server_config.get('USER_AUTH_HASH', None)
     if not user_hash:
