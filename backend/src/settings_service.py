@@ -27,7 +27,7 @@ class SettingsService(metaclass=Singleton):
 
     @property
     def libraries(self):
-        return self._server_config.get('libraries')
+        return self._server_config.get('libraries', {})
 
     def get_core_config(self, reload_from_disk=False):
         if reload_from_disk:

@@ -9,12 +9,14 @@ from git import Repo
 from subprocess import check_output
 import os
 import re
+import shutil
 
 
 class UpdateService(metaclass=Singleton):
     def __init__(self):
-        self.repos = {}  # TODO add repos declaration to config
+        self.repos = {}
         self.sources_path = SettingsService().server_config['core_src_path']
+        self.build_path = SettingsService().server_config['core_build_path']
         self.qmake_path = SettingsService().server_config['qmake_path']
         self.ssh_key_name = SettingsService().server_config['ssh_key_name']
         self.repositories_platform = SettingsService().server_config['repositories_platform']
@@ -50,11 +52,9 @@ class UpdateService(metaclass=Singleton):
     
         with open(key_path, 'w') as file:
             file.write(private_key)
-        file.close()
     
         with open(key_path + '.pub', 'w') as file:
             file.write(public_key)
-        file.close()
     
         hosts_file_name = os.path.join(self.ssh_path, 'known_hosts')
         if os.path.isfile(hosts_file_name):
@@ -77,33 +77,43 @@ class UpdateService(metaclass=Singleton):
         p.start()
         return p
 
-    def _update_lib(self, lib_repo_url, lib_path):
+    def _update_lib(self, lib_name):
+        lib_url = SettingsService().libraries[lib_name]
+        lib_path = os.path.join(self.sources_path, lib_name)
+
         need_clone = False
         if not os.path.isdir(lib_path):
             need_clone = True
     
         if need_clone:
-            Repo.clone_from(lib_repo_url, lib_path)
+            Repo.clone_from(lib_url, lib_path)
         else:
             repo = Repo(lib_path)
-            path = '/home/befezdow/.ssh/fo'
-            repo.git.custom_environment(GIT_SSH_COMMAND='ssh -i %s' % path)
             repo.git.reset('--hard')
             repo.git.pull()
 
-    def update_lib_sync(self, lib_repo_url, lib_path):
-        return self._update_lib(lib_repo_url, lib_path)
+    def update_lib_sync(self, lib_name):
+        return self._update_lib(lib_name)
 
     # return_dict - словарь, в который по ключу key складывается результат асинхронной операции.
     # return_dict должен представлять собой инстанс multiprocessing.Manager().dict() иначе данные не будут расшарены между процессами
-    def update_lib_async(self, lib_repo_url, lib_path):
-        p = Process(target=self._update_lib, args=(lib_repo_url, lib_path))
+    def update_lib_async(self, lib_name):
+        p = Process(target=self._update_lib, args=(lib_name,))
         p.start()
         return p
 
-    def _upgrade_lib(self, lib_path, return_dict=None, key='upgrade_lib_result'):
-        compile_output = check_output([self.qmake_path, os.path.join(lib_path, '*.pro')]).decode('ascii')
-        compile_output += check_output('cd {} && make install'.format(lib_path)).decode('ascii')
+    def _upgrade_lib(self, lib_name, return_dict=None, key='upgrade_lib_result'):
+        lib_path = os.path.join(self.sources_path, lib_name)
+        build_path = os.path.join(self.build_path, lib_name)
+
+        shutil.rmtree(build_path, ignore_errors=True)
+        os.makedirs(build_path)
+
+        qmake_command = '{} {} -o {}'.format(self.qmake_path, os.path.join(lib_path, '*.pro'), build_path)
+        make_command = 'cd {} && make install'.format(build_path)
+
+        compile_output = check_output(qmake_command, shell=True).decode('ascii')
+        compile_output += check_output(make_command, shell=True).decode('ascii')
         compile_status = ProcessStatus.SUCCESS
     
         regex = re.compile('(error)+', re.IGNORECASE)
@@ -115,14 +125,14 @@ class UpdateService(metaclass=Singleton):
     
         return compile_status, compile_output
     
-    def upgrade_lib_sync(self, lib_path):
-        return self._upgrade_lib(lib_path)
+    def upgrade_lib_sync(self, lib_name):
+        return self._upgrade_lib(lib_name)
 
     # return_dict - словарь, в который по ключу key складывается результат асинхронной операции.
     # return_dict должен представлять собой инстанс multiprocessing.Manager().dict() иначе данные не будут расшарены между процессами
-    def upgrade_lib_async(self, lib_path, return_dict, key='upgrade_lib_result'):
+    def upgrade_lib_async(self, lib_name, return_dict, key='upgrade_lib_result'):
         return_dict[key] = None
-        p = Process(target=self._upgrade_lib, args=(lib_path, return_dict, key))
+        p = Process(target=self._upgrade_lib, args=(lib_name, return_dict, key))
         p.start()
         return p
 
@@ -154,11 +164,14 @@ class UpdateService(metaclass=Singleton):
 
 
 if __name__ == '__main__':
-    from multiprocessing import Manager
-    
     service = UpdateService()
-    manager = Manager()
-    d = manager.dict()
-    process = service.create_ssh_key_async(d, 'qwerty')
-    process.join()
-    print(d)
+    service.update_lib_sync('fomodel')
+    out = service.upgrade_lib_sync('fomodel')
+    print('Status: {}\nOutput: {}'.format(out[0], out[1]))
+
+    # from multiprocessing import Manager
+    # manager = Manager()
+    # d = manager.dict()
+    # process = service.create_ssh_key_async(d, 'qwerty')
+    # process.join()
+    # print(d)
