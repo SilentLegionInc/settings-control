@@ -6,6 +6,8 @@ from subprocess import check_output
 from subprocess import DEVNULL
 from threading import Thread
 from settings_service import SettingsService
+from git import Repo
+from multiprocessing import Process
 import os
 import re
 import time
@@ -20,12 +22,13 @@ class ProcessStatus(Enum):
 class CoreService(metaclass=Singleton):
     def __init__(self):
         repo_name = SettingsService().core_build_config['core']['repo_name']
-        self.build_path = os.path.join(SettingsService().server_config['core_build_path'], repo_name)
+        self.build_path = os.path.join(SettingsService().server_config['builds_path'], repo_name)
         if not os.path.exists(self.build_path):
             os.makedirs(self.build_path)
         self.qmake_path = SettingsService().server_config['qmake_path']
-        self.sources_path = os.path.join(SettingsService().server_config['core_src_path'], repo_name)
-        
+        self.sources_path = os.path.join(SettingsService().server_config['sources_path'], repo_name)
+        self.repo_url = SettingsService().libraries[repo_name]
+
         self.main_proc = None
         self.compile_status = ProcessStatus.DEFAULT
         self.compile_output = None
@@ -58,13 +61,14 @@ class CoreService(metaclass=Singleton):
         self.compile_output = None
 
         self.compile_output = check_output('{} {} -o {}'.format(self.qmake_path,
-                                            os.path.join(self.sources_path, '*.pro'),
-                                            self.build_path), shell=True).decode('ascii')
+                                                                os.path.join(self.sources_path, '*.pro'),
+                                                                self.build_path), shell=True).decode('ascii')
         self.compile_output += check_output('cd {} && make'.format(self.build_path), shell=True).decode('ascii')
         config_file_name = SettingsService().core_build_config['core']['config_path']
         config_file_path = os.path.join(self.sources_path, config_file_name)
         target_config_path = os.path.join(self.build_path, config_file_name)
-        self.compile_output += check_output('cp {} {}'.format(config_file_path, target_config_path), shell=True).decode('ascii')
+        self.compile_output += check_output('cp {} {}'.format(config_file_path, target_config_path), shell=True).decode(
+            'ascii')
 
         regex = re.compile('(error)+', re.IGNORECASE)
         if regex.match(self.compile_output) is None:
@@ -78,6 +82,26 @@ class CoreService(metaclass=Singleton):
             return
         self.compile_thread = Thread(name='compile_core', target=self._compile_core)
         self.compile_thread.start()
+
+    def update_core_sync(self):
+        url = self.repo_url
+        path = self.sources_path
+
+        need_clone = False
+        if not os.path.isdir(path):
+            need_clone = True
+
+        if need_clone:
+            Repo.clone_from(url, path)
+        else:
+            repo = Repo(path)
+            repo.git.reset('--hard')
+            repo.git.pull()
+
+    def update_core_async(self):
+        p = Process(target=self.update_core_sync)
+        p.start()
+        return p
 
 
 if __name__ == '__main__':

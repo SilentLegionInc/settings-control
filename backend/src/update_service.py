@@ -15,8 +15,8 @@ import shutil
 class UpdateService(metaclass=Singleton):
     def __init__(self):
         self.repos = {}
-        self.sources_path = SettingsService().server_config['core_src_path']
-        self.build_path = SettingsService().server_config['core_build_path']
+        self.sources_path = SettingsService().server_config['sources_path']
+        self.build_path = SettingsService().server_config['builds_path']
         self.qmake_path = SettingsService().server_config['qmake_path']
         self.ssh_key_name = SettingsService().server_config['ssh_key_name']
         self.repositories_platform = SettingsService().server_config['repositories_platform']
@@ -24,11 +24,11 @@ class UpdateService(metaclass=Singleton):
         self.update_status = ProcessStatus.DEFAULT
         self.update_output = None
         self.update_thread = None
-        
+
         self.ssh_path = os.path.expanduser('~/.ssh')
         if not os.path.isdir(self.ssh_path):
             os.mkdir(self.ssh_path)
-            
+
     def generate_ssh_key(self):
         key = rsa.generate_private_key(
             backend=crypto_default_backend(),
@@ -49,21 +49,21 @@ class UpdateService(metaclass=Singleton):
     def _create_ssh_key(self, return_dict=None, key='create_ssh_key_result'):
         private_key, public_key = self.generate_ssh_key()
         key_path = os.path.join(self.ssh_path, self.ssh_key_name)
-    
+
         with open(key_path, 'w') as file:
             file.write(private_key)
-    
+
         with open(key_path + '.pub', 'w') as file:
             file.write(public_key)
-    
+
         hosts_file_name = os.path.join(self.ssh_path, 'known_hosts')
         if os.path.isfile(hosts_file_name):
             os.remove(hosts_file_name)
         os.system('ssh-keyscan ' + self.repositories_platform + ' >> ' + hosts_file_name)
-    
+
         if return_dict:
             return_dict[key] = public_key
-    
+
         return public_key
 
     def create_ssh_key_sync(self):
@@ -84,7 +84,7 @@ class UpdateService(metaclass=Singleton):
         need_clone = False
         if not os.path.isdir(lib_path):
             need_clone = True
-    
+
         if need_clone:
             Repo.clone_from(lib_url, lib_path)
         else:
@@ -95,8 +95,6 @@ class UpdateService(metaclass=Singleton):
     def update_lib_sync(self, lib_name):
         return self._update_lib(lib_name)
 
-    # return_dict - словарь, в который по ключу key складывается результат асинхронной операции.
-    # return_dict должен представлять собой инстанс multiprocessing.Manager().dict() иначе данные не будут расшарены между процессами
     def update_lib_async(self, lib_name):
         p = Process(target=self._update_lib, args=(lib_name,))
         p.start()
@@ -115,16 +113,16 @@ class UpdateService(metaclass=Singleton):
         compile_output = check_output(qmake_command, shell=True).decode('ascii')
         compile_output += check_output(make_command, shell=True).decode('ascii')
         compile_status = ProcessStatus.SUCCESS
-    
+
         regex = re.compile('(error)+', re.IGNORECASE)
         if regex.match(compile_output) is not None:
             compile_status = ProcessStatus.ERROR
-    
+
         if return_dict:
             return_dict[key] = compile_status, compile_output
-    
+
         return compile_status, compile_output
-    
+
     def upgrade_lib_sync(self, lib_name):
         return self._upgrade_lib(lib_name)
 
@@ -140,15 +138,15 @@ class UpdateService(metaclass=Singleton):
         regex = re.compile('/[A-Za-z0-9]+')
         folder_name = regex.findall(lib_repo_url)[0][1::]
         folder_path = os.path.join(self.sources_path, folder_name)
-        
-        self.update_lib_sync(lib_repo_url, folder_path)
+
+        self.update_lib_sync(lib_repo_url)
         result = self.upgrade_lib_sync(folder_path)
-        
+
         if return_dict:
             if not return_dict[key]:
                 return_dict[key] = {}
             return_dict[key][lib_repo_url] = result
-            
+
         return result
 
     def update_and_upgrade_lib_sync(self, lib_repo_url):
