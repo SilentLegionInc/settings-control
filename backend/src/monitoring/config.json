@@ -1,0 +1,59 @@
+{
+    "AMTS": {
+        "path": "",
+        "time_column": "date",
+        "fields_to_retrieve": {
+            "atmospheric_sensor": {
+                "name": "Atmospheric sensor",
+                "column_name": "atmosphericSensor",
+                "type": "number",
+                "additional_fields": [
+                    {
+                        "name": "Latitude",
+                        "column_name": "latitude",
+                        "type": "number"
+                    },
+                    {
+                        "name": "Longitude",
+                        "column_name": "longitude",
+                        "type": "number"
+                    }
+                ]
+            },
+            "left_depth_sensor": {
+                "name": "Left depth sensor",
+                "column_name": "leftDepthSensor",
+                "type": "number",
+                "additional_fields": [
+                    {
+                        "name": "Latitude",
+                        "column_name": "latitude",
+                        "type": "number"
+                    },
+                    {
+                        "name": "Longitude",
+                        "column_name": "longitude",
+                        "type": "number"
+                    }
+                ]
+            },
+            "right_depth_sensor": {
+                "name": "Right depth sensor",
+                "column_name": "rightDepthSensor",
+                "type": "number",
+                "additional_fields": [
+                    {
+                        "name": "Latitude",
+                        "column_name": "latitude",
+                        "type": "number"
+                    },
+                    {
+                        "name": "Longitude",
+                        "column_name": "longitude",
+                        "type": "number"
+                    }
+                ]
+            }
+        }
+    }
+}
