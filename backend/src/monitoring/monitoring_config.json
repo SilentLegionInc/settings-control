@@ -1,0 +1,67 @@
+{
+    "AMTS": {
+        "robot_name": "АМТС",
+        "logs_data": {
+            "file_path": "",
+            "collection_name": ""
+        },
+        "sensors_data": {
+            "file_path": "C:\\Workspace\\settings-control\\backend\\test_data_db.db",
+            "collection_name": "amts_data",
+            "time_column": "time",
+            "fields_to_retrieve": {
+                "atmospheric_sensor": {
+                    "name": "Atmospheric sensor",
+                    "column_name": "atmosphericSensor",
+                    "type": "number",
+                    "additional_fields": [
+                        {
+                            "name": "Latitude",
+                            "column_name": "latitude",
+                            "type": "number"
+                        },
+                        {
+                            "name": "Longitude",
+                            "column_name": "longitude",
+                            "type": "number"
+                        }
+                    ]
+                },
+                "left_depth_sensor": {
+                    "name": "Left depth sensor",
+                    "column_name": "leftDepthSensor",
+                    "type": "number",
+                    "additional_fields": [
+                        {
+                            "name": "Latitude",
+                            "column_name": "latitude",
+                            "type": "number"
+                        },
+                        {
+                            "name": "Longitude",
+                            "column_name": "longitude",
+                            "type": "number"
+                        }
+                    ]
+                },
+                "right_depth_sensor": {
+                    "name": "Right depth sensor",
+                    "column_name": "rightDepthSensor",
+                    "type": "number",
+                    "additional_fields": [
+                        {
+                            "name": "Latitude",
+                            "column_name": "latitude",
+                            "type": "number"
+                        },
+                        {
+                            "name": "Longitude",
+                            "column_name": "longitude",
+                            "type": "number"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
