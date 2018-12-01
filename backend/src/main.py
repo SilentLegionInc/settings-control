@@ -14,6 +14,7 @@ from models import User
 from helpers import check_user_credentials
 from update_service import UpdateService
 from core_service import CoreService
+from functools import wraps
 
 
 # Init flask application
@@ -104,7 +105,9 @@ def api_logs():
 # decorator for check authorization via token
 # TODO fix (need to pair username\pass)
 def api_authorization(func):
-    def wrapper(*args, **kwargs):
+    @wraps(func)
+    def my_wrapper(*args, **kwargs):
+        Logger().info_message('Auth wrapper')
         auth_header = request.headers.get('authorization', '', str)
         auth = auth_header.split(" ")[1] if auth_header else ''
         if not auth:
@@ -118,7 +121,7 @@ def api_authorization(func):
                 Logger().info_message('Incorrect username\password')
                 return Response('Incorrect username or password', 401)
         return func(*args, **kwargs)
-    return wrapper
+    return my_wrapper
 
 
 @app.route('/api/config', methods=['GET', 'POST'])
@@ -130,8 +133,8 @@ def api_config():
         return jsonify(SettingsService().save_core_config(request.get_json()))
 
 
-@app.route('/api/compile_core', methods=['POST'])
-# @api_authorization
+@app.route('/api/core/compile', methods=['POST'])
+@api_authorization
 def api_compile_core():
     import time
     params = request.get_json()
@@ -146,7 +149,36 @@ def api_compile_core():
         print('wait')
         time.sleep(1)
 
-    return jsonify({'compile_status': CoreService().compile_status.value})
+    return jsonify({'code': 0, 'compile_status': CoreService().compile_status.value})
+
+
+@app.route('/api/core/run', methods=['POST'])
+@api_authorization
+def api_run_core():
+    CoreService().run_core()
+    is_active = CoreService().core_is_active()
+    if is_active:
+        return jsonify({'code': 0, 'core_status': is_active})
+    else:
+        return jsonify({'code': 1})
+
+
+@app.route('/api/core/status', methods=['GET'])
+@api_authorization
+def api_core_status():
+    is_active = CoreService().core_is_active()
+    if is_active:
+        return jsonify({'code': 0, 'core_status': is_active})
+    else:
+        return jsonify({'code': 1, 'core_status': is_active})
+
+
+@app.route('/api/core/stop', methods=['POST'])
+@api_authorization
+def api_stop_core():
+    # TODO add try/catch
+    CoreService().stop_core()
+    return jsonify({'code': 0})
 
 
 @app.route('/api/login', methods=['POST'])
