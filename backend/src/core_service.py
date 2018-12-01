@@ -22,7 +22,7 @@ class ProcessStatus(Enum):
 class CoreService(metaclass=Singleton):
     def __init__(self):
         repo_name = SettingsService().current_machine_config['core']['repo_name']
-        self.build_path = os.path.join(SettingsService().server_config['builds_path'], repo_name)
+        self.build_path = os.path.expanduser(os.path.join(SettingsService().server_config['builds_path'], repo_name))
         if not os.path.exists(self.build_path):
             os.makedirs(self.build_path)
         self.qmake_path = SettingsService().server_config['qmake_path']
@@ -37,7 +37,8 @@ class CoreService(metaclass=Singleton):
     def run_core(self, exec_output=DEVNULL):
         if not self.core_is_active():
             run_file_name = SettingsService().current_machine_config['core']['executable_name']
-            self.main_proc = Popen(os.path.join(self.build_path, run_file_name), stdout=exec_output, stderr=exec_output)
+            run_file_path = os.path.expanduser(os.path.join(self.build_path, run_file_name))
+            self.main_proc = Popen(run_file_path, stdout=exec_output, stderr=exec_output)
             return {'code': 0}
         else:
             Logger().error_message('Core is already running. You can\'t run more than one per time.')
