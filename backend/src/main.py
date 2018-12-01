@@ -22,7 +22,7 @@ bcrypt = Bcrypt(app)
 
 app.config['SECRET_KEY'] = SettingsService().private_server_config['secret']
 app.secret_key = app.config['SECRET_KEY']
-# app.config['USER_AUTH_HASH'] = SettingsService().server_config['authorization']
+app.config['USER_AUTH_HASH'] = SettingsService().server_config['authorization']
 
 cors = CORS(app)
 
@@ -136,7 +136,7 @@ def api_compile_core():
     import time
     params = request.get_json()
     if params.get('with_dependencies', False):
-        dependencies = SettingsService().core_build_config.get('dependencies', [])
+        dependencies = SettingsService().current_machine_config.get('dependencies', [])
         for dep in dependencies:
             Logger().info_message('Updating lib: {}'.format(dep), 'Compile Core: ')
             UpdateService().update_and_upgrade_lib_sync(dep)

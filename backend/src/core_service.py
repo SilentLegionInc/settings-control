@@ -21,7 +21,7 @@ class ProcessStatus(Enum):
 
 class CoreService(metaclass=Singleton):
     def __init__(self):
-        repo_name = SettingsService().core_build_config['core']['repo_name']
+        repo_name = SettingsService().current_machine_config['core']['repo_name']
         self.build_path = os.path.join(SettingsService().server_config['builds_path'], repo_name)
         if not os.path.exists(self.build_path):
             os.makedirs(self.build_path)
@@ -36,7 +36,7 @@ class CoreService(metaclass=Singleton):
 
     def run_core(self, exec_output=DEVNULL):
         if not self.main_proc or self.main_proc.poll() is not None:
-            run_file_name = SettingsService().core_build_config['core']['executable_name']
+            run_file_name = SettingsService().current_machine_config['core']['executable_name']
             self.main_proc = Popen(os.path.join(self.build_path, run_file_name), stdout=exec_output, stderr=exec_output)
         else:
             Logger().error_message('Core is already running. You can\'t run more than one per time.')
@@ -64,7 +64,7 @@ class CoreService(metaclass=Singleton):
                                                                 os.path.join(self.sources_path, '*.pro'),
                                                                 self.build_path), shell=True).decode('ascii')
         self.compile_output += check_output('cd {} && make'.format(self.build_path), shell=True).decode('ascii')
-        config_file_name = SettingsService().core_build_config['core']['config_path']
+        config_file_name = SettingsService().current_machine_config['core']['config_path']
         config_file_path = os.path.join(self.sources_path, config_file_name)
         target_config_path = os.path.join(self.build_path, config_file_name)
         self.compile_output += check_output('cp {} {}'.format(config_file_path, target_config_path), shell=True).decode(
