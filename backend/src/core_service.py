@@ -21,8 +21,8 @@ class ProcessStatus(Enum):
 
 class CoreService(metaclass=Singleton):
     def __init__(self):
-        repo_name = SettingsService().core_build_config['core']['repo_name']
-        self.build_path = os.path.join(SettingsService().server_config['builds_path'], repo_name)
+        repo_name = SettingsService().current_machine_config['core']['repo_name']
+        self.build_path = os.path.expanduser(os.path.join(SettingsService().server_config['builds_path'], repo_name))
         if not os.path.exists(self.build_path):
             os.makedirs(self.build_path)
         self.qmake_path = SettingsService().server_config['qmake_path']
@@ -35,19 +35,23 @@ class CoreService(metaclass=Singleton):
         self.compile_thread = None
 
     def run_core(self, exec_output=DEVNULL):
-        if not self.main_proc or self.main_proc.poll() is not None:
-            run_file_name = SettingsService().core_build_config['core']['executable_name']
-            self.main_proc = Popen(os.path.join(self.build_path, run_file_name), stdout=exec_output, stderr=exec_output)
+        if not self.core_is_active():
+            run_file_name = SettingsService().current_machine_config['core']['executable_name']
+            run_file_path = os.path.expanduser(os.path.join(self.build_path, run_file_name))
+            self.main_proc = Popen(run_file_path, stdout=exec_output, stderr=exec_output)
+            return {'code': 0}
         else:
             Logger().error_message('Core is already running. You can\'t run more than one per time.')
+            return {'code': 1}
 
     def stop_core(self):
-        if self.main_proc and self.main_proc.poll() is None:
+        if self.core_is_active():
             # if it will not die. Use kill()
             self.main_proc.terminate()
+        return {'code': 0}
 
     def core_is_active(self):
-        return self.main_proc and self.main_proc.poll() is None
+        return bool(self.main_proc and self.main_proc.poll() is None)
 
     def get_exit_code(self):
         return self.main_proc.poll() if self.main_proc else None
@@ -64,7 +68,7 @@ class CoreService(metaclass=Singleton):
                                                                 os.path.join(self.sources_path, '*.pro'),
                                                                 self.build_path), shell=True).decode('ascii')
         self.compile_output += check_output('cd {} && make'.format(self.build_path), shell=True).decode('ascii')
-        config_file_name = SettingsService().core_build_config['core']['config_path']
+        config_file_name = SettingsService().current_machine_config['core']['config_path']
         config_file_path = os.path.join(self.sources_path, config_file_name)
         target_config_path = os.path.join(self.build_path, config_file_name)
         self.compile_output += check_output('cp {} {}'.format(config_file_path, target_config_path), shell=True).decode(
@@ -79,7 +83,7 @@ class CoreService(metaclass=Singleton):
     def compile_core(self):
         if self.core_is_active():
             Logger().error_message('Can\'t compile core while it\'s running.')
-            return
+            return {'code': 1}
         self.compile_thread = Thread(name='compile_core', target=self._compile_core)
         self.compile_thread.start()
 

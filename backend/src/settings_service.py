@@ -22,7 +22,7 @@ class SettingsService(metaclass=Singleton):
 
     # get element from machines block with current server type
     @property
-    def core_build_config(self):
+    def current_machine_config(self):
         return self._server_config.get('machines', {}).get(self.server_config.get('type'))
 
     @property
@@ -64,9 +64,14 @@ class SettingsService(metaclass=Singleton):
 
     # load config file for c++ core
     def load_core_config(self):
-        Logger().info_message('Loading core config for {} from {}'.format(self.server_config['type'], self.server_config['core_config_path']))
         try:
-            config_file = open(self.server_config['core_config_path'], 'r')
+            path_to_current_core_config = os.path.join(self.server_config.get('sources_path'),
+                                                       self.current_machine_config.get('core', {}).get('config_path'))
+            Logger().info_message(
+                'Loading core config for {} from {}'.format(self.server_config['type'], path_to_current_core_config))
+            if not os.path.exists(path_to_current_core_config):
+                raise Exception('Core config does not exists on {}'.format(path_to_current_core_config))
+            config_file = open(path_to_current_core_config, 'r')
             self._core_config = json.loads(config_file.read())
             config_file.close()
         except Exception as ex:
@@ -76,10 +81,15 @@ class SettingsService(metaclass=Singleton):
 
     # save config to file for c++ core
     def save_core_config(self, config):
-        Logger().info_message('Saving core config for {} to {}'.format(self.server_config['type'], self.server_config['core_config_path']))
         try:
+            path_to_current_core_config = os.path.join(self.server_config.get('sources_path'),
+                                                       self.current_machine_config.get('core', {}).get('config_path'))
+            Logger().info_message('Saving core config for {} to {}'.format(self.server_config['type'],
+                                                                           path_to_current_core_config))
+            if not os.path.exists(path_to_current_core_config):
+                raise Exception('Core config does not exists on {}'.format(path_to_current_core_config))
             self._core_config = config
-            config_file = open(self.server_config['core_config_path'], 'w')
+            config_file = open(path_to_current_core_config, 'w')
             config_file.write(json.dumps(self._core_config))
             config_file.close()
         except Exception as ex:
