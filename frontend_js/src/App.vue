@@ -10,6 +10,35 @@
     </div>
 </template>
 
+<script>
+    import Header from './components/Header.vue';
+    import Sidebar from './components/Sidebar.vue';
+    import Footer from './components/Footer.vue';
+
+    export default {
+        name: 'App',
+        components: {
+            'app-header': Header,
+            'app-sidebar': Sidebar,
+            'app-footer': Footer
+        },
+        data: function() {
+            return {
+                sidebarIsOpened: false
+            }
+        },
+        methods: {
+            onSidebarOpened: function() {
+                this.sidebarIsOpened = true;
+            },
+
+            onSidebarClosed: function() {
+                this.sidebarIsOpened = false;
+            }
+        }
+    }
+</script>
+
 <style lang="scss">
     html, body {
         height: 100%;

@@ -47,7 +47,8 @@
         "warn",
         4
       ],
-      "space-before-function-paren": "off"
+      "space-before-function-paren": "off",
+      "no-trailing-spaces": "off"
     },
     "parserOptions": {
       "parser": "babel-eslint"
