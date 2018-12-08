@@ -1,18 +1,76 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+    <div>
+        <h1>
+            Home page
+        </h1>
+
+        <div>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce ultricies ex sit amet magna tincidunt, a
+            consectetur ipsum sollicitudin. Phasellus dapibus tempus condimentum. Nullam elementum venenatis sapien, a
+            imperdiet nulla porta sit amet. Nam velit turpis, interdum eu velit quis, tempor sollicitudin orci. Ut non
+            quam ut neque suscipit condimentum a ac urna. Sed dapibus urna vel nisi cursus interdum. Etiam in felis
+            aliquet, mattis eros nec, ullamcorper tellus. Sed sed justo tincidunt, pretium eros quis, sollicitudin leo.
+            Morbi sit amet magna non felis blandit vestibulum eget in velit. Nunc nec lobortis eros.
+            Ut auctor imperdiet lorem nec facilisis. Vestibulum porttitor egestas sapien eget eleifend. Proin ut ex ac
+            nisl porta interdum. Aliquam vel pellentesque nibh. Proin id elementum orci. Vestibulum a condimentum
+            turpis. Etiam mattis bibendum quam. Pellentesque pulvinar nulla vitae justo egestas placerat. Aenean mollis
+            massa nec interdum placerat. Maecenas et posuere massa, nec iaculis ex. Pellentesque in nunc vehicula mi
+            ullamcorper consequat. Maecenas eleifend lorem ac blandit vestibulum. Sed mattis justo at sollicitudin
+            mollis. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.
+            Sed et dui cursus, tempor felis nec, elementum libero. Sed vel dui porta tellus euismod mattis. Vivamus
+            ullamcorper metus in molestie accumsan. Integer dapibus et eros ac cursus. Donec in lobortis sapien. Cras
+            tempor, urna congue consequat elementum, odio enim pellentesque enim, vel ornare est erat ut risus. Nulla
+            facilisi. Mauris interdum ut diam sit amet feugiat. Etiam malesuada pretium sodales. Pellentesque posuere
+            quam egestas nunc aliquam, id egestas enim pharetra. Fusce sit amet tincidunt diam. Aliquam condimentum
+            metus ut tortor bibendum dignissim. Suspendisse potenti. Aenean in efficitur ex. Nam id mauris aliquam,
+            pellentesque leo in, convallis augue.
+            Nullam quis ex dolor. Maecenas facilisis lorem fermentum nibh bibendum, in porttitor lectus feugiat. Fusce
+            eleifend posuere aliquet. Sed ante mauris, convallis nec accumsan at, consectetur vel nulla. Phasellus at
+            iaculis turpis, eget faucibus metus. Morbi at leo sit amet dolor viverra lobortis. Curabitur sed cursus
+            nisi, non posuere quam. Fusce gravida facilisis odio, vel consequat magna condimentum id.
+            Curabitur imperdiet, nisl a pellentesque tincidunt, nibh massa condimentum arcu, vitae faucibus neque turpis
+            vitae nisl. Cras sit amet nisi velit. Proin ac ultricies dui. Integer aliquam, massa sed euismod gravida,
+            ipsum diam luctus mauris, ut imperdiet quam nulla vitae lectus. Vestibulum gravida tempus erat, nec pretium
+            mauris tristique ac. Praesent eget justo nisl. Nulla lobortis nunc sit amet leo cursus venenatis. Maecenas
+            vitae tellus egestas, imperdiet arcu vel, venenatis diam.
+            Aliquam erat volutpat. Quisque in egestas ligula, in vestibulum orci. Duis eget diam tincidunt, dapibus
+            turpis ut, lobortis nulla. Nulla faucibus dolor eget arcu bibendum, at tristique sapien hendrerit. Nunc
+            tempus, magna eu facilisis fermentum, ex sapien commodo quam, sed consectetur tortor risus eget est. Nam
+            aliquam arcu eget urna pharetra, sed sagittis odio rhoncus. Etiam quis mauris quis neque imperdiet cursus.
+            Integer rutrum aliquet nisi, sit amet laoreet nulla. Sed egestas massa urna, eget pharetra velit lobortis
+            vel. Fusce molestie luctus velit et feugiat. Mauris eget elit sit amet magna bibendum vestibulum. In
+            dignissim nisl nisl, id vehicula purus porttitor vel.
+            Integer vel magna nec nunc tempus accumsan at nec nunc. Proin at ultrices lacus. Nunc varius nulla vel orci
+            consequat pulvinar. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;
+            Etiam sodales id leo eget sagittis. Duis in ex molestie quam pretium semper. Fusce id est eget odio laoreet
+            rhoncus.
+            Curabitur ullamcorper venenatis eleifend. Pellentesque ac commodo leo. Fusce odio diam, luctus sed ex et,
+            ullamcorper rutrum nisl. Pellentesque tincidunt sodales mi, vel feugiat nisl cursus ut. Phasellus diam
+            turpis, placerat a velit non, malesuada placerat ante. Nam mauris neque, faucibus placerat posuere at,
+            tristique ac elit. Donec sit amet cursus nisi. Nulla facilisis, dolor sed suscipit efficitur, ligula ex
+            commodo nisl, non tincidunt lorem enim non lectus. Maecenas ut varius tortor. Phasellus ornare ex et eros
+            suscipit pharetra. Maecenas maximus eget ex sed venenatis. Morbi eu sodales leo, et mollis tortor.
+            Vivamus hendrerit ornare dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per
+            inceptos himenaeos. Aenean gravida leo sed justo bibendum, at efficitur ante laoreet. Donec venenatis lectus
+            id sem malesuada cursus. Ut ut convallis orci, quis aliquet dolor. Orci varius natoque penatibus et magnis
+            dis parturient montes, nascetur ridiculus mus. Vestibulum in urna id elit egestas egestas a ut neque. Sed
+            iaculis sed felis eu eleifend. Praesent sapien quam, volutpat non ante ut, tincidunt pulvinar lacus.
+            Suspendisse quis pharetra dolor. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere
+            cubilia Curae; Fusce non tempor orci, et luctus erat. Vivamus ac ex sit amet lacus tincidunt euismod ac sed
+            sem.
+            Nullam nec nibh sed tellus bibendum commodo id ut eros. Quisque dui eros, pellentesque et tellus vitae,
+            dignissim bibendum sapien. Vivamus nunc turpis, volutpat in magna sed, vehicula pellentesque leo. Aliquam
+            vitae sem consectetur, dapibus lacus sed, rutrum felis. Ut lorem felis, malesuada vel viverra sit amet,
+            lacinia vel purus. Aliquam vitae massa eu mi ornare maximus. Suspendisse erat leo, condimentum vel urna
+            quis, euismod gravida urna. Nullam accumsan libero turpis, non placerat dolor molestie at. Etiam tempor
+            mollis enim ut efficitur. Suspendisse est velit, venenatis sed enim sed, tristique laoreet sem. Fusce
+            consectetur et dolor et rutrum.
+        </div>
+    </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
-export default {
-  name: 'home',
-  components: {
-    HelloWorld
-  }
-}
+    export default {
+        name: 'Home'
+    }
 </script>
