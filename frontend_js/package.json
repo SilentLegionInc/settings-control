@@ -41,7 +41,14 @@
       "plugin:vue/essential",
       "@vue/standard"
     ],
-    "rules": {},
+    "rules": {
+      "semi": "off",
+      "indent": [
+        "warn",
+        4
+      ],
+      "space-before-function-paren": "off"
+    },
     "parserOptions": {
       "parser": "babel-eslint"
     }
