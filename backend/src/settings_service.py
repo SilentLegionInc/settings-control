@@ -65,8 +65,11 @@ class SettingsService(metaclass=Singleton):
     # load config file for c++ core
     def load_core_config(self):
         try:
-            path_to_current_core_config = os.path.join(self.server_config.get('sources_path'),
-                                                       self.current_machine_config.get('core', {}).get('config_path'))
+            path_to_current_core_config = os.path.expanduser(
+                os.path.join(self.server_config.get('sources_path'),
+                             self.current_machine_config.get('core', {}).get('repo_name'),
+                             self.current_machine_config.get('core', {}).get('config_path'))
+            )
             Logger().info_message(
                 'Loading core config for {} from {}'.format(self.server_config['type'], path_to_current_core_config))
             if not os.path.exists(path_to_current_core_config):
@@ -77,13 +80,16 @@ class SettingsService(metaclass=Singleton):
         except Exception as ex:
             Logger().error_message('Loading core config error: {}'.format(str(ex)))
             return {'code': 1, 'error': str(ex)}
-        return self._core_config
+        return {'code': 0}
 
     # save config to file for c++ core
     def save_core_config(self, config):
         try:
-            path_to_current_core_config = os.path.join(self.server_config.get('sources_path'),
-                                                       self.current_machine_config.get('core', {}).get('config_path'))
+            path_to_current_core_config = os.path.expanduser(
+                os.path.join(self.server_config.get('sources_path'),
+                             self.current_machine_config.get('core', {}).get('repo_name'),
+                             self.current_machine_config.get('core', {}).get('config_path'))
+            )
             Logger().info_message('Saving core config for {} to {}'.format(self.server_config['type'],
                                                                            path_to_current_core_config))
             if not os.path.exists(path_to_current_core_config):

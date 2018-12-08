@@ -125,7 +125,7 @@ def api_authorization(func):
 
 
 @app.route('/api/config', methods=['GET', 'POST'])
-@api_authorization
+# @api_authorization
 def api_config():
     if request.method == 'GET':
         return jsonify(SettingsService().get_core_config(reload_from_disk=True))
