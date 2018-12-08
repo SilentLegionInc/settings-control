@@ -32,55 +32,55 @@
 </template>
 
 <script>
-    export default {
-        name: 'LoginModal',
-        data: function () {
-            return {
-                login: '',
-                password: ''
-            }
+import axios from 'axios';
+export default {
+    name: 'LoginModal',
+    data: function () {
+        return {
+            login: '',
+            password: ''
+        }
+    },
+    mounted: function() {
+        console.log(this.$modal);
+        this.showModal();
+    },
+    methods: {
+        showModal: function() {
+            this.$modal.show('login-modal', {}, {
+                clickToClose: false
+            });
         },
-        methods: {
-            mounted() {
-                this.showModal();
-            },
 
-            showModal() {
-                this.$modal.show('login-modal', {}, {
-                clickToClose: false,
-                });
-            },
+        hideModal: function() {
+            this.$modal.hide('login-modal');
+        },
 
-            hideModal() {
-                this.$modal.hide('login-modal');
-            },
+        onCancel: function() {
+            this.hideModal();
+        },
 
-            onCancel() {
-                this.hideModal();
-            },
-
-            onLogin() {
-                const auth = {
-                    'login': this.login,
-                    'password': this.password
-                };
-                axios.post('http://127.0.0.1:5000/api/login', auth).
-                then(result => {
-                    if (result.status === 200) {
-                        this.hideModal();
-                        // add cookies
-                        this.$emit('logged');
-                    } else {
-                        console.log('incorrect username')
-                    }
-                }).
-                catch(err => {
-                    console.log(err);
+        onLogin: async function() {
+            const auth = {
+                'login': this.login,
+                'password': this.password
+            };
+            try {
+                const res = axios.post('http://127.0.0.1:5000/api/login', auth);
+                if (res.status === 200) {
+                    this.hideModal();
+                    // add cookies
+                    this.$emit('logged');
+                } else {
                     console.log('incorrect username')
-                });
+                }
+            } catch (err) {
+                console.log(err);
+                console.log('incorrect username')
             }
         }
     }
+}
 </script>
 
 <style scoped lang="scss">

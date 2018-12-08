@@ -22,14 +22,14 @@
       </div>
     </div>
 
-    <!--<app-login-modal @logged="loadData"></app-login-modal>-->
+    <app-login-modal @logged="loadData"></app-login-modal>
 
   </div>
 </template>
 
 <script>
 import axios from 'axios'
-
+import LoginModal from '@/components/LoginModal';
 export default {
     name: 'Settings',
     mounted: function() {
@@ -54,7 +54,7 @@ export default {
         }
     },
     components: {
-        // 'app-login-modal': LoginModal,
+        'app-login-modal': LoginModal,
     },
     data: () => {
         return {
