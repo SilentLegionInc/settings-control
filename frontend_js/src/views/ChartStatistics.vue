@@ -49,14 +49,14 @@
             };
         },
         methods: {
-            addPoint() {
+            addPoint: function() {
                 this.datasets.labels.push(new Date().toDateString());
                 this.datasets.datasets.forEach(elem => {
                     elem.data.push(3);
                 })
             },
 
-            generateDataSets() {
+            generateDataSets: function() {
                 this.datasets = {
                     labels: ['label One ' + new Date().toDateString(), 'label Two' + new Date().toDateString()],
                     datasets: [

@@ -37,7 +37,7 @@
             };
         },
         methods: {
-            clicked(index) {
+            clicked: function(index) {
                 index = Number(index);
                 if (this.activeElement === index) {
                     this.activeElement = -1;
