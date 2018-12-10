@@ -9,9 +9,12 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 import 'font-awesome/css/font-awesome.css';
 import './global_css/styles.scss';
 
+const moment = require('vue-moment');
+
 Vue.config.productionTip = false
 Vue.use(VModal);
 Vue.use(BootstrapVue);
+Vue.use(moment);
 
 new Vue({
     router,

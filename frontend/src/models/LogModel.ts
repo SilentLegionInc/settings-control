@@ -18,5 +18,5 @@ export enum LogLevel {
     Critical = 0,
     Warning,
     Debug,
-    Info,
+    Info
 }

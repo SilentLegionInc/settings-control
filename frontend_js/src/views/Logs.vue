@@ -1,0 +1,142 @@
+<template>
+    <div>
+        <table class="custom-table">
+            <thead class="custom-table-header">
+            <tr>
+                <th>№</th>
+                <th>Time</th>
+                <th>Type</th>
+                <th>Title</th>
+                <th>Message</th>
+            </tr>
+            </thead>
+
+            <tbody class="custom-table-body">
+            <tr v-for="log in logs">
+                <td>{{ log.id }}</td>
+                <td>{{ log.time | moment("DD.MM.YYYY hh:mm:ss.SSS") }}</td>
+                <td>{{ log.type | logLevelToString }}</td>
+                <td>{{ log.title }}</td>
+                <td>{{ log.message }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="col-md-12 margin-top-sm">
+            <b-pagination class="pagination-nav"
+                          size="md"
+                          :total-rows="dbElementsCount"
+                          v-model="currentPage"
+                          :per-page="elementsPerPage"
+                          align="center">
+            </b-pagination>
+        </div>
+    </div>
+</template>
+
+<script>
+    import {LogLevel, LogModel} from '../models/LogModel';
+    import axios from 'axios';
+
+    export default {
+        name: 'Logs',
+        data: function() {
+            return {
+                logs: [],
+                elementsPerPage: 20,
+                _currentPage: 1,
+                dbElementsCount: 0
+            }
+        },
+        computed: {
+            currentPage: {
+                get: function() {
+                    return this._currentPage;
+                },
+                set: function(newPage) {
+                    this._currentPage = newPage;
+                    this.loadData(this._currentPage);
+                }
+            }
+        },
+        mounted: function() {
+            this.currentPage = 1;
+        },
+        methods: {
+            mockedLoadData: function(page) {
+                this.dbElementsCount = 300;
+                let data = [];
+                for (let i = 0; i < this.dbElementsCount; ++i) {
+                    const t = i + 1;
+                    data.push(new LogModel(t, new Date(), 0, `Title ${t}`, `Very very very long message without any information ${t}`));
+                }
+
+                const offset = (page - 1) * this.elementsPerPage;
+                const limit = this.elementsPerPage;
+                console.log(data);
+                if (offset > 0) {
+                    data.splice(0, (page - 1) * this.elementsPerPage);
+                }
+                console.log(data);
+                this.logs = data.slice(0, limit);
+                console.log(this.logs);
+            },
+
+            loadData: async function(page) {
+                const offset = (page - 1) * this.elementsPerPage;
+                const limit = this.elementsPerPage;
+                const response = await axios.get('http://127.0.0.1:5000/api/logs', { params: { limit: limit, offset: offset } });
+                this.dbElementsCount = response.data.count;
+                console.log(response);
+                this.logs = response.data.result.map(elem => new LogModel(elem.id, elem.time, elem.type, elem.title, elem.message));
+            }
+        },
+        filters: {
+            logLevelToString: function(level) {
+                switch (level) {
+                    case LogLevel.INFO:
+                        return 'Info';
+                    case LogLevel.DEBUG:
+                        return 'Debug';
+                    case LogLevel.WARNING:
+                        return 'Warning';
+                    case LogLevel.CRITICAL:
+                        return 'Critical';
+                    default:
+                        return 'Unknown';
+                }
+            }
+        }
+    }
+</script>
+
+<style scoped lang="scss">
+    .custom-table {
+        width: 100%;
+    }
+
+    .custom-table th, td {
+        padding-left: 7px !important;
+    }
+
+    .custom-table-header {
+        background: rgb(190, 190, 190);
+    }
+
+    .custom-table-header tr {
+        height: 40px;
+    }
+
+    .custom-table-body {
+        background: lightgray;
+    }
+
+    .custom-table-body tr {
+        background: white;
+        height: 40px;
+    }
+
+    .custom-table-body tr:nth-child(even) {
+        background: rgb(240, 240, 240);
+    }
+</style>
