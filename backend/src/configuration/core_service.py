@@ -1,11 +1,11 @@
-from singleton import Singleton
-from logger import Logger
+from support.singleton import Singleton
+from support.logger import Logger
 from enum import Enum
 from subprocess import Popen
 from subprocess import check_output
 from subprocess import DEVNULL
 from threading import Thread
-from settings_service import SettingsService
+from configuration.settings_service import SettingsService
 from git import Repo
 from multiprocessing import Process
 import os

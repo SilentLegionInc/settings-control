@@ -1,9 +1,12 @@
-from singleton import Singleton
-from logger import Logger
+from support.singleton import Singleton
+from support.logger import Logger
 from monitoring.monitoring_config_service import MonitoringConfigService
 import copy
 import sqlite3
 import datetime
+from flask_api import status
+from support.helpers import ServerException
+from dateutil import parser
 
 
 class MonitoringDataService(metaclass=Singleton):
@@ -21,18 +24,21 @@ class MonitoringDataService(metaclass=Singleton):
 
                 logs_db_file_path = MonitoringConfigService().get_logs_data_config(robot_name)['file_path']
                 logs_collection_name = MonitoringConfigService().get_logs_data_config(robot_name)['collection_name']
-                self.connections[robot_name]['logs']['connection'] = _connection = sqlite3.connect(logs_db_file_path)
+                self.connections[robot_name]['logs']['file_path'] = logs_db_file_path
                 self.connections[robot_name]['logs']['collection_name'] = logs_collection_name
 
                 sensors_db_file_path = MonitoringConfigService().get_sensors_data_config(robot_name)['file_path']
                 sensors_collection_name = MonitoringConfigService().get_sensors_data_config(robot_name)['collection_name']
-                self.connections[robot_name]['sensors']['connection'] = sqlite3.connect(sensors_db_file_path)
+                self.connections[robot_name]['sensors']['file_path'] = sensors_db_file_path
                 self.connections[robot_name]['sensors']['collection_name'] = sensors_collection_name
         except Exception as ex:
             Logger().error_message('Monitoring create connections error: {}'.format(str(ex)))
 
     def get_data_structure(self, robot_name):
-        fields_descr = MonitoringConfigService().get_sensors_data_config(robot_name)["fields_to_retrieve"]
+        try:
+            fields_descr = MonitoringConfigService().get_sensors_data_config(robot_name)["fields_to_retrieve"]
+        except Exception as ex:
+            raise ServerException('Can\'t get information from config', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
         result = []
         for key, value in fields_descr.items():
             result.append({
@@ -55,7 +61,8 @@ class MonitoringDataService(metaclass=Singleton):
         else:
             additional_params = {}
 
-        cursor = self.connections[robot_name]['sensors']['connection'].cursor()
+        connection = sqlite3.connect(self.connections[robot_name]['sensors']['file_path'])
+        cursor = connection.cursor()
         collection_name = self.connections[robot_name]['sensors']['collection_name']
 
         try:
@@ -101,7 +108,7 @@ class MonitoringDataService(metaclass=Singleton):
             result = []
             for row in cursor:
                 result.append({
-                    'time': row[0],
+                    'time': parser.parse(row[0]),
                     'value': row[1],
                     'latitude': row[2],
                     'longitude': row[3]
@@ -112,8 +119,14 @@ class MonitoringDataService(metaclass=Singleton):
             cursor.execute(query)
             count = cursor.fetchone()[0]
 
+            cursor.close()
+            connection.close()
+
             return {'result': result, 'count': count}
         except Exception as ex:
+            cursor.close()
+            connection.close()
+
             Logger().error_message('Monitoring getting data error: {}'.format(str(ex)))
 
     # Запеканий нет, потому что их нет в sqlite3, а то, что есть, - фигня
@@ -134,7 +147,8 @@ class MonitoringDataService(metaclass=Singleton):
         else:
             additional_params = {}
 
-        cursor = self.connections[robot_name]['logs']['connection'].cursor()
+        connection = sqlite3.connect(self.connections[robot_name]['logs']['file_path'])
+        cursor = connection.cursor()
         collection_name = self.connections[robot_name]['logs']['collection_name']
 
         time_column_name = 'dataTime'
@@ -191,7 +205,7 @@ class MonitoringDataService(metaclass=Singleton):
             result = []
             for row in cursor:
                 result.append({
-                    'time': row[0],
+                    'time': parser.parse(row[0]),
                     'type': row[1],
                     'title': row[2],
                     'message': row[3]
@@ -202,8 +216,14 @@ class MonitoringDataService(metaclass=Singleton):
             cursor.execute(query)
             count = cursor.fetchone()[0]
 
+            cursor.close()
+            connection.close()
+
             return {'result': result, 'count': count}
         except Exception as ex:
+            cursor.close()
+            connection.close()
+
             Logger().error_message('Monitoring getting logs error: {}'.format(str(ex)))
 
 

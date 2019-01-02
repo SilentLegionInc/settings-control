@@ -1,5 +1,5 @@
 # mocked user model
-from settings_service import SettingsService
+from configuration.settings_service import SettingsService
 
 
 class User:

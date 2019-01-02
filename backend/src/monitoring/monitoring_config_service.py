@@ -1,12 +1,12 @@
-from singleton import Singleton
-from logger import Logger
+from support.singleton import Singleton
+from support.logger import Logger
 import os
 import json
 
 
 class MonitoringConfigService(metaclass=Singleton):
 
-    def __init__(self, monitoring_config_path=os.path.join(os.getcwd(), 'monitoring_config.json')):
+    def __init__(self, monitoring_config_path=os.path.join(os.getcwd(), './monitoring/monitoring_config.json')):
         self._config_path = monitoring_config_path
         self._config = {}
 

@@ -1,10 +1,10 @@
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend as crypto_default_backend
-from singleton import Singleton
-from core_service import ProcessStatus
+from support.singleton import Singleton
+from configuration.core_service import ProcessStatus
 from multiprocessing import Process
-from settings_service import SettingsService
+from configuration.settings_service import SettingsService
 from git import Repo
 from subprocess import check_output
 import os

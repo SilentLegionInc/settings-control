@@ -1,5 +1,5 @@
-from singleton import Singleton
-from logger import Logger
+from support.singleton import Singleton
+from support.logger import Logger
 import json
 import os
 

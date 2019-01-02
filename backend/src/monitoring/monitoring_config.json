@@ -2,7 +2,7 @@
     "AMTS": {
         "robot_name": "АМТС",
         "logs_data": {
-            "file_path": "C:\\Workspace\\settings-control\\logdb.db",
+            "file_path": "C:\\Workspace\\settings-control\\backend\\logdb.db",
             "collection_name": "log"
         },
         "sensors_data": {

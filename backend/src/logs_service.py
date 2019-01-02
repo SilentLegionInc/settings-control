@@ -1,6 +1,5 @@
-from singleton import Singleton
-from logger import Logger
-import os
+from support.singleton import Singleton
+from support.logger import Logger
 import sqlite3
 from sqlite3 import Error
 
@@ -8,7 +7,7 @@ from sqlite3 import Error
 class LogsService(metaclass=Singleton):
     def get_logs(self, limit, offset):
         try:
-            self.connection = sqlite3.connect('../../logdb.db')
+            self.connection = sqlite3.connect('C:\\Workspace\\settings-control\\logdb.db')
             cursor = self.connection.cursor()
 
             t = (limit, offset)

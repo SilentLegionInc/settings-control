@@ -1,6 +1,6 @@
 import logging
 from enum import Enum
-from singleton import Singleton
+from support.singleton import Singleton
 
 
 class LogLevel(Enum):
