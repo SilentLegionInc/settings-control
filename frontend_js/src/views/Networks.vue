@@ -3,22 +3,10 @@
         <div class="mb-3">
             <h2 align="center">Конфигурация сети</h2>
         </div>
-        <div v-if="settings">
-            <div class="row form-group" v-for="(_, setting_key) in settings">
-                <label class="offset-md-2 col-md-3 col-form-label" :for="setting_key">{{setting_key}}</label>
-                <div class="col-md-5">
-                    <input class="form-control" type="text" :id="setting_key" v-model="settings[setting_key]" :placeholder="setting_key"/>
-                </div>
-            </div>
-            <div class="row form-group">
-                <div class="col-md-6 offset-md-4" align="right">
-                    <button class="btn btn-danger" @click="ResetConfig()">
-                        Reset
-                    </button>
-                    <button class="ml-3 btn btn-success" @click="UpdateConfig()">
-                        Update
-                    </button>
-                </div>
+        <div v-if="networks">
+            <div class="row form-group" v-for="network in networks">
+                <div class="offset-md-2 col-md-10">{{network.name}}</div>
+
             </div>
         </div>
 
@@ -29,7 +17,7 @@
 
 <script>
 import { LoginModal } from '@/components/LoginModal';
-import { axios } from 'axios';
+import axios from 'axios';
 export default {
     name: 'Networks',
     components: {
@@ -41,7 +29,7 @@ export default {
     methods: {
         loadData: async function() {
             console.log('Start update');
-            const answer = await axios.get('http://127.0.0.1:5000/api/config');
+            const answer = await axios.get('http://127.0.0.1:5000/api/wifi');
             console.log(answer.data);
             this.settings = answer.data
         },
@@ -58,7 +46,7 @@ export default {
     },
     data: () => {
         return {
-            settings: {}
+            networks: []
         }
     }
 }
