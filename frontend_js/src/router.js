@@ -6,7 +6,7 @@ import TableStatistics from './views/TableStatistics'
 import ChartStatistics from './views/ChartStatistics'
 import Logs from './views/Logs'
 
-Vue.use(Router)
+Vue.use(Router);
 
 export default new Router({
     mode: 'history',
@@ -33,17 +33,17 @@ export default new Router({
         {
             path: '/table_statistics',
             name: 'table-statistics',
-            component: TableStatistics,
+            component: TableStatistics
         },
         {
             path: '/chart_statistics',
             name: 'chart-statistics',
-            component: ChartStatistics,
+            component: ChartStatistics
         },
         {
             path: '/logs',
             name: 'logs',
-            component: Logs,
+            component: Logs
         }
     ]
 })

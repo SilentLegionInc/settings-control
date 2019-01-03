@@ -8,11 +8,11 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import 'font-awesome/css/font-awesome.css';
 import './global_css/styles.scss';
-import {RequestService} from './services/RequestService';
+import { RequestService } from './services/RequestService';
 
 const moment = require('vue-moment');
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 Vue.use(VModal);
 Vue.use(BootstrapVue);
 Vue.use(moment);
@@ -24,4 +24,4 @@ new Vue({
     data: {
         requestService: new RequestService()
     }
-}).$mount('#app')
+}).$mount('#app');

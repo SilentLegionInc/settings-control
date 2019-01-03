@@ -38,14 +38,14 @@ export default {
     methods: {
         loadData: async function() {
             console.log('Start update');
-            const answer = await axios.get('http://127.0.0.1:5000/api/config')
+            const answer = await axios.get('http://127.0.0.1:5000/api/config');
             console.log(answer.data);
             this.settings = answer.data
         },
 
         UpdateConfig: async function() {
-            console.log('New configs')
-            const answer = await axios.post('http://127.0.0.1:5000/api/config', this.settings)
+            console.log('New configs');
+            const answer = await axios.post('http://127.0.0.1:5000/api/config', this.settings);
             console.log(answer)
         },
 
@@ -54,7 +54,7 @@ export default {
         }
     },
     components: {
-        'app-login-modal': LoginModal,
+        'app-login-modal': LoginModal
     },
     data: () => {
         return {
