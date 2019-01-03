@@ -2,18 +2,19 @@ from abc import ABCMeta, abstractmethod
 import subprocess
 from time import sleep
 from packaging import version
+from support.singleton import Singleton
 
 
 # send a command to the shell and return the result
-def cmd(cmd):
+def cmd(command):
     return subprocess.Popen(
-        cmd, shell=True,
+        command, shell=True,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT
     ).stdout.read().decode()
 
 
 # abstracts class of Wifi configurator
-class WifiService:
+class WifiService(metaclass=Singleton):
     _driver_name = None
     _driver = None
 
@@ -25,8 +26,6 @@ class WifiService:
             self._driver = NmcliWireless(interface=interface)
         elif self._driver_name == 'nmcli0990':
             self._driver = Nmcli0990Wireless(interface=interface)
-        elif self._driver_name == 'wpa_supplicant':
-            self._driver = WpasupplicantWireless(interface=interface)
 
         # attempt to auto detect the interface if none was provided
         if self.interface() is None:
@@ -82,11 +81,13 @@ class WifiService:
     # return the driver name
     def driver(self):
         return self._driver_name
-    
-    
+
+    def list_of_connections(self, rescan=True):
+        return self._driver.list_of_connections(rescan)
+
+
 # abstract class for all wifi drivers
-class WifiDriver:
-    __metaclass__ = ABCMeta
+class WifiDriver(metaclass=ABCMeta):
 
     @abstractmethod
     def connect(self, ssid, password):
@@ -109,12 +110,12 @@ class WifiDriver:
         pass
 
     @abstractmethod
-    def list_of_connections(self):
+    def list_of_connections(self, rescan=True):
         pass
 
-    @abstractmethod
-    def detail_connection_info(self):
-        pass
+    # @abstractmethod
+    # def detail_connection_info(self):
+    #     pass
 
 
 # Linux nmcli Driver < 0.9.9.0 (legacy support)
@@ -165,7 +166,7 @@ class NmcliWireless(WifiDriver):
         # attempt to connect
         response = cmd('nmcli device wifi connect {} password {} iface {}'.format(
             ssid, password, self._interface))
-        print (response)
+        print(response)
         # parse response
         return not self._errorInResponse(response)
 
@@ -217,7 +218,7 @@ class NmcliWireless(WifiDriver):
 
 
 # Linux nmcli Driver >= 0.9.9.0 (Actual driver)
-# TODO add new methods: list_of_connections and detail_connection_info
+# TODO add new methods: list_of_connections and detail_connection_info??
 # TODO make cleanup
 class Nmcli0990Wireless(WifiDriver):
     _interface = None
@@ -261,7 +262,7 @@ class Nmcli0990Wireless(WifiDriver):
         # clean up previous connection
         self._clean(ssid)
         cmd(cmd='nmcli con down {}'.format(self.current()))
-        print ('Linux driver working')
+        print('Linux driver working')
         # attempt to connect
         response = cmd('nmcli dev wifi connect {} password {} iface {}'.format(
             ssid, password, self._interface))
@@ -315,92 +316,53 @@ class Nmcli0990Wireless(WifiDriver):
             response = cmd('nmcli r wifi')
             return 'enabled' in response
 
+    @staticmethod
+    def _map_connections_list(raw_str):
+        def map_connection_line(connection_line):
+            # split line by two spaces because between two columns we have at least two spaces,
+            # after split we need to delete empty lines from array
+            splitted_array = list(filter(lambda x: x != '', connection_line.split('  ')))
+            if splitted_array[0] == '*':
+                splitted_array[0] = '+'
+            else:
+                splitted_array.insert(0, '-')
+            return {label.lower(): splitted_array[i].strip() for i, label in enumerate(labels)}
+
+        response_lines = raw_str.splitlines()
+        # getting header and map it to labels
+        labels = list(filter(lambda x: x != '', response_lines[0].split('  ')))
+        # and delete header line from answer
+        del response_lines[0]
+        return list(map(map_connection_line, response_lines))
+
+    def list_of_connections(self, rescan=True):
+        if rescan:
+            res = ''
+            while 'immediately' not in res:
+                res = cmd('nmcli device wifi rescan')
+                sleep(0.5)
+            sleep(1)
+
+        return self._map_connections_list(cmd('nmcli device wifi list'))
+
 
 # Linux wpa_supplicant Driver
 # TODO Actualize me later... if you want
-class WpasupplicantWireless(WifiDriver):
-    _file = '/tmp/wpa_supplicant.conf'
-    _interface = None
+# class WpasupplicantWireless(WifiDriver):
 
-    # init
-    def __init__(self, interface=None):
-        self.interface(interface)
 
-    # connect to a network
-    def connect(self, ssid, password):
-        # attempt to stop any active wpa_supplicant instances
-        # ideally we do this just for the interface we care about
-        cmd('sudo killall wpa_supplicant')
+def get_mocked_list():
+    r = 'IN-USE  SSID               MODE   CHAN  RATE        SIGNAL  BARS  SECURITY\n' + \
+        '*       Silence_2G         Infra  1     270 Mbit/s  83      ▂▄▆█  WPA1 WPA2\n' + \
+        '        akm                Infra  1     130 Mbit/s  55      ▂▄__  WPA1 WPA2\n' + \
+        '        Keenetic-3871      Infra  2     270 Mbit/s  55      ▂▄__  WPA2'
 
-        # don't do DHCP for GoPros; can cause dropouts with the server
-        cmd('sudo ifconfig {} 10.5.5.10/24 up'.format(self._interface))
+    return Nmcli0990Wireless._map_connections_list(r)
 
-        # create configuration file
-        f = open(self._file, 'w')
-        f.write('network={{\n    ssid="{}"\n    psk="{}"\n}}\n'.format(
-            ssid, password))
-        f.close()
 
-        # attempt to connect
-        cmd('sudo wpa_supplicant -i{} -c{} -B'.format(
-            self._interface, self._file))
+if __name__ == '__main__':
+    print(get_mocked_list())
+    # wifi = WifiService()
+    # print(wifi.list_of_connections())
 
-        # check that the connection was successful
-        # i've never seen it take more than 3 seconds for the link to establish
-        sleep(5)
-        if self.current() != ssid:
-            return False
 
-        # attempt to grab an IP
-        # better hope we are connected because the timeout here is really long
-        # cmd('sudo dhclient {}'.format(self._interface))
-
-        # parse response
-        return True
-
-    # returned the ssid of the current network
-    def current(self):
-        # get interface status
-        response = cmd('iwconfig {}'.format(
-            self.interface()))
-
-        # the current network is on the first line.
-        # ex: wlan0     IEEE 802.11AC  ESSID:"SSID"  Nickname:"<WIFI@REALTEK>"
-        line = response.splitlines()[0]
-        match = re.search('ESSID:\"(.+?)\"', line)
-        if match is not None:
-            network = match.group(1)
-            if network != 'off/any':
-                return network
-
-        # return none if there was not an active connection
-        return None
-
-    # return a list of wireless adapters
-    def interfaces(self):
-        # grab list of interfaces
-        response = cmd('iwconfig')
-
-        # parse response
-        interfaces = []
-        for line in response.splitlines():
-            if len(line) > 0 and not line.startswith(' '):
-                # this line contains an interface name!
-                if 'no wireless extensions' not in line:
-                    # this is a wireless interface
-                    interfaces.append(line.split()[0])
-
-        # return list
-        return interfaces
-
-    # return the current wireless adapter
-    def interface(self, interface=None):
-        if interface is not None:
-            self._interface = interface
-        else:
-            return self._interface
-
-    # enable/disable wireless networking
-    def power(self, power=None):
-        # not supported yet
-        return None
