@@ -89,11 +89,11 @@ class MonitoringDataService(metaclass=Singleton):
 
             # handling filter conditions
             filter_conditions = []
-            if filter_params.get('start_time'):
+            if filter_params.get('start_time') is not None:
                 if isinstance(filter_params['start_time'], datetime.datetime):
                     filter_params['start_time'] = filter_params['start_time'].strftime("%Y-%m-%d %H:%M:%S")
                 filter_conditions.append('datetime({}) >= datetime("{}")'.format(time_column_name, filter_params['start_time']))
-            if filter_params.get('end_time'):
+            if filter_params.get('end_time') is not None:
                 if isinstance(filter_params['end_time'], datetime.datetime):
                     filter_params['end_time'] = filter_params['end_time'].strftime("%Y-%m-%d %H:%M:%S")
                 filter_conditions.append('datetime({}) <= datetime("{}")'.format(time_column_name, filter_params['end_time']))
@@ -107,9 +107,9 @@ class MonitoringDataService(metaclass=Singleton):
 
             # handling additional conditions
             additional_conditions = []
-            if additional_params.get('limit'):
+            if additional_params.get('limit') is not None:
                 additional_conditions.append('limit {}'.format(additional_params['limit']))
-            if additional_params.get('offset'):
+            if additional_params.get('offset') is not None:
                 additional_conditions.append('offset {}'.format(additional_params['offset']))
 
             additional_query = ''
@@ -117,6 +117,9 @@ class MonitoringDataService(metaclass=Singleton):
                 additional_query = ' '.join(additional_conditions)
 
             query = ' '.join([main_query, filter_query, sort_query, additional_query])
+
+            Logger().debug_message(query, "Sensors database query: ")
+
             cursor.execute(query)
             result = []
             for row in cursor:
@@ -129,6 +132,9 @@ class MonitoringDataService(metaclass=Singleton):
 
             main_query = 'SELECT COUNT(*) FROM {}'.format(collection_name)
             query = ' '.join([main_query, filter_query])
+
+            Logger().debug_message(query, "Sensors database query: ")
+
             cursor.execute(query)
             count = cursor.fetchone()[0]
 
@@ -180,16 +186,16 @@ class MonitoringDataService(metaclass=Singleton):
 
             # handling filter conditions
             filter_conditions = []
-            if filter_params.get('start_time'):
+            if filter_params.get('start_time') is not None:
                 if isinstance(filter_params['start_time'], datetime.datetime):
                     filter_params['start_time'] = filter_params['start_time'].strftime("%Y-%m-%d %H:%M:%S")
                 filter_conditions.append('datetime({}) >= datetime("{}")'.format(time_column_name, filter_params['start_time']))
-            if filter_params.get('end_time'):
+            if filter_params.get('end_time') is not None:
                 if isinstance(filter_params['end_time'], datetime.datetime):
                     filter_params['end_time'] = filter_params['end_time'].strftime("%Y-%m-%d %H:%M:%S")
                 filter_conditions.append('datetime({}) <= datetime("{}")'.format(time_column_name, filter_params['end_time']))
-            if filter_params.get('type'):
-                filter_conditions.append('{} <= {}'.format(type_column_name, filter_params['type']))
+            if filter_params.get('type') is not None:
+                filter_conditions.append('{} = {}'.format(type_column_name, filter_params['type']))
 
             filter_query = ''
             if filter_conditions:
@@ -197,10 +203,10 @@ class MonitoringDataService(metaclass=Singleton):
 
             # handling sort conditions
             sort_conditions = []
-            if sort_params.get('type'):
+            if sort_params.get('type') is not None:
                 order = 'ASC' if sort_params['type'] == 1 else 'DESC'
                 sort_conditions.append('type {}'.format(order))
-            if sort_params.get('time'):
+            if sort_params.get('time') is not None:
                 order = 'ASC' if sort_params['time'] == 1 else 'DESC'
                 sort_conditions.append('time {}'.format(order))
 
@@ -210,9 +216,9 @@ class MonitoringDataService(metaclass=Singleton):
 
             # handling additional conditions
             additional_conditions = []
-            if additional_params.get('limit'):
+            if additional_params.get('limit') is not None:
                 additional_conditions.append('limit {}'.format(additional_params['limit']))
-            if additional_params.get('offset'):
+            if additional_params.get('offset') is not None:
                 additional_conditions.append('offset {}'.format(additional_params['offset']))
 
             additional_query = ''
@@ -220,6 +226,9 @@ class MonitoringDataService(metaclass=Singleton):
                 additional_query = ' '.join(additional_conditions)
 
             query = ' '.join([main_query, filter_query, sort_query, additional_query])
+
+            Logger().debug_message(query, "Logs database query: ")
+
             cursor.execute(query)
             result = []
             for row in cursor:
@@ -232,6 +241,9 @@ class MonitoringDataService(metaclass=Singleton):
 
             main_query = 'SELECT COUNT(*) FROM {}'.format(collection_name)
             query = ' '.join([main_query, filter_query])
+
+            Logger().debug_message(query, "Sensors database query: ")
+
             cursor.execute(query)
             count = cursor.fetchone()[0]
 

@@ -24,7 +24,7 @@
                 </span>
 
                 <span class="col-md-3">
-                    <button type="button" class="btn btn-primary" @click="loadData">Primary</button>
+                    <button type="button" class="btn btn-primary" @click="loadData(1)">Primary</button>
                 </span>
             </div>
         </form>
@@ -122,10 +122,9 @@ export default {
             const filterEndTime = this.filterEndTime ? new Date(this.filterEndTime) : null;
             const filterType = this.filterType ? parseInt(this.filterType) : null;
 
-            const response = await this.$root.requestService.getLogs('AMTS', limit, offset, filterStartTime, filterEndTime, filterType);
+            const response = await this.$store.state.requestService.getLogs('AMTS', limit, offset, filterStartTime, filterEndTime, filterType);
             this.dbElementsCount = response.count;
             this.logs = response.result;
-            console.log(response);
         }
     },
     filters: {

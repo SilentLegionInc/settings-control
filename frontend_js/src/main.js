@@ -24,8 +24,5 @@ Vue.use(Datetime);
 new Vue({
     router,
     store,
-    render: h => h(App),
-    data: {
-        requestService: new RequestService()
-    }
+    render: h => h(App)
 }).$mount('#app');
