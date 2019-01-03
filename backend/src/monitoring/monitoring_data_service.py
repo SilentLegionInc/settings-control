@@ -32,7 +32,7 @@ class MonitoringDataService(metaclass=Singleton):
                 self.connections[robot_name]['sensors']['file_path'] = sensors_db_file_path
                 self.connections[robot_name]['sensors']['collection_name'] = sensors_collection_name
         except Exception as ex:
-            Logger().error_message('Monitoring create connections error: {}'.format(str(ex)))
+            raise ServerException('Can\'t get information from config', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
 
     def get_data_structure(self, robot_name):
         try:
@@ -61,8 +61,15 @@ class MonitoringDataService(metaclass=Singleton):
         else:
             additional_params = {}
 
-        connection = sqlite3.connect(self.connections[robot_name]['sensors']['file_path'])
-        cursor = connection.cursor()
+        try:
+            connection = sqlite3.connect(self.connections[robot_name]['sensors']['file_path'])
+            cursor = connection.cursor()
+        except Exception as ex:
+            raise ServerException(
+                'Can\'t connect to database with name {}'.format(self.connections[robot_name]['sensors']['file_path']),
+                status.HTTP_500_INTERNAL_SERVER_ERROR, ex
+            )
+
         collection_name = self.connections[robot_name]['sensors']['collection_name']
 
         try:
@@ -72,7 +79,13 @@ class MonitoringDataService(metaclass=Singleton):
             latitude_column_name = sensors_config['latitude_field']
             longitude_column_name = sensors_config['longitude_field']
 
-            main_query = 'SELECT {},{},{},{} FROM {}'.format(time_column_name, needed_column_name, latitude_column_name, longitude_column_name, collection_name)
+            main_query = 'SELECT {},{},{},{} FROM {}'.format(
+                time_column_name,
+                needed_column_name,
+                latitude_column_name,
+                longitude_column_name,
+                collection_name
+            )
 
             # handling filter conditions
             filter_conditions = []
@@ -126,8 +139,7 @@ class MonitoringDataService(metaclass=Singleton):
         except Exception as ex:
             cursor.close()
             connection.close()
-
-            Logger().error_message('Monitoring getting data error: {}'.format(str(ex)))
+            raise ServerException('Error while preparing and executing query', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
 
     # Запеканий нет, потому что их нет в sqlite3, а то, что есть, - фигня
     def get_logs(self, robot_name, filter_params=None, sort_params=None, additional_params=None):
@@ -147,8 +159,15 @@ class MonitoringDataService(metaclass=Singleton):
         else:
             additional_params = {}
 
-        connection = sqlite3.connect(self.connections[robot_name]['logs']['file_path'])
-        cursor = connection.cursor()
+        try:
+            connection = sqlite3.connect(self.connections[robot_name]['logs']['file_path'])
+            cursor = connection.cursor()
+        except Exception as ex:
+            raise ServerException(
+                'Can\'t connect to database with name {}'.format(self.connections[robot_name]['logs']['file_path']),
+                status.HTTP_500_INTERNAL_SERVER_ERROR, ex
+            )
+
         collection_name = self.connections[robot_name]['logs']['collection_name']
 
         time_column_name = 'dataTime'
@@ -223,8 +242,7 @@ class MonitoringDataService(metaclass=Singleton):
         except Exception as ex:
             cursor.close()
             connection.close()
-
-            Logger().error_message('Monitoring getting logs error: {}'.format(str(ex)))
+            raise ServerException('Error while preparing and executing query', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
 
 
 if __name__ == '__main__':
