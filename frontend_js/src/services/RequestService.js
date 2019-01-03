@@ -1,17 +1,22 @@
-import Config from '../config';
 import axios from 'axios';
 import { MapperService } from './MapperService';
 import Logger from '../logger';
 
 export class RequestService {
-    constructor() {
-        this._serverHost = Config.get('backendHost');
-        this._serverPort = Config.get('backendPort');
+    constructor(host, port) {
+        this._serverHost = host; // Config.get('backendHost')
+        this._serverPort = port; // Config.get('backendPort');
         this._serverUri = `http://${this._serverHost}:${this._serverPort}`
     }
     
     _constructPath(route) {
         return `${this._serverUri}/${route}`
+    }
+
+    _authorize(password) {
+        const path = this._constructPath(`api/login`);
+
+        // axios.post()
     }
     
     async getLogs(robotName, limit = 1, offset = 0, startTime = null, endTime = null, type = null, sortByTime = null, sortByType = null) {

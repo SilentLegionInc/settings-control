@@ -9,7 +9,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         authToken: null,
-        requestService: new RequestService()
+        requestService: new RequestService(config.get('backendHost', config.get('backendPort')))
     },
     mutations: {
 
@@ -17,7 +17,7 @@ export default new Vuex.Store({
     actions: {
         // Important! use need use only this function from vuex.
         async authorize(password) {
-            // this.state.requestService.getLogs();
+            this.state.requestService._authorize(password);
         }
     }
 })
