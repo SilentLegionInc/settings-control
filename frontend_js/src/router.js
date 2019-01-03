@@ -4,6 +4,7 @@ import Home from './views/Home.vue'
 import Settings from './views/Settings'
 import TableStatistics from './views/TableStatistics'
 import ChartStatistics from './views/ChartStatistics'
+import Network from './views/Networks'
 import Logs from './views/Logs'
 
 Vue.use(Router);
@@ -15,7 +16,7 @@ export default new Router({
         {
             path: '/',
             name: 'home',
-            component: Home,
+            component: Home
         },
         {
             path: '/test',
@@ -28,7 +29,12 @@ export default new Router({
         {
             path: '/settings',
             name: 'settings',
-            component: Settings,
+            component: Settings
+        },
+        {
+            path: '/wifi',
+            name: 'network',
+            component: Network
         },
         {
             path: '/table_statistics',

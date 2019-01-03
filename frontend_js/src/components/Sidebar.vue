@@ -39,6 +39,12 @@
             </li>
 
             <li>
+                <router-link class="clickable" to="/wifi" @click.native="close">
+                    Network
+                </router-link>
+            </li>
+
+            <li>
                 <router-link class="clickable" to="/logs" @click.native="close">
                     Logs
                 </router-link>
@@ -48,51 +54,51 @@
 </template>
 
 <script>
-    export default {
-        name: 'Sidebar',
-        props: ['isOpen'],
-        data: function () {
-            return {
-                monitorIsOpen: false
-            }
-        },
-        computed: {
-            currentStyle: function() {
-                return {
-                    'width': this.isOpen ? '20%' : '0',
-                    'min-width': this.isOpen ? '250px' : '0',
-                };
-            },
-
-            monitorListStyle: function() {
-                return { 'height': this.monitorIsOpen ? '20%' : '0' };
-            }
-        },
-
-        methods: {
-            onClick: function(event) {
-                if (!this.$el.contains(event.target) && this.isOpen) {
-                    this.close();
-                }
-            },
-
-            close: function() {
-                this.$emit('closeSidebar');
-            },
-
-            switchMonitorList: function() {
-                this.monitorIsOpen = !this.monitorIsOpen;
-            }
-        },
-
-        created: function() {
-            window.addEventListener('click', this.onClick);
-        },
-
-        beforeDestroy: function() {
-            window.removeEventListener('click', this.onClick);
+export default {
+    name: 'Sidebar',
+    props: ['isOpen'],
+    data: function () {
+        return {
+            monitorIsOpen: false
         }
+    },
+    computed: {
+        currentStyle: function() {
+            return {
+                'width': this.isOpen ? '20%' : '0',
+                'min-width': this.isOpen ? '250px' : '0'
+            };
+        },
+
+        monitorListStyle: function() {
+            return { 'height': this.monitorIsOpen ? '20%' : '0' };
+        }
+    },
+
+    methods: {
+        onClick: function(event) {
+            if (!this.$el.contains(event.target) && this.isOpen) {
+                this.close();
+            }
+        },
+
+        close: function() {
+            this.$emit('closeSidebar');
+        },
+
+        switchMonitorList: function() {
+            this.monitorIsOpen = !this.monitorIsOpen;
+        }
+    },
+
+    created: function() {
+        window.addEventListener('click', this.onClick);
+    },
+
+    beforeDestroy: function() {
+        window.removeEventListener('click', this.onClick);
     }
+}
 </script>
 
 <style scoped lang="scss">

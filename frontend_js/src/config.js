@@ -1,13 +1,14 @@
-let conf = require('nconf');
-let path = require('path');
+const conf = require('nconf');
+// let path = require('path');
 
-conf.file({file: path.join(__dirname,'../config/config.json')});
+// conf.file({file: path.join(__dirname,'../config/config.json')});
 
 conf.defaults(
     {
-        'host': '0.0.0.0',
-        'port': 5000
+        'backend_host': '0.0.0.0',
+        'backend_port': 5000
     }
 );
 
-module.exports = conf;
+export default conf;
+// module.exports = conf;
