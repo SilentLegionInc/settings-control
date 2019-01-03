@@ -35,79 +35,78 @@
 </template>
 
 <script>
-    import {LogLevel, LogModel} from '../models/LogModel';
-    import axios from 'axios';
+import { LogLevel, LogModel } from '../models/LogModel';
 
-    export default {
-        name: 'Logs',
-        data: function() {
-            return {
-                logs: [],
-                elementsPerPage: 20,
-                _currentPage: 1,
-                dbElementsCount: 0
-            }
-        },
-        computed: {
-            currentPage: {
-                get: function() {
-                    return this._currentPage;
-                },
-                set: function(newPage) {
-                    this._currentPage = newPage;
-                    this.loadData(this._currentPage);
-                }
-            }
-        },
-        mounted: function() {
-            this.currentPage = 1;
-        },
-        methods: {
-            mockedLoadData: function(page) {
-                this.dbElementsCount = 300;
-                let data = [];
-                for (let i = 0; i < this.dbElementsCount; ++i) {
-                    const t = i + 1;
-                    data.push(new LogModel(t, new Date(), 0, `Title ${t}`, `Very very very long message without any information ${t}`));
-                }
-
-                const offset = (page - 1) * this.elementsPerPage;
-                const limit = this.elementsPerPage;
-                console.log(data);
-                if (offset > 0) {
-                    data.splice(0, (page - 1) * this.elementsPerPage);
-                }
-                console.log(data);
-                this.logs = data.slice(0, limit);
-                console.log(this.logs);
+export default {
+    name: 'Logs',
+    data: function() {
+        return {
+            logs: [],
+            elementsPerPage: 20,
+            _currentPage: 1,
+            dbElementsCount: 0
+        }
+    },
+    computed: {
+        currentPage: {
+            get: function() {
+                return this._currentPage;
             },
-
-            loadData: async function(page) {
-                const offset = (page - 1) * this.elementsPerPage;
-                const limit = this.elementsPerPage;
-                const response = await axios.get('http://127.0.0.1:5000/api/logs', { params: { limit: limit, offset: offset } });
-                this.dbElementsCount = response.data.count;
-                console.log(response);
-                this.logs = response.data.result.map(elem => new LogModel(elem.id, elem.time, elem.type, elem.title, elem.message));
+            set: function(newPage) {
+                this._currentPage = newPage;
+                this.loadData(this._currentPage);
             }
+        }
+    },
+    mounted: function() {
+        this.currentPage = 1;
+    },
+    methods: {
+        mockedLoadData: function(page) {
+            this.dbElementsCount = 300;
+            let data = [];
+            for (let i = 0; i < this.dbElementsCount; ++i) {
+                const t = i + 1;
+                data.push(new LogModel(t, new Date(), 0, `Title ${t}`, `Very very very long message without any information ${t}`));
+            }
+
+            const offset = (page - 1) * this.elementsPerPage;
+            const limit = this.elementsPerPage;
+            console.log(data);
+            if (offset > 0) {
+                data.splice(0, (page - 1) * this.elementsPerPage);
+            }
+            console.log(data);
+            this.logs = data.slice(0, limit);
+            console.log(this.logs);
         },
-        filters: {
-            logLevelToString: function(level) {
-                switch (level) {
-                    case LogLevel.INFO:
-                        return 'Info';
-                    case LogLevel.DEBUG:
-                        return 'Debug';
-                    case LogLevel.WARNING:
-                        return 'Warning';
-                    case LogLevel.CRITICAL:
-                        return 'Critical';
-                    default:
-                        return 'Unknown';
-                }
+
+        loadData: async function(page) {
+            const offset = (page - 1) * this.elementsPerPage;
+            const limit = this.elementsPerPage;
+            const response = await this.$root.requestService.getLogs('AMTS', null, null, null, null, null, limit, offset);
+            this.dbElementsCount = response.count;
+            this.logs = response.result;
+            console.log(response);
+        }
+    },
+    filters: {
+        logLevelToString: function(level) {
+            switch (level) {
+                case LogLevel.INFO:
+                    return 'Info';
+                case LogLevel.DEBUG:
+                    return 'Debug';
+                case LogLevel.WARNING:
+                    return 'Warning';
+                case LogLevel.CRITICAL:
+                    return 'Critical';
+                default:
+                    return 'Unknown';
             }
         }
     }
+}
 </script>
 
 <style scoped lang="scss">
