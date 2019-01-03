@@ -4,10 +4,10 @@
       <h2 align="center">Конфигурация ядра</h2>
     </div>
     <div v-if="settings">
-      <div class="row form-group" v-for="(setting_value, setting_key) in settings">
-        <label class="offset-md-2 col-md-3 col-form-label" :for="setting_key">{{setting_key}}</label>
+      <div class="row form-group" v-for="(_, settingKey) in settings">
+        <label class="offset-md-2 col-md-3 col-form-label" :for="settingKey">{{settingKey}}</label>
         <div class="col-md-5">
-          <input class="form-control" type="text" :id="setting_key" v-model="settings[setting_key]" :placeholder="setting_key"/>
+          <input class="form-control" type="text" :id="settingKey" v-model="settings[settingKey]" :placeholder="settingKey"/>
         </div>
       </div>
       <div class="row form-group">
