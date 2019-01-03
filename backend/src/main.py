@@ -11,7 +11,7 @@ from werkzeug.urls import url_parse
 from logs_service import LogsService
 from support.forms import LoginForm
 from support.models import User
-from support.helpers import check_user_credentials
+from support.helpers import check_password
 from configuration.update_service import UpdateService
 from configuration.core_service import CoreService
 from functools import wraps
@@ -30,7 +30,6 @@ bcrypt = Bcrypt(app)
 
 app.config['SECRET_KEY'] = SettingsService().private_server_config['secret']
 app.secret_key = app.config['SECRET_KEY']
-app.config['USER_AUTH_HASH'] = SettingsService().server_config['authorization']
 
 cors = CORS(app)
 
@@ -40,12 +39,47 @@ bootstrap = Bootstrap(app)
 login = LoginManager(app)
 login.login_view = 'login'
 
+
+def handle_errors(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as ex:
+            if isinstance(ex, ServerException):
+                Logger().error_message('Got an exception')
+                Logger().error_message('Message: {}. Code: {}'.format(ex.message, ex.status_code))
+                Logger().error_message(traceback.format_exc())
+                return Response(HTTP_STATUS_CODES[ex.status_code], ex.status_code)
+            else:
+                Logger().error_message('Got an unknown exception')
+                Logger().error_message(traceback.format_exc())
+                return Response(HTTP_STATUS_CODES[status.HTTP_500_INTERNAL_SERVER_ERROR], status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return wrapper
+
+
+# decorator for check authorization via token
+def api_authorization(func):
+    @wraps(func)
+    def my_wrapper(*args, **kwargs):
+        if not SettingsService().server_config.get('need_to_auth', False):
+            Logger().info_message('Mocked authorization. Skip checking')
+            return func(*args, **kwargs)
+
+        if not request.authorization:
+            raise ServerException('Can\'t find Authorization header', status.HTTP_401_UNAUTHORIZED)
+
+        auth_password = request.authorization.password
+        check_password(auth_password, False)
+        return func(*args, **kwargs)
+    return my_wrapper
+
 # Here routes starts.
 
 
 @login.user_loader
 def load_user(user_id):
-    if user_id != SettingsService().server_config.get('USER_AUTH_HASH'):
+    if user_id != SettingsService().server_config.get('password'):
         Logger().critical_message('Incorrect user id in loader {}'.format(user_id))
         return None
     return User()
@@ -66,7 +100,7 @@ def login():
     if form.validate_on_submit():
         Logger().info_message('Submit login')
         try:
-            if not check_user_credentials(form.username.data, form.password.data):
+            if not check_password(form.password.data, False):
                 return redirect(url_for('login'))
         except Exception as ex:
             return redirect(url_for('index'))
@@ -104,33 +138,8 @@ def config():
         return render_template('config.html', config=SettingsService().get_core_config(reload_from_disk=True))
 
 
-# decorator for check authorization via token
-# TODO fix (need to pair username\pass)
-def api_authorization(func):
-    @wraps(func)
-    def my_wrapper(*args, **kwargs):
-        Logger().info_message('Auth wrapper')
-        if not SettingsService().server_config.get('need_to_auth', False):
-            Logger().info_message('Mocked authorization. Skip checking')
-            return func(*args, **kwargs)
-        # TODO use basic auth + request.authorization to get login and password or change it to token...
-        auth_header = request.headers.get('authorization', '', str)
-        auth = auth_header.split(" ")[1] if auth_header else ''
-        if not auth:
-            Logger().critical_message('No auth token in header: {}'.format(auth))
-            return Response('You need to authorize to access this url', 401)
-        else:
-            Logger().info_message('{}:{}'.format(app.config.get('USER_AUTH_HASH'), auth))
-            if bcrypt.check_password_hash(app.config.get('USER_AUTH_HASH'), auth):
-                Logger().info_message('Successful login')
-            else:
-                Logger().info_message('Incorrect username\password')
-                return Response('Incorrect username or password', 401)
-        return func(*args, **kwargs)
-    return my_wrapper
-
-
 @app.route('/api/config', methods=['GET', 'POST'])
+@handle_errors
 @api_authorization
 def api_config():
     if request.method == 'GET':
@@ -140,6 +149,7 @@ def api_config():
 
 
 @app.route('/api/wifi', methods=['GET'])
+@handle_errors
 @api_authorization
 def api_get_wifi_list():
     # return jsonify(WifiService().list_of_connections())
@@ -147,6 +157,7 @@ def api_get_wifi_list():
 
 
 @app.route('/api/core/compile', methods=['POST'])
+@handle_errors
 @api_authorization
 def api_compile_core():
     import time
@@ -166,6 +177,7 @@ def api_compile_core():
 
 
 @app.route('/api/core/run', methods=['POST'])
+@handle_errors
 @api_authorization
 def api_run_core():
     CoreService().run_core()
@@ -177,6 +189,7 @@ def api_run_core():
 
 
 @app.route('/api/core/status', methods=['GET'])
+@handle_errors
 @api_authorization
 def api_core_status():
     is_active = CoreService().core_is_active()
@@ -187,20 +200,11 @@ def api_core_status():
 
 
 @app.route('/api/core/stop', methods=['POST'])
+@handle_errors
 @api_authorization
 def api_stop_core():
-    # TODO add try/catch
     CoreService().stop_core()
     return jsonify({'code': 0})
-
-
-@app.route('/api/login', methods=['POST'])
-def api_login():
-    info = request.get_json()
-    if check_user_credentials(info.get('login', ''), info.get('password', '')):
-        return Response('Success', 200)
-    else:
-        return Response('Incorrect username or password', 401)
 
 
 @app.route('/api/logs', methods=['GET'])
@@ -208,22 +212,13 @@ def api_logs():
     return jsonify(LogsService().get_logs(request.args.get('limit', 1), request.args.get('offset', 0)))
 
 
-def handle_errors(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as ex:
-            if isinstance(ex, ServerException):
-                Logger().error_message('Got an exception')
-                Logger().error_message('Message: {}. Code: {}'.format(ex.message, ex.status_code))
-                Logger().error_message(traceback.format_exc())
-                return Response(HTTP_STATUS_CODES[ex.status_code], ex.status_code)
-            else:
-                Logger().error_message('Got an unknown exception')
-                Logger().error_message(traceback.format_exc())
-                return Response(HTTP_STATUS_CODES[status.HTTP_500_INTERNAL_SERVER_ERROR], status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return wrapper
+@app.route('/api/login', methods=['POST'])
+@handle_errors
+def api_login():
+    info = request.get_json()
+    result = check_password(info.get('password', ''), True)
+    if result:
+        return jsonify({'token': result}), status.HTTP_200_OK
 
 
 @app.route('/api/monitoring/structure/<string:robot_name>', methods=['GET'])

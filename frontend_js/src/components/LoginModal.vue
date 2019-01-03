@@ -9,13 +9,6 @@
                 <div class="content">
                     <div class="row form-group">
                         <div class="col-md-12">
-                            <label for="login-input">Username</label>
-                            <input type="text" class="form-control" id="login-input" placeholder="Username" required v-model="login">
-                        </div>
-                    </div>
-
-                    <div class="row form-group">
-                        <div class="col-md-12">
                             <label for="password-input">Password</label>
                             <input type="password" class="form-control" id="password-input" placeholder="Password" required v-model="password">
                         </div>
@@ -32,12 +25,10 @@
 </template>
 
 <script>
-import axios from 'axios';
 export default {
     name: 'LoginModal',
     data: function () {
         return {
-            login: '',
             password: ''
         }
     },
@@ -61,22 +52,12 @@ export default {
         },
 
         onLogin: async function() {
-            const auth = {
-                'login': this.login,
-                'password': this.password
-            };
             try {
-                const res = axios.post('http://127.0.0.1:5000/api/login', auth);
-                if (res.status === 200) {
-                    this.hideModal();
-                    // add cookies
-                    this.$emit('logged');
-                } else {
-                    console.log('incorrect username')
-                }
+                await this.$store.dispatch('authorize', this.password);
+                this.hideModal();
             } catch (err) {
                 console.log(err);
-                console.log('incorrect username')
+                console.log('incorrect password')
             }
         }
     }

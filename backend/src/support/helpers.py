@@ -1,6 +1,7 @@
 from configuration.settings_service import SettingsService
-from support.logger import Logger
 from flask import flash
+import base64
+from flask_api import status
 
 
 class ServerException(Exception):
@@ -19,18 +20,17 @@ class ServerException(Exception):
         return self._status_code
 
 
-def check_user_credentials(username, password):
-    from main import bcrypt
-    user_info = '{}:{}'.format(username, password)
-    user_hash = SettingsService().server_config.get('authorization', None)
-    if not user_hash:
-        Logger().critical_message('user auth hash is None!')
+def check_password(password, return_token=False):
+    stored_pass = SettingsService().server_config.get('password')
+    if not stored_pass:
         flash('Auth error. Please check user hash on server side')
-        raise Exception('Auth error. Please check user hash on server side')
+        raise ServerException('Auth error. Please check user hash on server side', status.HTTP_500_INTERNAL_SERVER_ERROR)
+    if password == stored_pass:
+        if return_token:
+            return 'Basic ${}'.format(base64.b64encode(':{}'.format(password).encode()).decode('utf-8'))
+        else:
+            return True
+    else:
+        flash('Invalid password')
+        raise ServerException('Incorrect password', status.HTTP_401_UNAUTHORIZED)
 
-    if not bcrypt.check_password_hash(user_hash, user_info):
-        Logger().critical_message('Incorrect username/password')
-        flash('Invalid username or password')
-        return False
-
-    return True

@@ -5,7 +5,7 @@ from configuration.settings_service import SettingsService
 class User:
 
     def __init__(self):
-        self._id = SettingsService().server_config.get('USER_AUTH_HASH')
+        self._id = SettingsService().server_config.get('password')
 
     @property
     def is_authenticated(self):

@@ -1,17 +1,34 @@
-import Config from '../config';
 import axios from 'axios';
 import { MapperService } from './MapperService';
 import Logger from '../logger';
 
 export class RequestService {
-    constructor() {
-        this._serverHost = Config.get('backendHost');
-        this._serverPort = Config.get('backendPort');
+    constructor(host, port) {
+        this._serverHost = host; // Config.get('backendHost')
+        this._serverPort = port; // Config.get('backendPort');
         this._serverUri = `http://${this._serverHost}:${this._serverPort}`
     }
     
     _constructPath(route) {
         return `${this._serverUri}/${route}`
+    }
+
+    _setAuthHeader(token) {
+        Logger.info(`Setting new token ${token}`);
+        axios.defaults.headers.common['authorization'] = token;
+    }
+
+    async _authorize(password) {
+        const path = this._constructPath(`api/login`);
+        const result = await axios.post(path, { password });
+        if (result.status === 200) {
+            const body = result.data;
+            return body.token;
+        } else {
+            // TODO Log normal
+            Logger.error(result);
+            return false;
+        }
     }
     
     async getLogs(robotName, limit = 1, offset = 0, startTime = null, endTime = null, type = null, sortByTime = null, sortByType = null) {
