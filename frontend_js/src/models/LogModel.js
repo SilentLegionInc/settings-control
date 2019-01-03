@@ -8,10 +8,10 @@ export class LogModel {
 }
 
 export const LogLevel = {
-    CRITICAL: 1,
-    WARNING: 2,
-    DEBUG: 3,
-    INFO: 4
+    CRITICAL: 0,
+    WARNING: 1,
+    DEBUG: 2,
+    INFO: 3
 }
 Object.freeze(LogLevel)
 LogModel.LogLevel = LogLevel;

@@ -20,12 +20,18 @@ export class RequestService {
         const body = {};
         if (startTime != null) {
             body['start_time'] = startTime;
+            if (typeof body['start_time'] !== 'string') {
+                body['start_time'] = body['start_time'].toISOString();
+            }
         }
         if (endTime != null) {
-            body['start_time'] = endTime;
+            body['end_time'] = endTime.toISOString();
+            if (typeof body['end_time'] !== 'string') {
+                body['end_time'] = body['end_time'].toISOString();
+            }
         }
         if (type != null) {
-            body['type'] = endTime;
+            body['type'] = type;
         }
         if (sortByTime != null) {
             body['sort_by_time'] = sortByTime ? 1 : 0;

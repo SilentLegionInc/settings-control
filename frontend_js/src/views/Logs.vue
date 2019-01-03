@@ -1,5 +1,36 @@
 <template>
     <div>
+        <form>
+            <div class="row">
+                <span class="col-md-3">
+                    <span>Start time: </span>
+                    <datetime v-model="filterStartTime" type="datetime" input-class="form-control"></datetime>
+                </span>
+
+                <span class="col-md-3">
+                    <span>End time: </span>
+                    <datetime v-model="filterEndTime" type="datetime" input-class="form-control"></datetime>
+                </span>
+
+                <span class="col-md-3">
+                    <span>Type: </span>
+                    <select class="form-control" v-model="filterType">
+                        <option selected value> -- select an option -- </option>
+                        <option value=0>Critical</option>
+                        <option value=1>Warning</option>
+                        <option value=2>Debug</option>
+                        <option value=3>Info</option>
+                    </select>
+                </span>
+
+                <span class="col-md-3">
+                    <button type="button" class="btn btn-primary" @click="loadData">Primary</button>
+                </span>
+            </div>
+        </form>
+
+        <hr>
+
         <table class="custom-table">
             <thead class="custom-table-header">
             <tr>
@@ -44,7 +75,10 @@ export default {
             logs: [],
             elementsPerPage: 20,
             _currentPage: 1,
-            dbElementsCount: 0
+            dbElementsCount: 0,
+            filterStartTime: null,
+            filterEndTime: null,
+            filterType: null
         }
     },
     computed: {
@@ -84,7 +118,11 @@ export default {
         loadData: async function(page) {
             const offset = (page - 1) * this.elementsPerPage;
             const limit = this.elementsPerPage;
-            const response = await this.$root.requestService.getLogs('AMTS', limit, offset);
+            const filterStartTime = this.filterStartTime ? new Date(this.filterStartTime) : null;
+            const filterEndTime = this.filterEndTime ? new Date(this.filterEndTime) : null;
+            const filterType = this.filterType ? parseInt(this.filterType) : null;
+
+            const response = await this.$root.requestService.getLogs('AMTS', limit, offset, filterStartTime, filterEndTime, filterType);
             this.dbElementsCount = response.count;
             this.logs = response.result;
             console.log(response);
