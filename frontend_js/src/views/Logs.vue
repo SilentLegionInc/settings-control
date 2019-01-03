@@ -84,7 +84,7 @@ export default {
         loadData: async function(page) {
             const offset = (page - 1) * this.elementsPerPage;
             const limit = this.elementsPerPage;
-            const response = await this.$root.requestService.getLogs('AMTS', null, null, null, null, null, limit, offset);
+            const response = await this.$root.requestService.getLogs('AMTS', limit, offset);
             this.dbElementsCount = response.count;
             this.logs = response.result;
             console.log(response);

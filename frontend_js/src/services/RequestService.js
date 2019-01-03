@@ -1,11 +1,12 @@
 import Config from '../config';
 import axios from 'axios';
-import { MapperService } from './MapperService'
+import { MapperService } from './MapperService';
+import Logger from '../logger';
 
 export class RequestService {
     constructor() {
-        this._serverHost = Config.get('host');
-        this._serverPort = Config.get('port');
+        this._serverHost = Config.get('backendHost');
+        this._serverPort = Config.get('backendPort');
         this._serverUri = `http://${this._serverHost}:${this._serverPort}`
     }
     
@@ -13,10 +14,10 @@ export class RequestService {
         return `${this._serverUri}/${route}`
     }
     
-    async getLogs(robotName, startTime = null, endTime = null, type = null, sortByTime = null, sortByType = null, limit = null, offset = null) {
-        let path = this._constructPath(`api/monitoring/logs/${robotName}`);
-        
-        let body = {};
+    async getLogs(robotName, limit = 1, offset = 0, startTime = null, endTime = null, type = null, sortByTime = null, sortByType = null) {
+        const path = this._constructPath(`api/monitoring/logs/${robotName}`);
+    
+        const body = {};
         if (startTime != null) {
             body['start_time'] = startTime;
         }
@@ -36,10 +37,14 @@ export class RequestService {
             body['limit'] = limit;
         }
         if (offset != null) {
-            body['offset'] = limit;
+            body['offset'] = offset;
         }
         
-        let result = await axios.post(path, body);
+        Logger.debug('Request: get logs');
+        Logger.debug(`Path: ${path}`);
+        Logger.debug(`Body: ${JSON.stringify(body)}`);
+        
+        const result = await axios.post(path, body);
         return MapperService.mapLogsResponse(result.data);
     }
 }
