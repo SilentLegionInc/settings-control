@@ -21,6 +21,7 @@ from werkzeug.exceptions import HTTP_STATUS_CODES
 from support.helpers import ServerException
 import traceback
 from support.mapper import Mapper
+from wireless.wifi_service import WifiService, get_mocked_list
 
 
 # Init flask application
@@ -109,10 +110,14 @@ def api_authorization(func):
     @wraps(func)
     def my_wrapper(*args, **kwargs):
         Logger().info_message('Auth wrapper')
+        if not SettingsService().server_config.get('need_to_auth', False):
+            Logger().info_message('Mocked authorization. Skip checking')
+            return func(*args, **kwargs)
+        # TODO use basic auth + request.authorization to get login and password or change it to token...
         auth_header = request.headers.get('authorization', '', str)
         auth = auth_header.split(" ")[1] if auth_header else ''
         if not auth:
-            Logger().critical_message('No auth token: {}'.format(auth))
+            Logger().critical_message('No auth token in header: {}'.format(auth))
             return Response('You need to authorize to access this url', 401)
         else:
             Logger().info_message('{}:{}'.format(app.config.get('USER_AUTH_HASH'), auth))
@@ -126,12 +131,19 @@ def api_authorization(func):
 
 
 @app.route('/api/config', methods=['GET', 'POST'])
-# @api_authorization
+@api_authorization
 def api_config():
     if request.method == 'GET':
         return jsonify(SettingsService().get_core_config(reload_from_disk=True))
     elif request.method == 'POST':
         return jsonify(SettingsService().save_core_config(request.get_json()))
+
+
+@app.route('/api/wifi', methods=['GET'])
+@api_authorization
+def api_get_wifi_list():
+    # return jsonify(WifiService().list_of_connections())
+    return jsonify(get_mocked_list())
 
 
 @app.route('/api/core/compile', methods=['POST'])

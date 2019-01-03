@@ -326,7 +326,7 @@ class Nmcli0990Wireless(WifiDriver):
                 splitted_array[0] = '+'
             else:
                 splitted_array.insert(0, '-')
-            return {label.lower(): splitted_array[i].strip() for i, label in enumerate(labels)}
+            return {label.strip().lower(): splitted_array[i].strip() for i, label in enumerate(labels)}
 
         response_lines = raw_str.splitlines()
         # getting header and map it to labels
