@@ -17,6 +17,7 @@ Vue.use(VModal);
 Vue.use(BootstrapVue);
 Vue.use(moment);
 
+// TODO move requestService to
 new Vue({
     router,
     store,
