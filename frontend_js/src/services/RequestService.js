@@ -2,7 +2,7 @@ import Config from '../config';
 import axios from 'axios';
 import {MapperService} from './MapperService'
 
-class RequestService {
+export class RequestService {
     constructor() {
         this._serverHost = Config.get("host")
         this._serverPort = Config.get("port")

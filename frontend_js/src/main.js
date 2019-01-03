@@ -8,6 +8,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import 'font-awesome/css/font-awesome.css';
 import './global_css/styles.scss';
+import {RequestService} from './services/RequestService';
 
 const moment = require('vue-moment');
 
@@ -19,5 +20,8 @@ Vue.use(moment);
 new Vue({
     router,
     store,
-    render: h => h(App)
+    render: h => h(App),
+    data: {
+        requestService: new RequestService()
+    }
 }).$mount('#app')
