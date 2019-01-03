@@ -22,7 +22,7 @@ class ServerException(Exception):
 def check_user_credentials(username, password):
     from main import bcrypt
     user_info = '{}:{}'.format(username, password)
-    user_hash = SettingsService().server_config.get('USER_AUTH_HASH', None)
+    user_hash = SettingsService().server_config.get('authorization', None)
     if not user_hash:
         Logger().critical_message('user auth hash is None!')
         flash('Auth error. Please check user hash on server side')
