@@ -29,24 +29,24 @@
 </template>
 
 <script>
-    export default {
-        name: 'Test',
-        data: function() {
-            return {
-                activeElement: -1
-            };
-        },
-        methods: {
-            clicked: function(index) {
-                index = Number(index);
-                if (this.activeElement === index) {
-                    this.activeElement = -1;
-                } else {
-                    this.activeElement = index;
-                }
+export default {
+    name: 'Test',
+    data: function() {
+        return {
+            activeElement: -1
+        };
+    },
+    methods: {
+        clicked: function(index) {
+            index = Number(index);
+            if (this.activeElement === index) {
+                this.activeElement = -1;
+            } else {
+                this.activeElement = index;
             }
         }
     }
+}
 </script>
 
 <style scoped lang="scss">
