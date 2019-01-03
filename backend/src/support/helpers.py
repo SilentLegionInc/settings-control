@@ -27,7 +27,7 @@ def check_password(password, return_token=False):
         raise ServerException('Auth error. Please check user hash on server side', status.HTTP_500_INTERNAL_SERVER_ERROR)
     if password == stored_pass:
         if return_token:
-            return 'Basic ${}'.format(base64.b64encode(':${}'.format(password).encode()).decode('utf-8'))
+            return 'Basic ${}'.format(base64.b64encode(':{}'.format(password).encode()).decode('utf-8'))
         else:
             return True
     else:

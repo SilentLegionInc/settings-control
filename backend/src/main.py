@@ -44,7 +44,6 @@ def handle_errors(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
-            Logger().info_message('trying')
             return func(*args, **kwargs)
         except Exception as ex:
             if isinstance(ex, ServerException):
@@ -63,7 +62,6 @@ def handle_errors(func):
 def api_authorization(func):
     @wraps(func)
     def my_wrapper(*args, **kwargs):
-        Logger().info_message('Auth wrapper')
         if not SettingsService().server_config.get('need_to_auth', False):
             Logger().info_message('Mocked authorization. Skip checking')
             return func(*args, **kwargs)
@@ -218,7 +216,7 @@ def api_logs():
 @handle_errors
 def api_login():
     info = request.get_json()
-    result = check_password(info.get('password', ''))
+    result = check_password(info.get('password', ''), True)
     if result:
         return jsonify({'token': result}), status.HTTP_200_OK
 
