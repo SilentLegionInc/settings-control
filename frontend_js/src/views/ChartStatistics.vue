@@ -4,7 +4,7 @@
             Home page
         </h1>
         <div class="small">
-            <line-chart :chart-data="datacollection" :options="options"></line-chart>
+            <line-chart :chart-data="chartData" :options="options"></line-chart>
             <button @click="fillData()">Randomize</button>
         </div>
     </div>
@@ -14,15 +14,15 @@
 import LineChart from './LineChart.js'
 
 export default {
+    name: 'ChartStatistics',
     components: {
         LineChart
     },
+    props: ['robotName'],
     data: function() {
         return {
-            datacollection: null,
+            chartData: null,
             options: {
-                responsive: true,
-                maintainAspectRatio: false
             }
         }
     },
@@ -31,30 +31,13 @@ export default {
     },
     methods: {
         fillData () {
-            this.datacollection = {
-                labels: [1,2,3,4,5,6,7,8,9,10],
+            this.chartData = {
                 datasets: [
                     {
                         label: 'Data One',
                         backgroundColor: '#0a00a9',
                         borderColor: '#0a00a9',
-                        data: Array.from({ length: 40 }, () => this.getRandomInt()),
-                        fill: false,
-                        lineTension: 0
-                    },
-                    {
-                        label: 'Data Two',
-                        backgroundColor: '#00f808',
-                        borderColor: '#00f808',
-                        data: Array.from({ length: 40 }, () => this.getRandomInt()),
-                        fill: false,
-                        lineTension: 0
-                    },
-                    {
-                        label: 'Data Three',
-                        backgroundColor: '#f80100',
-                        borderColor: '#f80100',
-                        data: Array.from({ length: 40 }, () => this.getRandomInt()),
+                        data: [{ x: 3, y: 15 }, { x: 5, y: 17 }, { x: 9, y: 30 }, { x: 13, y: 36 }],
                         fill: false,
                         lineTension: 0
                     }
@@ -62,7 +45,7 @@ export default {
             }
         },
         getRandomInt () {
-            return Math.floor(Math.random() * 5)
+            return Math.floor(Math.random() * 80)
         }
     }
 }
