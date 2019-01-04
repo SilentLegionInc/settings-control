@@ -43,8 +43,8 @@
             </thead>
 
             <tbody class="custom-table-body">
-            <tr v-for="log in logs">
-                <td>{{ log.id }}</td>
+            <tr v-for="(log, index) in logs">
+                <td>{{ (_currentPage - 1) * elementsPerPage + index + 1 }}</td>
                 <td>{{ log.time | moment("DD.MM.YYYY hh:mm:ss.SSS") }}</td>
                 <td>{{ log.type | logLevelToString }}</td>
                 <td>{{ log.title }}</td>

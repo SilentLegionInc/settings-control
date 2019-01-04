@@ -1,80 +1,76 @@
 <template>
     <div>
         <h1>
-            Chart statistics
+            Home page
         </h1>
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <!--<line-chart :chartData="datasets"-->
-                                <!--:options="options"-->
-                                <!--:width="800"-->
-                                <!--:height="400">-->
-                    <!--</line-chart>-->
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-9 offset-md-2" align="right">
-                    <button class="btn btn-primary" @click="generateDataSets()">Add a point</button>
-                </div>
-            </div>
+        <div class="small">
+            <line-chart :chart-data="datacollection" :options="options"></line-chart>
+            <button @click="fillData()">Randomize</button>
         </div>
     </div>
 </template>
 
 <script>
-    export default {
-        name: 'ChartStatistics',
-        data: function() {
-            return {
-                datasets: {
-                    labels: ['labelOne', 'labelTwo'],
-                    datasets: [
-                        {
-                            label: 'Data One',
-                            backgroundColor: '#f87979',
-                            data: [0, 1]
-                        }, {
-                            label: 'Data One',
-                            backgroundColor: '#f87979',
-                            data: [1, 2]
-                        }
-                    ]
-                },
+import LineChart from './LineChart.js'
 
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            };
-        },
-        methods: {
-            addPoint: function() {
-                this.datasets.labels.push(new Date().toDateString());
-                this.datasets.datasets.forEach(elem => {
-                    elem.data.push(3);
-                })
-            },
-
-            generateDataSets: function() {
-                this.datasets = {
-                    labels: ['label One ' + new Date().toDateString(), 'label Two' + new Date().toDateString()],
-                    datasets: [
-                        {
-                            label: 'Data One',
-                            backgroundColor: '#f87979',
-                            data: [Math.random() * 100, Math.random() * 100]
-                        }, {
-                            label: 'Data Two',
-                            backgroundColor: '#f87979',
-                            data: [Math.random() * 100, Math.random() * 100, Math.random() * 100]
-                        }
-                    ]
-                }
+export default {
+    components: {
+        LineChart
+    },
+    data: function() {
+        return {
+            datacollection: null,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
             }
         }
+    },
+    mounted: function () {
+        this.fillData()
+    },
+    methods: {
+        fillData () {
+            this.datacollection = {
+                labels: [1,2,3,4,5,6,7,8,9,10],
+                datasets: [
+                    {
+                        label: 'Data One',
+                        backgroundColor: '#0a00a9',
+                        borderColor: '#0a00a9',
+                        data: Array.from({ length: 40 }, () => this.getRandomInt()),
+                        fill: false,
+                        lineTension: 0
+                    },
+                    {
+                        label: 'Data Two',
+                        backgroundColor: '#00f808',
+                        borderColor: '#00f808',
+                        data: Array.from({ length: 40 }, () => this.getRandomInt()),
+                        fill: false,
+                        lineTension: 0
+                    },
+                    {
+                        label: 'Data Three',
+                        backgroundColor: '#f80100',
+                        borderColor: '#f80100',
+                        data: Array.from({ length: 40 }, () => this.getRandomInt()),
+                        fill: false,
+                        lineTension: 0
+                    }
+                ]
+            }
+        },
+        getRandomInt () {
+            return Math.floor(Math.random() * 5)
+        }
     }
+}
 </script>
 
-<style scoped lang="scss">
+<style>
+    .small {
+        max-width: 600px;
+        margin:  150px auto;
+    }
 </style>

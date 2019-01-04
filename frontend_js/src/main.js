@@ -5,7 +5,6 @@ import store from './store';
 import BootstrapVue from 'bootstrap-vue';
 import VModal from 'vue-js-modal';
 import Datetime from 'vue-datetime';
-import { RequestService } from './services/RequestService';
 import 'vue-datetime/dist/vue-datetime.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
