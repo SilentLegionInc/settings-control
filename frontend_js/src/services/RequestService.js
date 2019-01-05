@@ -63,7 +63,7 @@ export class RequestService {
             body['offset'] = offset;
         }
         
-        Logger.debug('Request: get logs');
+        Logger.debug('POST request: get logs');
         Logger.debug(`Path: ${path}`);
         Logger.debug(`Body: ${JSON.stringify(body)}`);
         
@@ -71,7 +71,7 @@ export class RequestService {
         return MapperService.mapLogsResponse(result.data);
     }
     
-    async getChartData(robotName, fieldName, limit = 1, offset = 0, startTime = null, endTime = null) {
+    async getStatisticsData(robotName, fieldName, limit = 1, offset = 0, startTime = null, endTime = null) {
         const path = this._constructPath(`api/monitoring/data/${robotName}`);
     
         const body = {};
@@ -95,11 +95,21 @@ export class RequestService {
             body['offset'] = offset;
         }
     
-        Logger.debug('Request: get chart data');
+        Logger.debug('POST request: get statistics data');
         Logger.debug(`Path: ${path}`);
         Logger.debug(`Body: ${JSON.stringify(body)}`);
     
         const result = await axios.post(path, body);
         return MapperService.mapChartDataResponse(result.data);
+    }
+    
+    async getStatisticsDataStructure(robotName) {
+        const path = this._constructPath(`api/monitoring/structure/${robotName}`);
+    
+        Logger.debug('GET request: get statistics data structure');
+        Logger.debug(`Path: ${path}`);
+    
+        const result = await axios.get(path);
+        return MapperService.mapDataStructureResponse(result.data);
     }
 }

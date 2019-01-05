@@ -60,7 +60,7 @@ export default {
             const filterStartTime = this.filterStartTime ? new Date(this.filterStartTime) : null;
             const filterEndTime = this.filterEndTime ? new Date(this.filterEndTime) : null;
 
-            const response = await this.$store.state.requestService.getChartData(this.robotName, this.fieldName, limit, offset, filterStartTime, filterEndTime);
+            const response = await this.$store.state.requestService.getStatisticsData(this.robotName, this.fieldName, limit, offset, filterStartTime, filterEndTime);
             this.dbElementsCount = response.count;
             this.data = response.result;
         }

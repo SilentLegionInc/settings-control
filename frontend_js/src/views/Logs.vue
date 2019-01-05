@@ -92,9 +92,6 @@ export default {
             }
         }
     },
-    mounted: function() {
-        this.currentPage = 1;
-    },
     methods: {
         mockedLoadData: function(page) {
             this.dbElementsCount = 300;
@@ -123,6 +120,9 @@ export default {
             this.dbElementsCount = response.count;
             this.logs = response.result;
         }
+    },
+    mounted() {
+        this.currentPage = 1;
     },
     filters: {
         logLevelToString: function(level) {

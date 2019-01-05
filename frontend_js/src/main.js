@@ -5,6 +5,7 @@ import store from './store';
 import BootstrapVue from 'bootstrap-vue';
 import VModal from 'vue-js-modal';
 import Datetime from 'vue-datetime';
+
 import 'vue-datetime/dist/vue-datetime.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
@@ -19,7 +20,6 @@ Vue.use(BootstrapVue);
 Vue.use(moment);
 Vue.use(Datetime);
 
-// TODO move requestService to
 new Vue({
     router,
     store,
