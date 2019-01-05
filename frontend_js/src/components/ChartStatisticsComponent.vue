@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import LineChart from './LineChart.js';
+import LineChart from '../views/LineChart.js';
 import Logger from '../logger';
 
 export default {

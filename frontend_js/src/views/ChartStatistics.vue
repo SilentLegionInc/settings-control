@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import ChartStatisticsComponent from './ChartStatisticsComponent'
+import ChartStatisticsComponent from '../components/ChartStatisticsComponent'
 
 export default {
     name: 'ChartStatistics',
