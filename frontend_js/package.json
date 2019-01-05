@@ -53,7 +53,8 @@
         4
       ],
       "space-before-function-paren": "off",
-      "no-trailing-spaces": "off"
+      "no-trailing-spaces": "off",
+      "vue/no-reserved-keys": "off"
     },
     "parserOptions": {
       "parser": "babel-eslint"

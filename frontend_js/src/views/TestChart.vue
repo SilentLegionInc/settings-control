@@ -21,8 +21,9 @@ export default {
         return {
             datacollection: null,
             options: {
-                responsive: true,
-                maintainAspectRatio: false
+                tooltips: {
+                    enabled: false
+                }
             }
         }
     },

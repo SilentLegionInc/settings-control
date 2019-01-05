@@ -43,7 +43,7 @@
             </thead>
 
             <tbody class="custom-table-body">
-            <tr v-for="(log, index) in logs">
+            <tr v-for="(log, index) in logs" :key="log.time">
                 <td>{{ (_currentPage - 1) * elementsPerPage + index + 1 }}</td>
                 <td>{{ log.time | moment("DD.MM.YYYY hh:mm:ss.SSS") }}</td>
                 <td>{{ log.type | logLevelToString }}</td>
@@ -106,13 +106,10 @@ export default {
 
             const offset = (page - 1) * this.elementsPerPage;
             const limit = this.elementsPerPage;
-            console.log(data);
             if (offset > 0) {
                 data.splice(0, (page - 1) * this.elementsPerPage);
             }
-            console.log(data);
             this.logs = data.slice(0, limit);
-            console.log(this.logs);
         },
 
         loadData: async function(page) {

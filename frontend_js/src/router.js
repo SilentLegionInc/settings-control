@@ -1,11 +1,12 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import Home from './views/Home.vue'
-import Settings from './views/Settings'
-import TableStatistics from './views/TableStatistics'
-import ChartStatistics from './views/ChartStatistics'
-import Network from './views/Networks'
-import Logs from './views/Logs'
+import Vue from 'vue';
+import Router from 'vue-router';
+import Home from './views/Home.vue';
+import Settings from './views/Settings';
+import TableStatistics from './views/TableStatistics';
+import ChartStatistics from './views/ChartStatistics';
+import Network from './views/Networks';
+import Logs from './views/Logs';
+import TestChart from './views/TestChart';
 
 Vue.use(Router);
 
@@ -50,6 +51,11 @@ export default new Router({
             path: '/logs',
             name: 'logs',
             component: Logs
+        },
+        {
+            path: '/test_chart',
+            name: 'test-chart',
+            component: TestChart
         }
     ]
 })
