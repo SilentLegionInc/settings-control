@@ -9,7 +9,7 @@ const levels = {
     WARN: Logger.WARN,
     ERROR: Logger.ERROR,
     OFF: Logger.OFF
-}
+};
 
 const logLevel = Config.get('loggingLevel');
 Logger.useDefaults();

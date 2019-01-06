@@ -6,12 +6,12 @@ from flask_bcrypt import Bcrypt
 from support.logger import Logger
 from configuration.settings_service import SettingsService
 from flask_login import login_user, login_required, logout_user, current_user
-from flask import request, redirect, url_for, jsonify, render_template, Response
+from flask import request, redirect, url_for, jsonify, render_template
 from werkzeug.urls import url_parse
 from logs_service import LogsService
 from support.forms import LoginForm
 from support.models import User
-from support.helpers import check_password
+from support.helpers import check_password, check_token, change_password
 from configuration.update_service import UpdateService
 from configuration.core_service import CoreService
 from functools import wraps
@@ -34,6 +34,7 @@ app.secret_key = app.config['SECRET_KEY']
 cors = CORS(app)
 
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
+# will try to save current token here
 bootstrap = Bootstrap(app)
 
 login = LoginManager(app)
@@ -50,18 +51,22 @@ def handle_errors(func):
                 Logger().error_message('Got an exception')
                 Logger().error_message('Message: {}. Code: {}'.format(ex.message, ex.status_code))
                 Logger().error_message(traceback.format_exc())
-                return Response(HTTP_STATUS_CODES[ex.status_code], ex.status_code)
+                return jsonify({'errorInfo': ex.message,
+                                'errorStatus': HTTP_STATUS_CODES[ex.status_code]}), \
+                       ex.status_code
             else:
                 Logger().error_message('Got an unknown exception')
                 Logger().error_message(traceback.format_exc())
-                return Response(HTTP_STATUS_CODES[status.HTTP_500_INTERNAL_SERVER_ERROR], status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return jsonify({'errorInfo': 'Internal server error',
+                                'errorStatus': HTTP_STATUS_CODES[status.HTTP_500_INTERNAL_SERVER_ERROR]}), \
+                       status.HTTP_500_INTERNAL_SERVER_ERROR
     return wrapper
 
 
 # decorator for check authorization via token
 def api_authorization(func):
     @wraps(func)
-    def my_wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs):
         if not SettingsService().server_config.get('need_to_auth', False):
             Logger().info_message('Mocked authorization. Skip checking')
             return func(*args, **kwargs)
@@ -69,10 +74,11 @@ def api_authorization(func):
         if not request.authorization:
             raise ServerException('Can\'t find Authorization header', status.HTTP_401_UNAUTHORIZED)
 
-        auth_password = request.authorization.password
-        check_password(auth_password, False)
+        token_uuid = request.authorization.username
+        password = request.authorization.password
+        check_token(token_uuid, password)
         return func(*args, **kwargs)
-    return my_wrapper
+    return wrapper
 
 # Here routes starts.
 
@@ -219,6 +225,17 @@ def api_login():
     result = check_password(info.get('password', ''), True)
     if result:
         return jsonify({'token': result}), status.HTTP_200_OK
+
+
+@app.route('/api/password', methods=['POST'])
+@handle_errors
+@api_authorization
+def api_change_password():
+    info = request.get_json()
+    old_password = info.get('oldPassword', '')
+    new_password = info.get('newPassword', '')
+    new_token = change_password(old_password, new_password)
+    return jsonify({'token': new_token}), status.HTTP_200_OK
 
 
 @app.route('/api/monitoring/structure/<string:robot_name>', methods=['GET'])

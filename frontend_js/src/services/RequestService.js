@@ -2,12 +2,16 @@ import axios from 'axios';
 import { MapperService } from './MapperService';
 import Logger from '../logger';
 import store from '../store';
+import { ServerExceptionModel } from '../models/ServerExceptionModel';
 
 export class RequestService {
     constructor(host, port) {
         this._serverHost = host; // Config.get('backendHost')
         this._serverPort = port; // Config.get('backendPort');
-        this._serverUri = `http://${this._serverHost}:${this._serverPort}`
+        this._serverUri = `http://${this._serverHost}:${this._serverPort}`;
+        axios.defaults.validateStatus = function (status) {
+            return status <= 500; // Reject only if the status code is greater than 500
+        }
     }
 
     _constructPath(route) {
@@ -22,24 +26,33 @@ export class RequestService {
     async _authorize(password) {
         const path = this._constructPath(`api/login`);
         const result = await axios.post(path, { password });
+        console.log(result.status);
         if (result.status === 200) {
             const body = result.data;
             return body.token;
         } else {
-            // TODO Log normal
-            Logger.error(result);
-            return false;
+            // TODO Log normal. + Unauth
+            Logger.info(result.data.errorInfo);
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+            // Logger.error(result);
+            // return false;
         }
     }
 
     async changePassword(oldPassword, newPassword) {
-        const res = await axios.post(`api/password`, { oldPassword, newPassword })
+        const path = this._constructPath(`api/password`);
+        const res = await axios.post(path, { oldPassword, newPassword });
         if (res.status === 200) {
             const body = res.data;
             store.commit('setAuthToken', body.token)
         } else {
-            // TODO show error.
+            Logger.error(res.data.errorInfo);
+            throw new ServerExceptionModel(res.data.errorInfo, res.status);
         }
+    }
+
+    async getCoreConfig() {
+
     }
 
     async getLogs(robotName, limit = 1, offset = 0, startTime = null, endTime = null, type = null, sortByTime = null, sortByType = null) {
