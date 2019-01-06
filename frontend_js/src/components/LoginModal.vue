@@ -33,8 +33,9 @@ export default {
         }
     },
     mounted: function() {
-        console.log(this.$modal);
-        this.showModal();
+        if (!this.$store.getters.isAuthenticated) {
+            this.showModal();
+        }
     },
     methods: {
         showModal: function() {
@@ -54,8 +55,10 @@ export default {
         onLogin: async function() {
             try {
                 await this.$store.dispatch('authorize', this.password);
+                this.$toaster.success('Welcome back');
                 this.hideModal();
             } catch (err) {
+                this.$toaster.error('Incorrect password')
                 console.log(err);
                 console.log('incorrect password')
             }

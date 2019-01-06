@@ -36,6 +36,7 @@ export default {
         this.loadData();
     },
     methods: {
+        // TODO move it to request service. Add machine type to response. Create basic DTO?
         loadData: async function() {
             console.log('Start update');
             const answer = await axios.get('http://127.0.0.1:5000/api/config');

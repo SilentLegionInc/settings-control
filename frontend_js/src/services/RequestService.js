@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { MapperService } from './MapperService';
 import Logger from '../logger';
+import store from '../store';
 
 export class RequestService {
     constructor(host, port) {
@@ -8,7 +9,7 @@ export class RequestService {
         this._serverPort = port; // Config.get('backendPort');
         this._serverUri = `http://${this._serverHost}:${this._serverPort}`
     }
-    
+
     _constructPath(route) {
         return `${this._serverUri}/${route}`
     }
@@ -30,10 +31,20 @@ export class RequestService {
             return false;
         }
     }
-    
+
+    async changePassword(oldPassword, newPassword) {
+        const res = await axios.post(`api/password`, { oldPassword, newPassword })
+        if (res.status === 200) {
+            const body = res.data;
+            store.commit('setAuthToken', body.token)
+        } else {
+            // TODO show error.
+        }
+    }
+
     async getLogs(robotName, limit = 1, offset = 0, startTime = null, endTime = null, type = null, sortByTime = null, sortByType = null) {
         const path = this._constructPath(`api/monitoring/logs/${robotName}`);
-    
+
         const body = {};
         if (startTime != null) {
             body['start_time'] = startTime;
@@ -62,18 +73,18 @@ export class RequestService {
         if (offset != null) {
             body['offset'] = offset;
         }
-        
+
         Logger.debug('POST request: get logs');
         Logger.debug(`Path: ${path}`);
         Logger.debug(`Body: ${JSON.stringify(body)}`);
-        
+
         const result = await axios.post(path, body);
         return MapperService.mapLogsResponse(result.data);
     }
-    
+
     async getStatisticsData(robotName, fieldName, limit = 1, offset = 0, startTime = null, endTime = null) {
         const path = this._constructPath(`api/monitoring/data/${robotName}`);
-    
+
         const body = {};
         body['field_name'] = fieldName;
         if (startTime != null) {
@@ -94,21 +105,21 @@ export class RequestService {
         if (offset != null) {
             body['offset'] = offset;
         }
-    
+
         Logger.debug('POST request: get statistics data');
         Logger.debug(`Path: ${path}`);
         Logger.debug(`Body: ${JSON.stringify(body)}`);
-    
+
         const result = await axios.post(path, body);
         return MapperService.mapChartDataResponse(result.data);
     }
-    
+
     async getStatisticsDataStructure(robotName) {
         const path = this._constructPath(`api/monitoring/structure/${robotName}`);
-    
+
         Logger.debug('GET request: get statistics data structure');
         Logger.debug(`Path: ${path}`);
-    
+
         const result = await axios.get(path);
         return MapperService.mapDataStructureResponse(result.data);
     }

@@ -10,6 +10,11 @@ export default new Vuex.Store({
         authToken: null,
         requestService: new RequestService(config.get('backendHost'), config.get('backendPort'))
     },
+    getters: {
+        isAuthenticated: state => {
+            return !!state.authToken;
+        }
+    },
     mutations: {
         setAuthToken(context, newToken) {
             this.state.authToken = newToken;
