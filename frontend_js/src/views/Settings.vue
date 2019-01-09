@@ -28,7 +28,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 import LoginModal from '@/components/LoginModal';
 import { ServerExceptionModel } from '../models/ServerExceptionModel';
 import logger from '../logger';
