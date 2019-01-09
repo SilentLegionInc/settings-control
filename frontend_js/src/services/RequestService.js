@@ -52,7 +52,26 @@ export class RequestService {
     }
 
     async getCoreConfig() {
+        const path = this._constructPath('api/config');
+        const res = await axios.get(path);
+        if (res.status === 200) {
+            return res.data;
+        } else {
+            Logger.error(res.data.errorInfo);
+            throw new ServerExceptionModel(res.data.errorInfo, res.status);
+        }
+    }
 
+    async setCoreConfig(newConfig) {
+        const path = this._constructPath('api/config');
+        const res = await axios.post(path, newConfig);
+        if (res.status === 200) {
+            // TODO change answer format in backend
+            return true;
+        } else {
+            Logger.error(res.data.errorInfo);
+            throw new ServerExceptionModel(res.data.errorInfo, res.status);
+        }
     }
 
     async getLogs(robotName, limit = 1, offset = 0, startTime = null, endTime = null, type = null, sortByTime = null, sortByType = null) {
