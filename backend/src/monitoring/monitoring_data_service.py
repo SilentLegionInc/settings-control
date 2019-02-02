@@ -130,18 +130,25 @@ class MonitoringDataService(metaclass=Singleton):
                     'longitude': row[3]
                 })
 
-            main_query = 'SELECT COUNT(*) FROM {}'.format(collection_name)
+            main_query = 'SELECT COUNT(*), MIN({}), AVG({}), MAX({}) FROM {}'.format(
+                needed_column_name, needed_column_name, needed_column_name, collection_name
+            )
             query = ' '.join([main_query, filter_query])
 
             Logger().debug_message(query, "Sensors database query: ")
 
             cursor.execute(query)
-            count = cursor.fetchone()[0]
+            support_result = cursor.fetchone()
+
+            count = support_result[0]
+            minimum = support_result[1]
+            average = support_result[2]
+            maximum = support_result[3]
 
             cursor.close()
             connection.close()
 
-            return {'result': result, 'count': count}
+            return {'result': result, 'count': count, 'minimum': minimum, 'average': average, 'maximum': maximum}
         except Exception as ex:
             cursor.close()
             connection.close()

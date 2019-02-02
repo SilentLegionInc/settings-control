@@ -26,7 +26,10 @@ class Mapper:
                 'latitude': elem['latitude'],
                 'longitude': elem['longitude']
             }, body['result'])),
-            'count': body['count']
+            'count': body['count'],
+            'minimum': body['minimum'],
+            'average': body['average'],
+            'maximum': body['maximum']
         }
 
     @staticmethod
