@@ -4,7 +4,7 @@
       <h2 align="center">Конфигурация ядра</h2>
     </div>
     <div v-if="settings">
-      <div class="row form-group" v-for="(_, settingKey) in settings">
+      <div class="row form-group" v-for="(_, settingKey) in settings" v-bind:key="settingKey">
         <label class="offset-md-2 col-md-3 col-form-label" :for="settingKey">{{settingKey}}</label>
         <div class="col-md-5">
           <input class="form-control" type="text" :id="settingKey" v-model="settings[settingKey]" :placeholder="settingKey"/>
@@ -35,13 +35,15 @@ import logger from '../logger';
 export default {
     name: 'Settings',
     mounted: function() {
-        this.loadData();
+        if (this.$store.getters.isAuthenticated) {
+            this.loadData();
+        }
     },
     methods: {
         // TODO Add machine type to response. Create basic DTO?
         loadData: async function() {
             try {
-                this.settings = await this.$store.requestService.getCoreConfig();
+                this.settings = await this.$store.state.requestService.getCoreConfig();
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);

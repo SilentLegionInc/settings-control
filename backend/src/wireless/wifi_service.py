@@ -218,7 +218,6 @@ class NmcliWireless(WifiDriver):
 
 
 # Linux nmcli Driver >= 0.9.9.0 (Actual driver)
-# TODO add new methods: list_of_connections and detail_connection_info??
 # TODO make cleanup
 class Nmcli0990Wireless(WifiDriver):
     _interface = None
@@ -259,15 +258,17 @@ class Nmcli0990Wireless(WifiDriver):
 
     # connect to a network
     def connect(self, ssid, password):
-        # clean up previous connection
-        self._clean(ssid)
-        cmd(cmd='nmcli con down {}'.format(self.current()))
+        # clean up previous connection TODO check for need of it
+        # self._clean(ssid)
+        # turn off current connection
+        cmd(command='nmcli con down {}'.format(self.current()))
         print('Linux driver working')
-        # attempt to connect
+        # trying ti connect
         response = cmd('nmcli dev wifi connect {} password {} iface {}'.format(
             ssid, password, self._interface))
         print(response)
         # parse response
+        # TODO if error need to up old connection
         return not self._errorInResponse(response)
 
     # returned the ssid of the current network

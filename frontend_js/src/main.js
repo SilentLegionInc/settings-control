@@ -13,6 +13,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 import 'font-awesome/css/font-awesome.css';
 import './global_css/styles.scss';
 import 'v-toaster/dist/v-toaster.css'
+import '@fortawesome/fontawesome-free/css/all.css'
 
 const moment = require('vue-moment');
 

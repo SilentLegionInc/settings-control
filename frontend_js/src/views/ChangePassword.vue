@@ -26,8 +26,10 @@ export default {
             const res = await this.$store.state.requestService.changePassword(this.oldPassword, this.newPassword);
             // TODO
             if (res) {
+                // redirect to home page and delete token
                 // ok
             } else {
+                // ???
                 // error
             }
         }

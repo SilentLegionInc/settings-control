@@ -61,6 +61,7 @@ export default
                 await this.$store.dispatch('authorize', this.password);
                 this.$toaster.success('Log in successful');
                 this.hideModal();
+                this.$emit('logged');
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);

@@ -12,6 +12,7 @@ export class RequestService {
         axios.defaults.validateStatus = function (status) {
             return status <= 500; // Reject only if the status code is greater than 500
         }
+        Logger.info('i\'m born');
     }
 
     _constructPath(route) {
@@ -45,6 +46,17 @@ export class RequestService {
         if (res.status === 200) {
             const body = res.data;
             store.commit('setAuthToken', body.token)
+        } else {
+            Logger.error(res.data.errorInfo);
+            throw new ServerExceptionModel(res.data.errorInfo, res.status);
+        }
+    }
+
+    async getNetworks() {
+        const path = this._constructPath('api/wifi');
+        const res = await axios.get(path);
+        if (res.status === 200) {
+            return MapperService.mapNetworksResponse(res.data);
         } else {
             Logger.error(res.data.errorInfo);
             throw new ServerExceptionModel(res.data.errorInfo, res.status);
