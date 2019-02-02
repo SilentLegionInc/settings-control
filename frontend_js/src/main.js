@@ -21,7 +21,7 @@ Vue.use(VModal);
 Vue.use(BootstrapVue);
 Vue.use(moment);
 Vue.use(Datetime);
-Vue.use(Toaster, {timeout: 5000})
+Vue.use(Toaster, { timeout: 5000 })
 
 new Vue({
     router,
