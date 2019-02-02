@@ -21,3 +21,32 @@
 .clickable:hover {
   color: #DAB6C8;
 }
+
+.custom-table {
+  width: 100%;
+}
+
+.custom-table th, td {
+  padding-left: 7px !important;
+}
+
+.custom-table-header {
+  background: rgb(190, 190, 190);
+}
+
+.custom-table-header tr {
+  height: 40px;
+}
+
+.custom-table-body {
+  background: lightgray;
+}
+
+.custom-table-body tr {
+  background: white;
+  height: 40px;
+}
+
+.custom-table-body tr:nth-child(even) {
+  background: rgb(240, 240, 240);
+}

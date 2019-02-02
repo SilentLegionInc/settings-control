@@ -1,21 +1,20 @@
 <template>
     <div>
         <form>
-            <div class="row">
-                <span class="col-md-3">
+            <div class="row filter-flexbox-container padding-left-sm padding-right-sm">
+                <span class="margin-left-xs margin-right-xs">
                     <span>Start time: </span>
-                    <datetime v-model="filterStartTime" type="datetime" input-class="form-control"></datetime>
+                    <datetime v-model="filterStartTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                 </span>
 
-                <span class="col-md-3">
+                <span class="margin-left-xs margin-right-xs">
                     <span>End time: </span>
-                    <datetime v-model="filterEndTime" type="datetime" input-class="form-control"></datetime>
+                    <datetime v-model="filterEndTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                 </span>
 
-                <span class="col-md-3">
+                <span class="margin-left-xs margin-right-xs">
                     <span>Type: </span>
                     <select class="form-control" v-model="filterType">
-                        <option selected value> -- select an option -- </option>
                         <option value=0>Critical</option>
                         <option value=1>Warning</option>
                         <option value=2>Debug</option>
@@ -23,8 +22,10 @@
                     </select>
                 </span>
 
-                <span class="col-md-3">
-                    <button type="button" class="btn btn-primary" @click="loadData(1)">Primary</button>
+                <span class="margin-left-xs margin-right-xs">
+                    <div>&nbsp;</div>
+                    <button type="button" class="btn btn-primary margin-right-xs" @click="loadData(1)">Apply</button>
+                    <button type="button" class="btn btn-secondary margin-left-xs" @click="clearFilters()">Clear</button>
                 </span>
             </div>
         </form>
@@ -43,9 +44,9 @@
             </thead>
 
             <tbody class="custom-table-body">
-            <tr v-for="(log, index) in logs" :key="log.time">
+            <tr v-for="(log, index) in logs" :key="index">
                 <td>{{ (_currentPage - 1) * elementsPerPage + index + 1 }}</td>
-                <td>{{ log.time | moment("DD.MM.YYYY hh:mm:ss.SSS") }}</td>
+                <td>{{ log.time | moment("DD.MM.YYYY HH:mm:ss.SSS") }}</td>
                 <td>{{ log.type | logLevelToString }}</td>
                 <td>{{ log.title }}</td>
                 <td>{{ log.message }}</td>
@@ -53,14 +54,24 @@
             </tbody>
         </table>
 
-        <div class="col-md-12 margin-top-sm">
-            <b-pagination class="pagination-nav"
+        <div class="pagination-flexbox-container padding-top-sm">
+            <b-pagination class="paginator-flexbox-item padding-bottom-sm"
                           size="md"
                           :total-rows="dbElementsCount"
                           v-model="currentPage"
                           :per-page="elementsPerPage"
                           align="center">
             </b-pagination>
+
+            <div class="per-page-flexbox-item per-page-flexbox-container padding-bottom-sm">
+                <div class="margin-right-xs" style="white-space: nowrap;">
+                    Per page:
+                </div>
+
+                <div>
+                    <input :value="elementsPerPage" @change="changeElementsPerPage" type="number" class="form-control" style="max-width: 80px">
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -109,6 +120,17 @@ export default {
             this.logs = data.slice(0, limit);
         },
 
+        clearFilters() {
+            this.filterStartTime = null;
+            this.filterEndTime = null;
+            this.filterType = null;
+        },
+
+        changeElementsPerPage(event) {
+            this.elementsPerPage = event.target.valueAsNumber;
+            this.loadData(this.currentPage);
+        },
+
         loadData: async function(page) {
             const offset = (page - 1) * this.elementsPerPage;
             const limit = this.elementsPerPage;
@@ -127,16 +149,16 @@ export default {
     filters: {
         logLevelToString: function(level) {
             switch (level) {
-                case LogLevel.INFO:
-                    return 'Info';
-                case LogLevel.DEBUG:
-                    return 'Debug';
-                case LogLevel.WARNING:
-                    return 'Warning';
-                case LogLevel.CRITICAL:
-                    return 'Critical';
-                default:
-                    return 'Unknown';
+            case LogLevel.INFO:
+                return 'Info';
+            case LogLevel.DEBUG:
+                return 'Debug';
+            case LogLevel.WARNING:
+                return 'Warning';
+            case LogLevel.CRITICAL:
+                return 'Critical';
+            default:
+                return 'Unknown';
             }
         }
     }
@@ -144,32 +166,37 @@ export default {
 </script>
 
 <style scoped lang="scss">
-    .custom-table {
-        width: 100%;
+    .filter-flexbox-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: left;
+        align-items: flex-end;
+        flex-wrap: wrap;
     }
 
-    .custom-table th, td {
-        padding-left: 7px !important;
+    .per-page-flexbox-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
     }
 
-    .custom-table-header {
-        background: rgb(190, 190, 190);
+    .pagination-flexbox-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
     }
 
-    .custom-table-header tr {
-        height: 40px;
+    .paginator-flexbox-item {
+        margin: 0;
+        justify-self: center;
+        flex-grow: 3;
     }
 
-    .custom-table-body {
-        background: lightgray;
-    }
-
-    .custom-table-body tr {
-        background: white;
-        height: 40px;
-    }
-
-    .custom-table-body tr:nth-child(even) {
-        background: rgb(240, 240, 240);
+    .per-page-flexbox-item {
+        justify-self: flex-end;
+        flex-grow: 1;
     }
 </style>

@@ -1,6 +1,72 @@
 <template>
     <div>
+        <form>
+            <div class="row filter-flexbox-container">
+                <span class="margin-left-xs margin-right-xs">
+                    <span>Start time: </span>
+                    <datetime v-model="filterStartTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
+                </span>
+
+                <span class="margin-left-xs margin-right-xs">
+                    <span>End time: </span>
+                    <datetime v-model="filterEndTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
+                </span>
+
+                <span class="margin-left-xs margin-right-xs">
+                    <div>&nbsp;</div>
+                    <button type="button" class="btn btn-primary margin-right-xs" @click="loadData(1)">Apply</button>
+                    <button type="button" class="btn btn-secondary margin-left-xs" @click="clearFilters()">Clear</button>
+                </span>
+            </div>
+        </form>
+
+        <hr>
+
         <line-chart v-if="chartData" :chart-data="chartData" :options="chartOptions"></line-chart>
+
+        <hr>
+
+        <table class="custom-table">
+            <thead class="custom-table-header">
+            <tr>
+                <th>№</th>
+                <th>Time</th>
+                <th>Value</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+            </tr>
+            </thead>
+
+            <tbody class="custom-table-body">
+            <tr v-for="(dataElem, index) in data" :key="index">
+                <td>{{ (_currentPage - 1) * elementsPerPage + index + 1 }}</td>
+                <td>{{ dataElem.time | moment("DD.MM.YYYY HH:mm:ss.SSS") }}</td>
+                <td>{{ dataElem.value }}</td>
+                <td>{{ dataElem.latitude }}</td>
+                <td>{{ dataElem.longitude }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="pagination-flexbox-container padding-top-sm">
+            <b-pagination class="paginator-flexbox-item padding-bottom-sm"
+                          size="md"
+                          :total-rows="dbElementsCount"
+                          v-model="currentPage"
+                          :per-page="elementsPerPage"
+                          align="center">
+            </b-pagination>
+
+            <div class="per-page-flexbox-item per-page-flexbox-container padding-bottom-sm">
+                <div class="margin-right-xs" style="white-space: nowrap;">
+                    Per page:
+                </div>
+
+                <div>
+                    <input :value="elementsPerPage" @change="changeElementsPerPage" type="number" class="form-control" style="max-width: 80px">
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -48,6 +114,17 @@ export default {
                 ]
             }
         },
+
+        clearFilters() {
+            this.filterStartTime = null;
+            this.filterEndTime = null;
+        },
+
+        changeElementsPerPage(event) {
+            this.elementsPerPage = event.target.valueAsNumber;
+            this.loadData(this.currentPage);
+        },
+
         async loadData(page) {
             if (this.robotName == null || this.fieldName == null) {
                 const wrongField = this.robotName == null ? 'robot name' : 'field name';
@@ -126,5 +203,38 @@ const datasetOptions = {
 };
 </script>
 
-<style>
+<style lang="scss">
+    .filter-flexbox-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: left;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .per-page-flexbox-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .pagination-flexbox-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .paginator-flexbox-item {
+        margin: 0;
+        justify-self: center;
+        flex-grow: 3;
+    }
+
+    .per-page-flexbox-item {
+        justify-self: flex-end;
+        flex-grow: 1;
+    }
 </style>
