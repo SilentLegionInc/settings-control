@@ -3,19 +3,19 @@
         <form>
             <div class="row filter-flexbox-container">
                 <span class="margin-left-xs margin-right-xs">
-                    <span>Start time: </span>
+                    <span>Нач. время:</span>
                     <datetime v-model="filterStartTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                 </span>
 
                 <span class="margin-left-xs margin-right-xs">
-                    <span>End time: </span>
+                    <span>Кон. время:</span>
                     <datetime v-model="filterEndTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                 </span>
 
                 <span class="margin-left-xs margin-right-xs">
                     <div>&nbsp;</div>
-                    <button type="button" class="btn btn-primary margin-right-xs" @click="loadData(1)">Apply</button>
-                    <button type="button" class="btn btn-secondary margin-left-xs" @click="clearFilters()">Clear</button>
+                    <button type="button" class="btn btn-primary margin-right-xs" @click="loadData(1)">Применить</button>
+                    <button type="button" class="btn btn-secondary margin-left-xs" @click="clearFilters()">Очистить</button>
                 </span>
             </div>
         </form>
@@ -30,10 +30,10 @@
             <thead class="custom-table-header">
             <tr>
                 <th>№</th>
-                <th>Time</th>
-                <th>Value</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
+                <th>Время</th>
+                <th>Значение</th>
+                <th>Широта</th>
+                <th>Долгота</th>
             </tr>
             </thead>
 
@@ -59,7 +59,7 @@
 
             <div class="per-page-flexbox-item per-page-flexbox-container padding-bottom-sm">
                 <div class="margin-right-xs" style="white-space: nowrap;">
-                    Per page:
+                    На странице:
                 </div>
 
                 <div>
@@ -145,7 +145,7 @@ export default {
             this.minimumValue = response.minimum;
             this.averageValue = response.average;
             this.maximumValue = response.maximum;
-            // TODO add these values to chart
+
             this.data = response.result;
         }
     },
@@ -166,8 +166,8 @@ export default {
             set(newData) {
                 this.tableData = newData;
 
-                const dataset = JSON.parse(JSON.stringify(datasetOptions));
-                dataset.data = newData.map(elem => {
+                const mainDataset = JSON.parse(JSON.stringify(datasetOptions));
+                mainDataset.data = newData.map(elem => {
                     return {
                         x: elem.time,
                         y: elem.value,
@@ -175,7 +175,44 @@ export default {
                         longitude: elem.longitude
                     }
                 });
-                this.chartData = { datasets: [dataset] };
+
+                const minDataset = JSON.parse(JSON.stringify(datasetOptions));
+                minDataset.borderColor = '#a9a400';
+                minDataset.backgroundColor = '#a9a400';
+                minDataset.label = 'Минимальное значение';
+                minDataset.supported = 1;
+                minDataset.data = newData.map(elem => {
+                    return {
+                        x: elem.time,
+                        y: this.minimumValue
+                    }
+                });
+
+                const avgDataset = JSON.parse(JSON.stringify(datasetOptions));
+                avgDataset.borderColor = '#a9003a';
+                avgDataset.backgroundColor = '#a9003a';
+                avgDataset.label = 'Среднее значение';
+                avgDataset.supported = 2;
+                avgDataset.data = newData.map(elem => {
+                    return {
+                        x: elem.time,
+                        y: this.averageValue
+                    }
+                });
+
+                const maxDataset = JSON.parse(JSON.stringify(datasetOptions));
+                maxDataset.borderColor = '#00a96f';
+                maxDataset.backgroundColor = '#00a96f';
+                maxDataset.label = 'Максимальное значение';
+                maxDataset.supported = 3;
+                maxDataset.data = newData.map(elem => {
+                    return {
+                        x: elem.time,
+                        y: this.maximumValue
+                    }
+                });
+
+                this.chartData = { datasets: [mainDataset, minDataset, avgDataset, maxDataset] };
             }
         }
     },
@@ -204,7 +241,7 @@ function getChartOptions(moment) {
             yAxes: [{
                 scaleLabel: {
                     display: true,
-                    labelString: 'Value',
+                    labelString: 'Значение данных',
                     fontSize: 14
                 }
             }]
@@ -225,14 +262,28 @@ function getChartOptions(moment) {
         tooltips: {
             callbacks: {
                 label: (tooltipItem, data) => {
-                    const time = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x;
-                    const latitude = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].latitude;
-                    const longitude = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].longitude;
-
                     const text = [];
-                    text.push(`Время: ${moment(time).format('DD.MM.YYYY HH:mm:ss.SSS')}`);
-                    text.push(`Широта: ${latitude}`);
-                    text.push(`Долгота: ${longitude}`);
+
+                    switch (data.datasets[tooltipItem.datasetIndex].supported) {
+                    case 1:
+                        text.push(`Минимальное значение`);
+                        break;
+                    case 2:
+                        text.push(`Среднее значение`);
+                        break;
+                    case 3:
+                        text.push(`Максимальное значение`);
+                        break;
+                    default:
+                        const time = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x;
+                        const latitude = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].latitude;
+                        const longitude = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].longitude;
+
+                        text.push(`Время: ${moment(time).format('DD.MM.YYYY HH:mm:ss.SSS')}`);
+                        text.push(`Широта: ${latitude}`);
+                        text.push(`Долгота: ${longitude}`);
+                        break;
+                    }
 
                     return text;
                 },
@@ -265,7 +316,7 @@ function getChartOptions(moment) {
 }
 
 const datasetOptions = {
-    label: 'Data One',
+    label: 'Данные',
     backgroundColor: '#0a00a9',
     borderColor: '#0a00a9',
     borderWidth: 3,

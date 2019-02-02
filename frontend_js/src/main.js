@@ -10,7 +10,7 @@ import Datetime from 'vue-datetime';
 import 'vue-datetime/dist/vue-datetime.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
-import 'font-awesome/css/font-awesome.css';
+// import 'font-awesome/css/font-awesome.css';
 import './global_css/styles.scss';
 import 'v-toaster/dist/v-toaster.css'
 import '@fortawesome/fontawesome-free/css/all.css'

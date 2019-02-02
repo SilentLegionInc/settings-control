@@ -3,17 +3,17 @@
         <form>
             <div class="row filter-flexbox-container padding-left-sm padding-right-sm">
                 <span class="margin-left-xs margin-right-xs">
-                    <span>Start time: </span>
+                    <span>Нач. время: </span>
                     <datetime v-model="filterStartTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                 </span>
 
                 <span class="margin-left-xs margin-right-xs">
-                    <span>End time: </span>
+                    <span>Кон. время: </span>
                     <datetime v-model="filterEndTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                 </span>
 
                 <span class="margin-left-xs margin-right-xs">
-                    <span>Type: </span>
+                    <span>Тип: </span>
                     <select class="form-control" v-model="filterType">
                         <option value=0>Critical</option>
                         <option value=1>Warning</option>
@@ -24,8 +24,8 @@
 
                 <span class="margin-left-xs margin-right-xs">
                     <div>&nbsp;</div>
-                    <button type="button" class="btn btn-primary margin-right-xs" @click="loadData(1)">Apply</button>
-                    <button type="button" class="btn btn-secondary margin-left-xs" @click="clearFilters()">Clear</button>
+                    <button type="button" class="btn btn-primary margin-right-xs" @click="loadData(1)">Применить</button>
+                    <button type="button" class="btn btn-secondary margin-left-xs" @click="clearFilters()">Очистить</button>
                 </span>
             </div>
         </form>
@@ -36,10 +36,10 @@
             <thead class="custom-table-header">
             <tr>
                 <th>№</th>
-                <th>Time</th>
-                <th>Type</th>
-                <th>Title</th>
-                <th>Message</th>
+                <th>Время</th>
+                <th>Тип</th>
+                <th>Заголовок</th>
+                <th>Сообщение</th>
             </tr>
             </thead>
 
@@ -65,7 +65,7 @@
 
             <div class="per-page-flexbox-item per-page-flexbox-container padding-bottom-sm">
                 <div class="margin-right-xs" style="white-space: nowrap;">
-                    Per page:
+                    На странице:
                 </div>
 
                 <div>
