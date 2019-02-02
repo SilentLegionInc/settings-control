@@ -162,6 +162,18 @@ def api_get_wifi_list():
     return jsonify(get_mocked_list())
 
 
+@app.route('/api/wifi/connect', methods=['POST'])
+@handle_errors
+@api_authorization
+def api_set_wifi():
+    # TODO test me, add reconnect if die here core will be isolated...
+    params = request.get_json()
+    ssid = params.get('name')
+    password = params.get('password')
+    if WifiService().connect(ssid, password):
+        return jsonify({'code': 0}), status.HTTP_200_OK
+
+
 @app.route('/api/core/compile', methods=['POST'])
 @handle_errors
 @api_authorization

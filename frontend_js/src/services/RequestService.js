@@ -63,6 +63,17 @@ export class RequestService {
         }
     }
 
+    async changeNetwork(name, password) {
+        const path = this._constructPath('api/wifi/connect');
+        const res = await axios.post(path, { name, password });
+        if (res.status === 200) {
+            return true
+        } else {
+            Logger.error(res.data.errorInfo);
+            throw new ServerExceptionModel(res.data.errorInfo, res.status);
+        }
+    }
+
     async getCoreConfig() {
         const path = this._constructPath('api/config');
         const res = await axios.get(path);

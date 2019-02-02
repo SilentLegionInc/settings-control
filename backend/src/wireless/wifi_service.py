@@ -3,6 +3,8 @@ import subprocess
 from time import sleep
 from packaging import version
 from support.singleton import Singleton
+from support.helpers import ServerException
+from flask_api import status
 
 
 # send a command to the shell and return the result
@@ -269,7 +271,10 @@ class Nmcli0990Wireless(WifiDriver):
         print(response)
         # parse response
         # TODO if error need to up old connection
-        return not self._errorInResponse(response)
+        if self._errorInResponse(response):
+            raise ServerException(response, status.HTTP_400_BAD_REQUEST)
+        else:
+            return True
 
     # returned the ssid of the current network
     def current(self):

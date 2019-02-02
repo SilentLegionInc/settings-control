@@ -4,8 +4,8 @@
             <h2 align="center">Конфигурация сети</h2>
         </div>
         <div v-if="networks.length > 0">
-            <div v-for="(network, index) of networks" v-bind:key="index" v-on:click="switchDetailed(index)">
-                <div class="row">
+            <div v-for="(network, index) of networks" v-bind:key="index">
+                <div class="row" v-on:click="switchDetailed(index)">
                     <div class="offset-md-2 col-md-1">
                         <i class="fa fa-circle" v-bind:style="{'color': network.active ? 'green' : 'red'}"></i>
                     </div>
@@ -45,15 +45,19 @@
                                 </div>
                             </div>
                             <div class="row" v-if="!network.active">
-                                <div class="col-md-12">
-                                    <button v-on:click="connect(network)" class="btn-sm btn-success">Подключиться</button>
+                                <div class="col-md-8">
+                                    <input type="password" v-model="password"
+                                           class="form-control" placeholder="Enter password">
+                                </div>
+                                <div class="col-md-4">
+                                    <button v-on:click="connect(index)" class="btn-sm btn-success">Подключиться</button>
                                 </div>
                             </div>
-                            <div class="row" v-if="network.active">
-                                <div class="col-md-12">
-                                    <button v-on:click="disconnect(network)" class="btn-sm btn-danger">Отключиться</button>
-                                </div>
-                            </div>
+                            <!--<div class="row" v-if="network.active">-->
+                                <!--<div class="col-md-12">-->
+                                    <!--<button v-on:click="disconnect(network)" class="btn-sm btn-danger">Отключиться</button>-->
+                                <!--</div>-->
+                            <!--</div>-->
                         </div>
                     </div>
                 </div>
@@ -85,7 +89,6 @@ export default {
     methods: {
         loadData: async function() {
             try {
-                logger.info(this.$store);
                 this.networks = await this.$store.state.requestService.getNetworks();
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
@@ -101,18 +104,40 @@ export default {
             this.networks[index].detail = !this.networks[index].detail;
         },
         disconnect: function (network) {
-            // TODO warning modal window + request to disconnect
+            // TODO warning modal window + request to disconnect, i think we don't need this
             logger.info(`disconnecting from ${network.name}`)
         },
-        connect: function (network) {
+        connect: async function (index) {
+            const newNetwork = this.networks[index];
             // TODO warning modal window + request to connect
-            logger.info(`connecting to ${network.name}`)
+            logger.info(`connecting to ${newNetwork.name} with password ${this.password}`)
+            try {
+                const res = await this.$store.state.requestService.changeNetwork(newNetwork.name, this.password);
+                if (res) {
+                    this.$toaster.success(`Current network is ${newNetwork.name}`);
+                    this.networks.map(net => {
+                        net.active = false;
+                        return net;
+                    })
+                    // TODO check this thing, may be need to reload wifi list
+                    this.networks[index].active = true;
+                }
+            }
+            catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Internal server error');
+                    logger.error(err);
+                }
+            }
         }
     },
     data: () => {
         return {
             networks: [],
-            raw_networks: []
+            raw_networks: [],
+            password: ''
         }
     }
 }
