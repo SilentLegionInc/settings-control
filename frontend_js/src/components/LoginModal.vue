@@ -25,7 +25,11 @@
 </template>
 
 <script>
-export default {
+import { ServerExceptionModel } from '../models/ServerExceptionModel';
+import logger from '../logger';
+export default
+
+{
     name: 'LoginModal',
     data: function () {
         return {
@@ -33,8 +37,9 @@ export default {
         }
     },
     mounted: function() {
-        console.log(this.$modal);
-        this.showModal();
+        if (!this.$store.getters.isAuthenticated) {
+            this.showModal();
+        }
     },
     methods: {
         showModal: function() {
@@ -54,10 +59,15 @@ export default {
         onLogin: async function() {
             try {
                 await this.$store.dispatch('authorize', this.password);
+                this.$toaster.success('Log in successful');
                 this.hideModal();
             } catch (err) {
-                console.log(err);
-                console.log('incorrect password')
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Internal server error');
+                    logger.error(err);
+                }
             }
         }
     }

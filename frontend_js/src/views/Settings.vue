@@ -28,25 +28,47 @@
 </template>
 
 <script>
-import axios from 'axios'
 import LoginModal from '@/components/LoginModal';
+import { ServerExceptionModel } from '../models/ServerExceptionModel';
+import logger from '../logger';
+
 export default {
     name: 'Settings',
     mounted: function() {
         this.loadData();
     },
     methods: {
+        // TODO Add machine type to response. Create basic DTO?
         loadData: async function() {
-            console.log('Start update');
-            const answer = await axios.get('http://127.0.0.1:5000/api/config');
-            console.log(answer.data);
-            this.settings = answer.data
+            try {
+                this.settings = await this.$store.requestService.getCoreConfig();
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Internal server error');
+                    logger.error(err);
+                }
+                this.settings = {};
+            }
         },
 
         UpdateConfig: async function() {
-            console.log('New configs');
-            const answer = await axios.post('http://127.0.0.1:5000/api/config', this.settings);
-            console.log(answer)
+            try {
+                const result = await this.$store.requestService.setCoreConfig(this.settings);
+                if (result) {
+                    this.$toaster.success('Config successfully updated')
+                } else {
+                    this.$toaster.warn('Deprecated. Check backend code');
+                }
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Internal server error');
+                    logger.error(err);
+                }
+            }
         },
 
         ResetConfig: async function() {

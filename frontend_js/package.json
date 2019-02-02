@@ -15,6 +15,7 @@
     "js-logger": "^1.6.0",
     "luxon": "^1.9.0",
     "nconf": "^0.10.0",
+    "v-toaster": "^1.0.3",
     "vue": "^2.5.18",
     "vue-chartjs": "^3.4.0",
     "vue-datetime": "^1.0.0-beta.8",
