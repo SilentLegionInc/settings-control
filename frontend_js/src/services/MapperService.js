@@ -21,6 +21,9 @@ export class MapperService {
     static mapChartDataResponse(responseBody) {
         const res = new ChartDataResponse();
         res.count = responseBody.count;
+        res.minimum = responseBody.minimum;
+        res.average = responseBody.average;
+        res.maximum = responseBody.maximum;
         res.result = responseBody.result.map(elem => new ChartDataModel(elem.latitude, elem.longitude, new Date(elem.time), elem.value));
         return res;
     }

@@ -7,6 +7,7 @@ import ChartStatistics from './views/ChartStatistics';
 import Networks from './views/Networks';
 import Logs from './views/Logs';
 import TestChart from './views/TestChart';
+import Maps from './views/Maps';
 
 Vue.use(Router);
 
@@ -56,6 +57,11 @@ export default new Router({
             path: '/test_chart',
             name: 'test-chart',
             component: TestChart
+        },
+        {
+            path: '/maps',
+            name: 'maps',
+            component: Maps
         }
     ]
 })

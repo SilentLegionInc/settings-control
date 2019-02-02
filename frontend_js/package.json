@@ -11,6 +11,7 @@
     "axios": "^0.18.0",
     "bootstrap-vue": "^2.0.0-rc.11",
     "chart.js": "^2.7.3",
+    "chartjs-plugin-zoom": "^0.6.6",
     "font-awesome": "^4.7.0",
     "js-logger": "^1.6.0",
     "luxon": "^1.9.0",
@@ -23,6 +24,7 @@
     "vue-moment": "^4.0.0",
     "vue-nav-tabs": "^0.5.7",
     "vue-router": "^3.0.1",
+    "vue-yandex-maps": "^0.8.3",
     "vuex": "^3.0.1",
     "weekstart": "^1.0.0"
   },

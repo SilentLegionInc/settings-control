@@ -83,13 +83,16 @@ export default {
     data: function() {
         return {
             chartData: [],
-            chartOptions: chartOptions,
+            chartOptions: getChartOptions(this.$moment),
             tableData: [],
             elementsPerPage: 20,
             _currentPage: 1,
             dbElementsCount: 0,
             filterStartTime: null,
-            filterEndTime: null
+            filterEndTime: null,
+            minimumValue: null,
+            averageValue: null,
+            maximumValue: null,
         }
     },
     methods: {
@@ -139,6 +142,10 @@ export default {
 
             const response = await this.$store.state.requestService.getStatisticsData(this.robotName, this.fieldName, limit, offset, filterStartTime, filterEndTime);
             this.dbElementsCount = response.count;
+            this.minimumValue = response.minimum;
+            this.averageValue = response.average;
+            this.maximumValue = response.maximum;
+            // TODO add these values to chart
             this.data = response.result;
         }
     },
@@ -177,29 +184,99 @@ export default {
     }
 }
 
-const chartOptions = {
-    scales: {
-        xAxes: [{
-            type: 'time',
-            ticks: {
-                autoSkip: true
-            },
-            distribution: 'linear',
-            time: {
-                unit: 'second'
+function getChartOptions(moment) {
+    return {
+        scales: {
+            xAxes: [{
+                type: 'time',
+                ticks: {
+                    autoSkip: true
+                },
+                distribution: 'linear',
+                time: {
+                    unit: 'second',
+                    round: 'millisecond',
+                    displayFormats: {
+                        second: 'DD.MM.YY HH:mm:ss'
+                    }
+                }
+            }],
+            yAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Value',
+                    fontSize: 14
+                }
+            }]
+        },
+
+        hover: {
+            mode: 'nearest',
+            intersect: true
+        },
+
+        legend: {
+            display: true,
+            position: 'bottom',
+            fullWidth: true,
+            reverse: false
+        },
+
+        tooltips: {
+            callbacks: {
+                label: (tooltipItem, data) => {
+                    const time = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x;
+                    const latitude = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].latitude;
+                    const longitude = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].longitude;
+
+                    const text = [];
+                    text.push(`Время: ${moment(time).format('DD.MM.YYYY HH:mm:ss.SSS')}`);
+                    text.push(`Широта: ${latitude}`);
+                    text.push(`Долгота: ${longitude}`);
+
+                    return text;
+                },
+
+                title: (tooltipItem, data) => {
+                    return `Значение: ${tooltipItem[0].yLabel}`;
+                }
             }
-        }]
+        },
+
+        pan: {
+            // Boolean to enable panning
+            enabled: true,
+
+            // Panning directions. Remove the appropriate direction to disable
+            // Eg. 'y' would only allow panning in the y direction
+            mode: 'x'
+        },
+
+        // Container for zoom options
+        zoom: {
+            // Boolean to enable zooming
+            enabled: true,
+
+            // Zooming directions. Remove the appropriate direction to disable
+            // Eg. 'y' would only allow zooming in the y direction
+            mode: 'x'
+        }
     }
-};
+}
 
 const datasetOptions = {
     label: 'Data One',
     backgroundColor: '#0a00a9',
     borderColor: '#0a00a9',
+    borderWidth: 3,
     fill: false,
     lineTension: 0,
     borderCapStyle: 'round',
-    borderJoinStyle: 'round'
+    borderJoinStyle: 'round',
+    pointRadius: 3,
+    pointHoverRadius: 4,
+    pointHitRadius: 10,
+    pointBorderWidth: 2
 };
 </script>
 
