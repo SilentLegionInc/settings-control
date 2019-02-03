@@ -183,13 +183,17 @@ class MonitoringDataService(metaclass=Singleton):
 
         collection_name = self.connections[robot_name]['logs']['collection_name']
 
+        id_column_name = 'id'
         time_column_name = 'dataTime'
         type_column_name = 'type'
         title_column_name = 'title'
         message_column_name = 'mess'
 
         try:
-            main_query = 'SELECT {},{},{},{} FROM {}'.format(time_column_name, type_column_name, title_column_name, message_column_name, collection_name)
+            main_query = 'SELECT {},{},{},{},{} FROM {}'.format(
+                id_column_name, time_column_name, type_column_name,
+                title_column_name, message_column_name, collection_name
+            )
 
             # handling filter conditions
             filter_conditions = []
@@ -240,10 +244,11 @@ class MonitoringDataService(metaclass=Singleton):
             result = []
             for row in cursor:
                 result.append({
-                    'time': parser.parse(row[0]),
-                    'type': row[1],
-                    'title': row[2],
-                    'message': row[3]
+                    'id': row[0],
+                    'time': parser.parse(row[1]),
+                    'type': row[2],
+                    'title': row[3],
+                    'message': row[4]
                 })
 
             main_query = 'SELECT COUNT(*) FROM {}'.format(collection_name)

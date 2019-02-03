@@ -6,15 +6,7 @@
 
         <vue-tabs>
             <v-tab v-for="elem in dataStructure" :key="elem.systemName" :title="elem.name">
-                <div class="row" style="margin:0">
-                    <div class="offset-xs-0 offset-sm-0 offset-md-2 offset-lg-3"></div>
-
-                    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6">
-                        <chart-statistics-component :robot-name="currentRobot" :field-name="elem.systemName"></chart-statistics-component>
-                    </div>
-
-                    <div class="offset-xs-0 offset-sm-0 offset-md-2 offset-lg-3"></div>
-                </div>
+                <chart-statistics-component :robot-name="currentRobot" :field-name="elem.systemName"></chart-statistics-component>
             </v-tab>
         </vue-tabs>
     </div>

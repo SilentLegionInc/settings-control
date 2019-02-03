@@ -1,18 +1,18 @@
 <template>
     <div>
         <form>
-            <div class="row filter-flexbox-container">
-                <span class="margin-left-xs margin-right-xs">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 filter-flexbox-container">
+                <span class="filter-flexbox-item margin-left-xs margin-right-xs">
                     <span>Нач. время:</span>
                     <datetime v-model="filterStartTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                 </span>
 
-                <span class="margin-left-xs margin-right-xs">
+                <span class="filter-flexbox-item margin-left-xs margin-right-xs">
                     <span>Кон. время:</span>
                     <datetime v-model="filterEndTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                 </span>
 
-                <span class="margin-left-xs margin-right-xs">
+                <span class="filter-flexbox-item margin-left-xs margin-right-xs">
                     <div>&nbsp;</div>
                     <button type="button" class="btn btn-primary margin-right-xs" @click="loadData(1)">Применить</button>
                     <button type="button" class="btn btn-secondary margin-left-xs" @click="clearFilters()">Очистить</button>
@@ -22,7 +22,9 @@
 
         <hr>
 
-        <line-chart v-if="chartData" :chart-data="chartData" :options="chartOptions"></line-chart>
+        <div style="max-width: 700px; margin-left: auto; margin-right: auto">
+            <line-chart v-if="chartData" :chart-data="chartData" :options="chartOptions"></line-chart>
+        </div>
 
         <hr>
 
@@ -92,7 +94,7 @@ export default {
             filterEndTime: null,
             minimumValue: null,
             averageValue: null,
-            maximumValue: null,
+            maximumValue: null
         }
     },
     methods: {
@@ -340,6 +342,10 @@ const datasetOptions = {
         flex-wrap: wrap;
     }
 
+    .filter-flexbox-item {
+        flex-grow: 1;
+    }
+
     .per-page-flexbox-container {
         display: flex;
         flex-direction: row;
@@ -364,5 +370,12 @@ const datasetOptions = {
     .per-page-flexbox-item {
         justify-self: flex-end;
         flex-grow: 1;
+    }
+
+    .chart-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
     }
 </style>

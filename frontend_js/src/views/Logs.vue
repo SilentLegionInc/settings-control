@@ -1,18 +1,18 @@
 <template>
     <div>
         <form>
-            <div class="row filter-flexbox-container padding-left-sm padding-right-sm">
-                <span class="margin-left-xs margin-right-xs">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 filter-flexbox-container padding-left-sm padding-right-sm">
+                <span class="filter-flexbox-item margin-left-xs margin-right-xs">
                     <span>Нач. время: </span>
                     <datetime v-model="filterStartTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                 </span>
 
-                <span class="margin-left-xs margin-right-xs">
+                <span class="filter-flexbox-item margin-left-xs margin-right-xs">
                     <span>Кон. время: </span>
                     <datetime v-model="filterEndTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                 </span>
 
-                <span class="margin-left-xs margin-right-xs">
+                <span class="filter-flexbox-item margin-left-xs margin-right-xs">
                     <span>Тип: </span>
                     <select class="form-control" v-model="filterType">
                         <option value=0>Critical</option>
@@ -22,7 +22,7 @@
                     </select>
                 </span>
 
-                <span class="margin-left-xs margin-right-xs">
+                <span class="filter-flexbox-item margin-left-xs margin-right-xs">
                     <div>&nbsp;</div>
                     <button type="button" class="btn btn-primary margin-right-xs" @click="loadData(1)">Применить</button>
                     <button type="button" class="btn btn-secondary margin-left-xs" @click="clearFilters()">Очистить</button>
@@ -34,23 +34,23 @@
 
         <table class="custom-table">
             <thead class="custom-table-header">
-            <tr>
-                <th>№</th>
-                <th>Время</th>
-                <th>Тип</th>
-                <th>Заголовок</th>
-                <th>Сообщение</th>
-            </tr>
+                <tr>
+                    <th>№</th>
+                    <th>Время</th>
+                    <th>Тип</th>
+                    <th>Заголовок</th>
+                    <th>Сообщение</th>
+                </tr>
             </thead>
 
             <tbody class="custom-table-body">
-            <tr v-for="(log, index) in logs" :key="index">
-                <td>{{ (_currentPage - 1) * elementsPerPage + index + 1 }}</td>
-                <td>{{ log.time | moment("DD.MM.YYYY HH:mm:ss.SSS") }}</td>
-                <td>{{ log.type | logLevelToString }}</td>
-                <td>{{ log.title }}</td>
-                <td>{{ log.message }}</td>
-            </tr>
+                <tr v-for="(log, index) in logs" :key="index" @click="selectLog(index)" class="selectable-table-row">
+                    <td>{{ (_currentPage - 1) * elementsPerPage + index + 1 }}</td>
+                    <td>{{ log.time | moment("DD.MM.YYYY HH:mm:ss.SSS") }}</td>
+                    <td>{{ log.type | logLevelToString }}</td>
+                    <td>{{ log.title }}</td>
+                    <td>{{ log.message | chopLongMessage}}</td>
+                </tr>
             </tbody>
         </table>
 
@@ -73,14 +73,20 @@
                 </div>
             </div>
         </div>
+
+        <app-logs-modal ref="logsModal"></app-logs-modal>
     </div>
 </template>
 
 <script>
-import { LogLevel, LogModel } from '../models/LogModel';
+import { LogModel } from '../models/LogModel';
+import LogsModal from '../components/LogsModal';
 
 export default {
     name: 'Logs',
+    components: {
+        'app-logs-modal': LogsModal
+    },
     data: function() {
         return {
             logs: [],
@@ -109,7 +115,7 @@ export default {
             let data = [];
             for (let i = 0; i < this.dbElementsCount; ++i) {
                 const t = i + 1;
-                data.push(new LogModel(t, new Date(), 0, `Title ${t}`, `Very very very long message without any information ${t}`));
+                data.push(new LogModel(i, t, new Date(), 0, `Title ${t}`, `Very very very long message without any information ${t}`));
             }
 
             const offset = (page - 1) * this.elementsPerPage;
@@ -141,24 +147,21 @@ export default {
             const response = await this.$store.state.requestService.getLogs('AMTS', limit, offset, filterStartTime, filterEndTime, filterType);
             this.dbElementsCount = response.count;
             this.logs = response.result;
+        },
+
+        selectLog(index) {
+            this.$refs.logsModal.showModal(this.logs[index]);
         }
     },
     mounted() {
         this.currentPage = 1;
     },
     filters: {
-        logLevelToString: function(level) {
-            switch (level) {
-            case LogLevel.INFO:
-                return 'Info';
-            case LogLevel.DEBUG:
-                return 'Debug';
-            case LogLevel.WARNING:
-                return 'Warning';
-            case LogLevel.CRITICAL:
-                return 'Critical';
-            default:
-                return 'Unknown';
+        chopLongMessage: function(str) {
+            if (str.length > 50) {
+                return str.slice(0, 50) + '...';
+            } else {
+                return str;
             }
         }
     }
@@ -172,6 +175,10 @@ export default {
         justify-content: left;
         align-items: flex-end;
         flex-wrap: wrap;
+    }
+
+    .filter-flexbox-item {
+        flex-grow: 1;
     }
 
     .per-page-flexbox-container {

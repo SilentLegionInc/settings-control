@@ -1,5 +1,6 @@
 export class LogModel {
-    constructor(time = new Date(), type = 0, title = '', message = '') {
+    constructor(id = 0, time = new Date(), type = 0, title = '', message = '') {
+        this.id = id;
         this.time = time;
         this.type = type;
         this.title = title;

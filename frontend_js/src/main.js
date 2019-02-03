@@ -15,6 +15,8 @@ import './global_css/styles.scss';
 import 'v-toaster/dist/v-toaster.css'
 import '@fortawesome/fontawesome-free/css/all.css'
 
+import { LogLevel } from './models/LogModel';
+
 const moment = require('vue-moment');
 
 Vue.config.productionTip = false;
@@ -23,6 +25,21 @@ Vue.use(BootstrapVue);
 Vue.use(moment);
 Vue.use(Datetime);
 Vue.use(Toaster, { timeout: 5000 })
+
+Vue.filter('logLevelToString', level => {
+    switch (level) {
+    case LogLevel.INFO:
+        return 'Info';
+    case LogLevel.DEBUG:
+        return 'Debug';
+    case LogLevel.WARNING:
+        return 'Warning';
+    case LogLevel.CRITICAL:
+        return 'Critical';
+    default:
+        return 'Unknown';
+    }
+});
 
 new Vue({
     router,

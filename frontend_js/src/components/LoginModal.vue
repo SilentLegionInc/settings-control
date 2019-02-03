@@ -27,9 +27,7 @@
 <script>
 import { ServerExceptionModel } from '../models/ServerExceptionModel';
 import logger from '../logger';
-export default
-
-{
+export default {
     name: 'LoginModal',
     data: function () {
         return {

@@ -50,3 +50,8 @@
 .custom-table-body tr:nth-child(even) {
   background: rgb(240, 240, 240);
 }
+
+.custom-table-body .selectable-table-row:hover {
+  background: #d9d9d9;
+  cursor: pointer;
+}

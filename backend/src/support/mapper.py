@@ -55,6 +55,7 @@ class Mapper:
     def map_get_monitoring_logs_response(body):
         return {
             'result': list(map(lambda elem: {
+                'id': elem['id'],
                 'message': elem['message'],
                 'time': elem['time'].isoformat(),
                 'title': elem['title'],
