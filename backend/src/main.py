@@ -264,6 +264,13 @@ def api_get_monitoring_data(robot_name):
     return jsonify(Mapper.map_get_monitoring_data_response(result)), status.HTTP_200_OK
 
 
+@app.route('/api/monitoring/maps_data/<string:robot_name>', methods=['GET'])
+@handle_errors
+def api_get_monitoring_maps_data(robot_name):
+    result = MonitoringDataService().get_maps_data(robot_name)
+    return jsonify(Mapper.map_get_monitoring_maps_data_response(result)), status.HTTP_200_OK
+
+
 @app.route('/api/monitoring/logs/<string:robot_name>', methods=['POST'])
 @handle_errors
 def api_get_monitoring_logs(robot_name):

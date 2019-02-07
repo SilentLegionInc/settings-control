@@ -268,6 +268,51 @@ class MonitoringDataService(metaclass=Singleton):
             connection.close()
             raise ServerException('Error while preparing and executing query', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
 
+    def get_maps_data(self, robot_name):
+        try:
+            connection = sqlite3.connect(self.connections[robot_name]['sensors']['file_path'])
+            cursor = connection.cursor()
+        except Exception as ex:
+            raise ServerException(
+                'Can\'t connect to database with name {}'.format(self.connections[robot_name]['sensors']['file_path']),
+                status.HTTP_500_INTERNAL_SERVER_ERROR, ex
+            )
+
+        collection_name = self.connections[robot_name]['sensors']['collection_name']
+
+        try:
+            sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)
+            latitude_column_name = sensors_config['latitude_field']
+            longitude_column_name = sensors_config['longitude_field']
+
+            query = 'SELECT {},{},count() FROM {} group by {},{}'.format(
+                latitude_column_name,
+                longitude_column_name,
+                collection_name,
+                latitude_column_name,
+                longitude_column_name
+            )
+
+            Logger().debug_message(query, "Sensors database query: ")
+
+            cursor.execute(query)
+            result = []
+            for row in cursor:
+                result.append({
+                    'latitude': row[0],
+                    'longitude': row[1],
+                    'count': row[2]
+                })
+
+            cursor.close()
+            connection.close()
+
+            return result
+        except Exception as ex:
+            cursor.close()
+            connection.close()
+            raise ServerException('Error while preparing and executing query', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
+
 
 if __name__ == '__main__':
     structure = MonitoringDataService().get_data_structure('AMTS')
