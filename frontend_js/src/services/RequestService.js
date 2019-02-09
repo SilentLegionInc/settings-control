@@ -178,4 +178,14 @@ export class RequestService {
         const result = await axios.get(path);
         return MapperService.mapDataStructureResponse(result.data);
     }
+    
+    async getStatisticsMapsData(robotName) {
+        const path = this._constructPath(`api/monitoring/maps_data/${robotName}`);
+    
+        Logger.debug('GET request: get statistics maps data');
+        Logger.debug(`Path: ${path}`);
+    
+        const result = await axios.get(path);
+        return MapperService.mapDataStructureResponse(result.data);
+    }
 }
