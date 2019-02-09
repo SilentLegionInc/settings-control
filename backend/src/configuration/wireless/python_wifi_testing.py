@@ -1,10 +1,10 @@
-# works on ubuntu 16.04 with commands here and fixes in Wireless.py file.
+# works on ubuntu 16.04 with commands here and fixes in LegacyWireless.py file.
 import time
-from wireless.Wireless import Wireless, cmd
+from configuration.wireless import LegacyWireless, cmd
 
 interface_name = 'wlp3s0'
 password = '+78312171590'
-wire = Wireless(interface_name)
+wire = LegacyWireless(interface_name)
 
 print(cmd(cmd='nmcli con show'))
 wire.connect(ssid='Silencium', password='KSpeoq')

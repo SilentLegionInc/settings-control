@@ -11,20 +11,21 @@ from werkzeug.urls import url_parse
 from logs_service import LogsService
 from support.forms import LoginForm
 from support.models import User
-from support.helpers import check_password, check_token, change_password, delete_token
 from configuration.update_service import UpdateService
 from configuration.core_service import CoreService
 from functools import wraps
 from monitoring.monitoring_data_service import MonitoringDataService
 from flask_api import status
 from werkzeug.exceptions import HTTP_STATUS_CODES
-from support.helpers import ServerException
+from support.server_exception import ServerException
 import traceback
 from support.mapper import Mapper
-from wireless.wifi_service import WifiService, get_mocked_list
+from configuration.wireless import WifiService, get_mocked_list, cmd
 from monitoring.system_monitoring_service import SystemMonitoringService
 from werkzeug.utils import secure_filename
 import os
+import zipfile
+from configuration.authoriztaion_service import AuthorizationService
 
 
 # Init flask application
@@ -82,7 +83,7 @@ def api_authorization(func):
 
         token_uuid = request.authorization.username
         password = request.authorization.password
-        check_token(token_uuid, password)
+        AuthorizationService().check_token(token_uuid, password)
         return func(*args, **kwargs)
     return wrapper
 
@@ -112,7 +113,7 @@ def login():
     if form.validate_on_submit():
         Logger().info_message('Submit login')
         try:
-            if not check_password(form.password.data, False):
+            if not AuthorizationService().check_password(form.password.data, False):
                 return redirect(url_for('login'))
         except Exception as ex:
             return redirect(url_for('index'))
@@ -240,7 +241,7 @@ def api_logs():
 @handle_errors
 def api_login():
     info = request.get_json()
-    result = check_password(info.get('password', ''), True)
+    result = AuthorizationService().check_password(info.get('password', ''), True)
     if result:
         return jsonify({'token': result}), status.HTTP_200_OK
 
@@ -249,7 +250,7 @@ def api_login():
 @handle_errors
 @api_authorization
 def api_logout():
-    if delete_token():
+    if AuthorizationService().delete_token():
         return jsonify({'code': 0}), status.HTTP_200_OK
 
 
@@ -260,7 +261,7 @@ def api_change_password():
     info = request.get_json()
     old_password = info.get('oldPassword', '')
     new_password = info.get('newPassword', '')
-    new_token = change_password(old_password, new_password)
+    new_token = AuthorizationService().change_password(old_password, new_password)
     return jsonify({'token': new_token}), status.HTTP_200_OK
 
 
@@ -309,11 +310,11 @@ def api_get_system_info():
 @handle_errors
 @api_authorization
 def api_update_module():
-    ALLOWED_EXTENSIONS = {'zip'}
+    allowed_extensions = {'zip'}
 
     def allowed_file(filename):
         return '.' in filename and \
-               filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+               filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
     if 'file' not in request.files:
         raise ServerException('Can\'t file part in request', status.HTTP_400_BAD_REQUEST)
@@ -323,11 +324,30 @@ def api_update_module():
         raise ServerException('Don\'t select file', status.HTTP_400_BAD_REQUEST)
 
     if not allowed_file(file.filename):
-        raise ServerException('Incorrect file format. Allow only {}'.format(ALLOWED_EXTENSIONS),
+        raise ServerException('Incorrect file format. Allow only {}'.format(allowed_extensions),
                               status.HTTP_406_NOT_ACCEPTABLE)
 
-    filename = secure_filename(file.filename)
-    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    file_name = secure_filename(file.filename)
+    lib_name = file_name.rsplit('.', 1)[0]
+    target_lib_path = os.path.join(
+        os.path.expanduser(SettingsService().server_config['sources_path']),
+        lib_name
+    )
+    # TODO refactor, move to separate manager?
+    source_lib_path = os.path.join(app.config['UPLOAD_FOLDER'], lib_name)
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+    file.save(file_path)
+    zip_archive = zipfile.ZipFile(file_path, 'r')
+    zip_archive.extractall(app.config['UPLOAD_FOLDER'])
+    zip_archive.close()
+    cmd('cp -r {} {}'.format(source_lib_path, target_lib_path))
+    if lib_name in SettingsService().libraries['dependencies']:
+        UpdateService().upgrade_lib_sync(lib_name)
+    elif lib_name in SettingsService().libraries['cores']:
+        # TODO check
+        CoreService().compile_core()
+    else:
+        raise ServerException('Unknown module {}'.format(lib_name), status.HTTP_400_BAD_REQUEST)
     return jsonify({'code': 0}), status.HTTP_200_OK
 
 
