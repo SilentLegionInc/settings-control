@@ -78,7 +78,7 @@ class UpdateService(metaclass=Singleton):
         return p
 
     def _update_lib(self, lib_name):
-        lib_url = SettingsService().libraries[lib_name]
+        lib_url = SettingsService().libraries['dependencies'][lib_name]
         lib_path = os.path.join(self.sources_path, lib_name)
 
         need_clone = False

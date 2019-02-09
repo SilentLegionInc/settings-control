@@ -3,7 +3,7 @@ import subprocess
 from time import sleep
 from packaging import version
 from support.singleton import Singleton
-from support.helpers import ServerException
+from support.server_exception import ServerException
 from flask_api import status
 
 

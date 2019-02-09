@@ -27,7 +27,7 @@ class CoreService(metaclass=Singleton):
             os.makedirs(self.build_path)
         self.qmake_path = SettingsService().server_config['qmake_path']
         self.sources_path = os.path.join(SettingsService().server_config['sources_path'], repo_name)
-        self.repo_url = SettingsService().libraries[repo_name]
+        self.repo_url = SettingsService().libraries['cores'][repo_name]
 
         self.main_proc = None
         self.compile_status = ProcessStatus.DEFAULT

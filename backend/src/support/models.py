@@ -1,9 +1,8 @@
-# mocked user model
 from configuration.settings_service import SettingsService
 
 
+# mocked user model
 class User:
-
     def __init__(self):
         self._id = SettingsService().server_config.get('password')
 
