@@ -6,7 +6,6 @@ import TableStatistics from './views/TableStatistics';
 import ChartStatistics from './views/ChartStatistics';
 import Networks from './views/Networks';
 import Logs from './views/Logs';
-import TestChart from './views/TestChart';
 import Maps from './views/Maps';
 
 Vue.use(Router);
@@ -26,7 +25,7 @@ export default new Router({
             // route level code-splitting
             // this generates a separate chunk (about.[hash].js) for this route
             // which is lazy-loaded when the route is visited.
-            component: () => import('./views/Test.vue')
+            component: () => import('./test/Test.vue')
         },
         {
             path: '/settings',
@@ -52,11 +51,6 @@ export default new Router({
             path: '/logs',
             name: 'logs',
             component: Logs
-        },
-        {
-            path: '/test_chart',
-            name: 'test-chart',
-            component: TestChart
         },
         {
             path: '/maps',

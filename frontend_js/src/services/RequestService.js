@@ -188,4 +188,16 @@ export class RequestService {
         const result = await axios.get(path);
         return MapperService.mapDataStructureResponse(result.data);
     }
+    
+    async uploadFile(formData) {
+        const path = this._constructPath(`api/update_module`);
+    
+        Logger.debug('POST request: upload file');
+        Logger.debug(`Path: ${path}`);
+    
+        const result = await axios.post(path, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        if (result.status !== 200) {
+            Logger.error(`Can't upload file`)
+        }
+    }
 }
