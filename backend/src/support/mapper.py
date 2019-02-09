@@ -34,11 +34,15 @@ class Mapper:
 
     @staticmethod
     def map_get_monitoring_maps_data_response(body):
-        return list(map(lambda elem: {
-            'latitude': elem['latitude'],
-            'longitude': elem['longitude'],
-            'count': elem['count']
-        }, body))
+        return {
+            'points': list(map(lambda elem: {
+                'latitude': elem['latitude'],
+                'longitude': elem['longitude'],
+                'count': elem['count']
+            }, body['points'])),
+            'center_latitude': body['center_latitude'],
+            'center_longitude': body['center_longitude']
+        }
 
     @staticmethod
     def map_get_monitoring_logs_request(body):

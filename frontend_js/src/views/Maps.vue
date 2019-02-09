@@ -46,7 +46,8 @@ export default {
 const placemarkConfig = {
     properties: {}, // define properties here
     options: {}, // define options here
-    clusterName: '1'
+    clusterName: '1',
+    balloonTemplate: '<b>Privet</b>'
 }
 </script>
 

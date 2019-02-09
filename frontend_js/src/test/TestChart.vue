@@ -1,8 +1,8 @@
 <template>
     <div>
-        <h1>
-            Home page
-        </h1>
+        <h3>
+            Test chart
+        </h3>
         <div class="small">
             <line-chart :chart-data="datacollection" :options="options"></line-chart>
             <button @click="fillData()">Randomize</button>
@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import LineChart from './LineChart.js'
+import LineChart from '../views/LineChart.js'
 
 export default {
     components: {

@@ -285,7 +285,7 @@ class MonitoringDataService(metaclass=Singleton):
             latitude_column_name = sensors_config['latitude_field']
             longitude_column_name = sensors_config['longitude_field']
 
-            query = 'SELECT {},{},count() FROM {} group by {},{}'.format(
+            query = 'SELECT {},{},COUNT() FROM {} group by {},{}'.format(
                 latitude_column_name,
                 longitude_column_name,
                 collection_name,
@@ -296,18 +296,37 @@ class MonitoringDataService(metaclass=Singleton):
             Logger().debug_message(query, "Sensors database query: ")
 
             cursor.execute(query)
-            result = []
+            points_result = []
             for row in cursor:
-                result.append({
+                points_result.append({
                     'latitude': row[0],
                     'longitude': row[1],
                     'count': row[2]
                 })
 
+            query = 'SELECT  MIN({}),MIN({}),MAX({}),MAX({}) FROM {}'.format(
+                latitude_column_name,
+                longitude_column_name,
+                latitude_column_name,
+                longitude_column_name,
+                collection_name
+            )
+            cursor.execute(query)
+
+            support_result = cursor.fetchone()
+            min_latitude = support_result[0]
+            min_longitude = support_result[1]
+            max_latitude = support_result[2]
+            max_longitude = support_result[3]
+
             cursor.close()
             connection.close()
 
-            return result
+            return {
+                'points': points_result,
+                'center_latitude': (min_latitude + max_latitude) / 2,
+                'center_longitude': (min_longitude + max_longitude) / 2
+            }
         except Exception as ex:
             cursor.close()
             connection.close()
