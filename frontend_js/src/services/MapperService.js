@@ -3,7 +3,8 @@ import { NetworkModel } from '../models/NetworkModel';
 import { LogModel } from '../models/LogModel';
 import { ChartDataResponse } from '../models/ChartDataResponse';
 import { ChartDataModel } from '../models/ChartDataModel';
-import { DataStructureModel } from '../models/DataStructureModel'
+import { DataStructureModel } from '../models/DataStructureModel';
+import { MapsDataModel } from '../models/MapsDataModel';
 
 export class MapperService {
     static mapNetworksResponse(responseBody) {
@@ -29,6 +30,16 @@ export class MapperService {
     }
 
     static mapDataStructureResponse(responseBody) {
-        return responseBody.map(elem => new DataStructureModel(elem.name, elem.system_name, elem.type));
+        return new MapsDataModel(
+            responseBody['points'].map(elem => {
+                return {
+                    latitude: elem.latitude,
+                    longitude: elem.longitude,
+                    count: elem.count
+                }
+            }),
+            responseBody['center_latitude'],
+            responseBody['center_longitude']
+        );
     }
 }

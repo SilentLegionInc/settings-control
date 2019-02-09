@@ -1,64 +1,52 @@
 <template>
     <yandex-map
-        :coords="[54.62896654088406, 39.731893822753904]"
+        :coords="[centerLatitude, centerLongitude]"
         zoom="10"
         style="width: 600px; height: 600px;"
         :cluster-options="{1: {clusterDisableClickZoom: true}}"
         :behaviors="['drag', 'multiTouch', 'scrollZoom', 'dblClickZoom', 'rightMouseButtonMagnifier']"
         :controls="['fullscreenControl', 'zoomControl', 'typeSelector', 'rulerControl']"
         :placemarks="placemarks"
-        @map-was-initialized="initHandler"
     >
-
-    <ymap-marker
-        marker-type="placemark"
-        :coords="[54.7, 39.7]"
-        hint-content="Hint content 1"
-        :balloon="{header: 'header', body: 'body', footer: 'footer'}"
-        :icon="{color: 'green', glyph: 'cinema'}"
-        cluster-name="1"
-    ></ymap-marker>
-
-    <ymap-marker
-        marker-type="placemark"
-        :coords="[54.6, 39.8]"
-        hint-content="Hint content 1"
-        :balloon="{header: 'header', body: 'body', footer: 'footer'}"
-        :icon="{color: 'green', glyph: 'cinema'}"
-        cluster-name="1"
-    ></ymap-marker>
-
-    <ymap-marker
-        marker-type="circle"
-        :coords="[54.62896654088406, 39.731893822753904]"
-        circle-radius="1600"
-        hint-content="Hint content 1"
-        :marker-fill="{color: '#000000', opacity: 0.4}"
-        :marker-stroke="{color: '#ff0000', width: 5}"
-        :balloon="{header: 'header', body: 'body', footer: 'footer'}"
-    ></ymap-marker>
-
     </yandex-map>
 </template>
 
 <script>
-import { yandexMap, ymapMarker } from 'vue-yandex-maps';
+import { yandexMap } from 'vue-yandex-maps';
 export default {
     name: 'Maps',
-    components: { yandexMap, ymapMarker },
+    components: { yandexMap },
     data() {
         return {
-            placemarks: [
-                {
-                    coords: [54.8, 39.8],
-                    properties: {}, // define properties here
-                    options: {}, // define options here
-                    clusterName: '1',
-                    callbacks: { click: function() {} }
-                }
-            ]
+            placemarks: [],
+            currentRobot: 'AMTS', // TODO get if from $store
+            centerLatitude: 0,
+            centerLongitude: 0
+        }
+    },
+    async mounted() {
+        const result = await this.$store.state.requestService.getStatisticsMapsData(this.currentRobot);
+        this.centerLatitude = result.centerLatitude;
+        this.centerLongitude = result.centerLongitude;
+        this.placemarks = result.points.map((elem, index) => {
+            const placemark = JSON.parse(JSON.stringify(placemarkConfig));
+            placemark.markerId = `${index}`;
+            placemark.coords = [elem.latitude, elem.longitude];
+            placemark.callbacks = { click: this.placemarkClicked };
+            return placemark;
+        });
+    },
+    methods: {
+        placemarkClicked(event) {
+            console.log(event);
         }
     }
+}
+
+const placemarkConfig = {
+    properties: {}, // define properties here
+    options: {}, // define options here
+    clusterName: '1'
 }
 </script>
 
