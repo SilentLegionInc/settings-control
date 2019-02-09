@@ -11,7 +11,7 @@ from werkzeug.urls import url_parse
 from logs_service import LogsService
 from support.forms import LoginForm
 from support.models import User
-from support.helpers import check_password, check_token, change_password
+from support.helpers import check_password, check_token, change_password, delete_token
 from configuration.update_service import UpdateService
 from configuration.core_service import CoreService
 from functools import wraps
@@ -223,7 +223,7 @@ def api_core_status():
 @api_authorization
 def api_stop_core():
     CoreService().stop_core()
-    return jsonify({'code': 0})
+    return jsonify({'code': 0}), status.HTTP_200_OK
 
 
 @app.route('/api/logs', methods=['GET'])
@@ -238,6 +238,14 @@ def api_login():
     result = check_password(info.get('password', ''), True)
     if result:
         return jsonify({'token': result}), status.HTTP_200_OK
+
+
+@app.route('/api/logout', methods=['GET'])
+@handle_errors
+@api_authorization
+def api_logout():
+    if delete_token():
+        return jsonify({'code': 0}), status.HTTP_200_OK
 
 
 @app.route('/api/password', methods=['POST'])
@@ -278,6 +286,7 @@ def api_get_monitoring_logs(robot_name):
     body = request.get_json()
     result = MonitoringDataService().get_logs(robot_name, **Mapper.map_get_monitoring_logs_request(body))
     return jsonify(Mapper.map_get_monitoring_logs_response(result)), status.HTTP_200_OK
+
 
 @app.route('/api/monitoring/system_info', methods=['GET'])
 @handle_errors

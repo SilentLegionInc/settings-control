@@ -21,6 +21,17 @@ class ServerException(Exception):
         return self._status_code
 
 
+def delete_token():
+    from main import app
+    current_token_uuid = app.config.get('token_uuid')
+    if current_token_uuid:
+        del app.config['token_uuid']
+        return True
+    else:
+        raise ServerException('Can\'t find current user token. Need to auth via log in method',
+                              status.HTTP_401_UNAUTHORIZED)
+
+
 # TODO move it to auth manager?
 def check_token(token_uuid, password):
     from main import app
