@@ -23,6 +23,7 @@ import traceback
 from support.mapper import Mapper
 from wireless.wifi_service import WifiService, get_mocked_list
 from monitoring.system_monitoring_service import SystemMonitoringService
+from werkzeug.utils import secure_filename
 
 
 # Init flask application
@@ -298,3 +299,17 @@ def api_get_system_info():
     }
 
     return jsonify(result), status.HTTP_200_OK
+
+
+@app.route('/api/update_module', methods=['POST'])
+@handle_errors
+@api_authorization
+def api_update_module():
+    ALLOWED_EXTENSIONS = {'zip'}
+
+    def allowed_file(filename):
+        return '.' in filename and \
+               filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+    file = request.files['file']
+
