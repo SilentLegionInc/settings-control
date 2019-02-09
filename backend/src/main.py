@@ -22,6 +22,7 @@ from support.helpers import ServerException
 import traceback
 from support.mapper import Mapper
 from wireless.wifi_service import WifiService, get_mocked_list
+from monitoring.system_monitoring_service import SystemMonitoringService
 
 
 # Init flask application
@@ -277,3 +278,14 @@ def api_get_monitoring_logs(robot_name):
     body = request.get_json()
     result = MonitoringDataService().get_logs(robot_name, **Mapper.map_get_monitoring_logs_request(body))
     return jsonify(Mapper.map_get_monitoring_logs_response(result)), status.HTTP_200_OK
+
+@app.route('/api/monitoring/system_info', methods=['GET'])
+@handle_errors
+def api_get_system_info():
+    result = {
+        'cpu': SystemMonitoringService().get_cpu_usage(),
+        'disk': SystemMonitoringService().get_disks_usage(),
+        'memory': SystemMonitoringService().get_memory_usage()
+    }
+
+    return jsonify(result), status.HTTP_200_OK
