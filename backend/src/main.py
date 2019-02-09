@@ -24,6 +24,7 @@ from support.mapper import Mapper
 from wireless.wifi_service import WifiService, get_mocked_list
 from monitoring.system_monitoring_service import SystemMonitoringService
 from werkzeug.utils import secure_filename
+import os
 
 
 # Init flask application
@@ -31,6 +32,9 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
 app.config['SECRET_KEY'] = SettingsService().private_server_config['secret']
+app.config['UPLOAD_FOLDER'] = os.path.expanduser(SettingsService().server_config['upload_path'])
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 app.secret_key = app.config['SECRET_KEY']
 
 cors = CORS(app)
@@ -311,5 +315,20 @@ def api_update_module():
         return '.' in filename and \
                filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+    if 'file' not in request.files:
+        raise ServerException('Can\'t file part in request', status.HTTP_400_BAD_REQUEST)
+
     file = request.files['file']
+    if not file or not file.filename:
+        raise ServerException('Don\'t select file', status.HTTP_400_BAD_REQUEST)
+
+    if not allowed_file(file.filename):
+        raise ServerException('Incorrect file format. Allow only {}'.format(ALLOWED_EXTENSIONS),
+                              status.HTTP_406_NOT_ACCEPTABLE)
+
+    filename = secure_filename(file.filename)
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    return jsonify({'code': 0}), status.HTTP_200_OK
+
+
 
