@@ -74,7 +74,7 @@
 <script>
 import LoginModal from '@/components/LoginModal';
 import { ServerExceptionModel } from '../models/ServerExceptionModel';
-import logger from '../logger';
+import Logger from '../logger';
 
 export default {
     name: 'Networks',
@@ -95,7 +95,7 @@ export default {
                     this.$toaster.error(err.message);
                 } else {
                     this.$toaster.error('Internal server error');
-                    logger.error(err);
+                    Logger.error(err);
                 }
                 this.networks = [];
             }
@@ -105,12 +105,12 @@ export default {
         },
         disconnect: function (network) {
             // TODO warning modal window + request to disconnect, i think we don't need this
-            logger.info(`disconnecting from ${network.name}`)
+            Logger.info(`disconnecting from ${network.name}`)
         },
         connect: async function (index) {
             const newNetwork = this.networks[index];
             // TODO warning modal window + request to connect
-            logger.info(`connecting to ${newNetwork.name} with password ${this.password}`)
+            Logger.info(`connecting to ${newNetwork.name} with password ${this.password}`)
             try {
                 const res = await this.$store.state.requestService.changeNetwork(newNetwork.name, this.password);
                 if (res) {
@@ -118,17 +118,16 @@ export default {
                     this.networks.map(net => {
                         net.active = false;
                         return net;
-                    })
+                    });
                     // TODO check this thing, may be need to reload wifi list
                     this.networks[index].active = true;
                 }
-            }
-            catch (err) {
+            } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
                 } else {
                     this.$toaster.error('Internal server error');
-                    logger.error(err);
+                    Logger.error(err);
                 }
             }
         }

@@ -342,6 +342,52 @@ def api_build_current_machine():
     return jsonify({'code': 0}), status.HTTP_200_OK
 
 
+@app.route('/api/modules', methods=['GET'])
+@handle_errors
+@api_authorization
+def api_get_modules():
+    # TODO get all modules?
+    machine_config = SettingsService().current_machine_config
+    if not machine_config:
+        raise ServerException('Can\'t find machine config for type {}'.format(SettingsService().server_config['type']),
+                              status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    mapped_dependencies = []
+    dependencies = dict(OrderedDict(sorted(machine_config['dependencies'].items(), key=lambda x: x[1])))
+    for dependency in dependencies:
+        dependency_url = SettingsService().libraries['dependencies'].get(dependency)
+        dependency_info = {
+            'name': dependency,
+            'url': dependency_url,
+            'index': dependencies[dependency]
+        }
+        build_info = UpdateService().built_info(dependency)
+        dependency_info['is_built'] = build_info[0]
+        dependency_info['build_modify_time'] = build_info[1]
+
+        clone_info = UpdateService().cloned_info(dependency)
+        dependency_info['is_cloned'] = clone_info[0]
+        dependency_info['src_modify_time'] = clone_info[1]
+        mapped_dependencies.append(dependency_info)
+
+    core_info = {
+        'name': machine_config['core']['repo_name'],
+        'execute': machine_config['core']['executable_name'],
+        'config_path': machine_config['core']['config_path'],
+        'url': SettingsService().libraries['cores'].get(machine_config['core']['repo_name'])
+    }
+
+    core_build_info = CoreService().built_info()
+    core_info['is_built'] = core_build_info[0]
+    core_info['build_modify_time'] = core_build_info[1]
+
+    core_clone_info = CoreService().cloned_info()
+    core_info['is_cloned'] = core_clone_info[0]
+    core_info['src_modify_time'] = core_clone_info[1]
+
+    return jsonify({'core': core_info, 'dependencies': mapped_dependencies}), status.HTTP_200_OK
+
+
 @app.route('/api/update_module', methods=['POST'])
 @handle_errors
 @api_authorization

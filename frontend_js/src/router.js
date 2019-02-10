@@ -7,6 +7,7 @@ import ChartStatistics from './views/ChartStatistics';
 import Networks from './views/Networks';
 import Logs from './views/Logs';
 import Maps from './views/Maps';
+import Modules from './views/Modules';
 
 Vue.use(Router);
 
@@ -36,6 +37,11 @@ export default new Router({
             path: '/wifi',
             name: 'network',
             component: Networks
+        },
+        {
+            path: '/modules',
+            name: 'module',
+            component: Modules
         },
         {
             path: '/table_statistics',
