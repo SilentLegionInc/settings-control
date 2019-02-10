@@ -340,7 +340,8 @@ def api_update_module():
     zip_archive = zipfile.ZipFile(file_path, 'r')
     zip_archive.extractall(app.config['UPLOAD_FOLDER'])
     zip_archive.close()
-    cmd('cp -r {} {}'.format(source_lib_path, target_lib_path))
+    cmd('cp -Rf {} {}'.format(source_lib_path, target_lib_path))
+    # TODO get module name from post request
     if lib_name in SettingsService().libraries['dependencies']:
         UpdateService().upgrade_lib_sync(lib_name)
     elif lib_name in SettingsService().libraries['cores']:

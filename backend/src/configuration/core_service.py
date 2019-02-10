@@ -25,8 +25,9 @@ class CoreService(metaclass=Singleton):
         self.build_path = os.path.expanduser(os.path.join(SettingsService().server_config['builds_path'], repo_name))
         if not os.path.exists(self.build_path):
             os.makedirs(self.build_path)
-        self.qmake_path = SettingsService().server_config['qmake_path']
-        self.sources_path = os.path.join(SettingsService().server_config['sources_path'], repo_name)
+        self.qmake_path = os.path.expanduser(SettingsService().server_config['qmake_path'])
+        self.sources_path = os.path.join(
+            os.path.expanduser(SettingsService().server_config['sources_path']), repo_name)
         self.repo_url = SettingsService().libraries['cores'][repo_name]
 
         self.main_proc = None

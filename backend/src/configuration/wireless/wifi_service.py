@@ -220,7 +220,7 @@ class NmcliWireless(WifiDriver):
 
 
 # Linux nmcli Driver >= 0.9.9.0 (Actual driver)
-# TODO make cleanup
+# TODO make cleanup, add static ip (look at set_static_ip.bash)
 class Nmcli0990Wireless(WifiDriver):
     _interface = None
 

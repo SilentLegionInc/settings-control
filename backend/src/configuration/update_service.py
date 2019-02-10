@@ -15,9 +15,9 @@ import shutil
 class UpdateService(metaclass=Singleton):
     def __init__(self):
         self.repos = {}
-        self.sources_path = SettingsService().server_config['sources_path']
-        self.build_path = SettingsService().server_config['builds_path']
-        self.qmake_path = SettingsService().server_config['qmake_path']
+        self.sources_path = os.path.expanduser(SettingsService().server_config['sources_path'])
+        self.build_path = os.path.expanduser(SettingsService().server_config['builds_path'])
+        self.qmake_path = os.path.expanduser(SettingsService().server_config['qmake_path'])
         self.ssh_key_name = SettingsService().server_config['ssh_key_name']
         self.repositories_platform = SettingsService().server_config['repositories_platform']
 
