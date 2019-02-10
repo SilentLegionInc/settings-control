@@ -134,29 +134,26 @@ class UpdateService(metaclass=Singleton):
         p.start()
         return p
 
-    def _update_and_upgrade_lib(self, lib_repo_url, return_dict=None, key='update_and_upgrade_lib_result'):
-        regex = re.compile('/[A-Za-z0-9]+')
-        folder_name = regex.findall(lib_repo_url)[0][1::]
-        folder_path = os.path.join(self.sources_path, folder_name)
+    def _update_and_upgrade_lib(self, lib_name, return_dict=None, key='update_and_upgrade_lib_result'):
 
-        self.update_lib_sync(lib_repo_url)
-        result = self.upgrade_lib_sync(folder_path)
+        self.update_lib_sync(lib_name)
+        result = self.upgrade_lib_sync(lib_name)
 
         if return_dict:
             if not return_dict[key]:
                 return_dict[key] = {}
-            return_dict[key][lib_repo_url] = result
+            return_dict[key][lib_name] = result
 
         return result
 
-    def update_and_upgrade_lib_sync(self, lib_repo_url):
-        return self._update_and_upgrade_lib(lib_repo_url)
+    def update_and_upgrade_lib_sync(self, lib_name):
+        return self._update_and_upgrade_lib(lib_name)
 
     # return_dict - словарь, в который по ключу key складывается результат асинхронной операции.
     # return_dict должен представлять собой инстанс multiprocessing.Manager().dict() иначе данные не будут расшарены между процессами
-    def update_and_upgrade_lib_async(self, lib_repo_url, return_dict, key='update_and_upgrade_lib_result'):
+    def update_and_upgrade_lib_async(self, lib_name, return_dict, key='update_and_upgrade_lib_result'):
         return_dict[key] = None
-        p = Process(target=self._update_and_upgrade_lib, args=(lib_repo_url, return_dict, key))
+        p = Process(target=self._update_and_upgrade_lib, args=(lib_name, return_dict, key))
         p.start()
         return p
 

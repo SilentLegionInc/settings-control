@@ -323,7 +323,7 @@ def api_build_current_machine():
             raise ServerException('Unknown dependency {} while building'.format(dependency),
                                   status.HTTP_500_INTERNAL_SERVER_ERROR)
         if with_update:
-            UpdateService().update_and_upgrade_lib_sync(dependency_url)
+            UpdateService().update_and_upgrade_lib_sync(dependency)
         else:
             UpdateService().upgrade_lib_sync(dependency)
 
