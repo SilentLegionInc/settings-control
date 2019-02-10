@@ -471,17 +471,17 @@ if __name__ == '__main__':
     structure = MonitoringDataService.get_data_structure('AMTS')
     print(structure)
 
-    filter_params = {
+    test_filter = {
         'start_time': '2018-11-25 18:31:03',
         'end_time': datetime.datetime.now()
     }
-    data = MonitoringDataService().get_chart_data('AMTS', 'atmospheric_sensor', filter_params=filter_params)
+    data = MonitoringDataService().get_chart_data('AMTS', 'atmospheric_sensor', filter_params=test_filter)
     print(data)
 
-    filter_params = {
+    test_filter = {
         'start_time': '2018-08-19T11:10:17.187',
         'end_time': datetime.datetime.now()
     }
-    logs = MonitoringDataService().get_logs('AMTS', filter_params=filter_params)
+    logs = MonitoringDataService().get_logs('AMTS', filter_params=test_filter)
     print(logs)
 

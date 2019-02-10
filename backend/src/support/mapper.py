@@ -12,14 +12,13 @@ class Mapper:
 
     @staticmethod
     def map_get_monitoring_chart_data_request(body):
-        # TODO validate body
-
         def map_filter(obj):
             return {
                 'start_time': parser.parse(obj['start_time']) if obj.get('start_time') else None,
                 'end_time': parser.parse(obj['end_time']) if obj.get('end_time') else None
             }
 
+        # TODO validate body
         return {
             'field_name': body['field_name'],
             'filter_params': map_filter(body.get('filter', {})),
@@ -50,8 +49,6 @@ class Mapper:
 
     @staticmethod
     def map_get_monitoring_logs_request(body):
-        # TODO validate body
-
         def map_filter(obj):
             return {
                 'start_time': parser.parse(obj['start_time']) if obj.get('start_time') else None,
@@ -67,6 +64,7 @@ class Mapper:
                 return_value['time'] = 'ASC' if obj['time'] == 1 else 'DESC'
             return return_value
 
+        # TODO validate body
         return {
             'filter_params': map_filter(body.get('filter', {})),
             'sort_params': map_sort(body.get('sort', {})),
@@ -95,8 +93,6 @@ class Mapper:
 
     @staticmethod
     def map_get_monitoring_table_data_request(robot_name, body):
-        # TODO validate body
-
         def map_filter(request_body, fields):
             body_filter = request_body.get('filter', {})
             filter_params_min = {
@@ -127,6 +123,7 @@ class Mapper:
         from monitoring.monitoring_data_service import MonitoringDataService
         field_names = list(map(lambda elem: elem['system_name'], MonitoringDataService.get_data_structure(robot_name)))
 
+        # TODO validate body
         return {
             'filter_params': map_filter(body, field_names),
             'sort_params': map_sort(body, field_names),
