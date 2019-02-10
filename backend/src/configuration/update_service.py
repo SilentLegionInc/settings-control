@@ -88,10 +88,10 @@ class UpdateService(metaclass=Singleton):
         if need_clone:
             Repo.clone_from(lib_url, lib_path)
             repo = Repo(lib_path)
-            repo.git.checkout('HEAD', b='develop')
+            repo.git.checkout('develop')
         else:
             repo = Repo(lib_path)
-            repo.git.checkout('HEAD', b='develop')
+            repo.git.checkout('develop')
             repo.git.reset('--hard')
             repo.git.pull()
 

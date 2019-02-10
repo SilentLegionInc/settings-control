@@ -64,16 +64,19 @@ class CoreService(metaclass=Singleton):
 
         self.compile_status = None
         self.compile_output = None
-
-        self.compile_output = check_output('{} {} -o {}'.format(self.qmake_path,
-                                                                os.path.join(self.sources_path, '*.pro'),
-                                                                self.build_path), shell=True).decode('ascii')
-        self.compile_output += check_output('cd {} && make'.format(self.build_path), shell=True).decode('ascii')
-        config_file_name = SettingsService().current_machine_config['core']['config_path']
-        config_file_path = os.path.join(self.sources_path, config_file_name)
-        target_config_path = os.path.join(self.build_path, config_file_name)
-        self.compile_output += check_output('cp {} {}'.format(config_file_path, target_config_path), shell=True).decode(
-            'ascii')
+        try:
+            self.compile_output = check_output('{} {} -o {}'.format(self.qmake_path,
+                                                                    os.path.join(self.sources_path, '*.pro'),
+                                                                    self.build_path), shell=True).decode('ascii')
+            self.compile_output += check_output('cd {} && make'.format(self.build_path), shell=True).decode('ascii')
+            config_file_name = SettingsService().current_machine_config['core']['config_path']
+            config_file_path = os.path.join(self.sources_path, config_file_name)
+            target_config_path = os.path.join(self.build_path, config_file_name)
+            self.compile_output += check_output('cp {} {}'.format(config_file_path, target_config_path), shell=True).decode(
+                'ascii')
+        except Exception as e:
+            self.compile_status = ProcessStatus.ERROR
+            raise e
 
         regex = re.compile('(error)+', re.IGNORECASE)
         if regex.match(self.compile_output) is None:

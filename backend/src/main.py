@@ -195,7 +195,6 @@ def api_compile_core():
 
     CoreService().compile_core()
     while CoreService().compile_status is None:
-        print('wait')
         time.sleep(1)
 
     return jsonify({'code': 0, 'compile_status': CoreService().compile_status.value})
