@@ -26,7 +26,7 @@ from werkzeug.utils import secure_filename
 import os
 import zipfile
 from configuration.authoriztaion_service import AuthorizationService
-
+from collections import OrderedDict
 
 # Init flask application
 app = Flask(__name__)
@@ -304,6 +304,34 @@ def api_get_system_info():
     }
 
     return jsonify(result), status.HTTP_200_OK
+
+
+@app.route('/api/build_machine', methods=['POST'])
+@handle_errors
+@api_authorization
+def api_build_current_machine():
+    with_update = request.get_json().get('with_update')
+    machine_config = SettingsService().current_machine_config
+    if not machine_config:
+        raise ServerException('Can\'t find machine config for type {}'.format(SettingsService().server_config['type']),
+                              status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    dependencies = dict(OrderedDict(sorted(machine_config['dependencies'].items(), key=lambda x: x[1])))
+    for dependency in dependencies:
+        dependency_url = SettingsService().libraries['dependencies'].get(dependency)
+        if not dependency_url:
+            raise ServerException('Unknown dependency {} while building'.format(dependency),
+                                  status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if with_update:
+            UpdateService().update_and_upgrade_lib_sync(dependency_url)
+        else:
+            UpdateService().upgrade_lib_sync(dependency)
+
+    if with_update:
+        CoreService().update_core_sync()
+
+    CoreService().compile_core()
+    return jsonify({'code': 0}), status.HTTP_200_OK
 
 
 @app.route('/api/update_module', methods=['POST'])
