@@ -1,0 +1,19 @@
+---- установка protobuf
+
+download https://github.com/google/protobuf/archive/v3.5.1.zip
+unzip
+./autogen.sh
+./configure
+make
+make check
+sudo make install
+sudo ldconfig
+
+
+---- установка gstreamer
+
+list=$(apt-cache —names-only search ^gstreamer1.0-* | awk '{ print $1 }' | grep -v gstreamer1.0-hybris)
+sudo apt-get install $list
+
++ libgstreamer ... -dev
+libgstreamer-plugins-base1.0-dev
