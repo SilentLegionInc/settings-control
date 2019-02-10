@@ -30,6 +30,10 @@ export class MapperService {
     }
 
     static mapDataStructureResponse(responseBody) {
+        return responseBody.map(elem => new DataStructureModel(elem.name, elem.system_name, elem.type));
+    }
+    
+    static mapMapsDataResponse(responseBody) {
         return new MapsDataModel(
             responseBody['points'].map(elem => {
                 return {

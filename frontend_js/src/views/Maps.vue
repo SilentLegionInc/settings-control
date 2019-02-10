@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import { yandexMap } from 'vue-yandex-maps';
+import { yandexMap } from 'vue-yandex-maps'
 export default {
     name: 'Maps',
     components: { yandexMap },
@@ -33,12 +33,47 @@ export default {
             placemark.markerId = `${index}`;
             placemark.coords = [elem.latitude, elem.longitude];
             placemark.callbacks = { click: this.placemarkClicked };
+            // TODO
+            // placemark.icon = {
+            //     color: 'green',
+            //     content: `${elem.count}`,
+            //     glyph: 'cinema'
+            // };
+            placemark.balloonTemplate = this.getBalloon(elem.latitude, elem.longitude, elem.count);
             return placemark;
         });
     },
     methods: {
         placemarkClicked(event) {
             console.log(event);
+        },
+        getBalloon(latitude, longitude, count) {
+            return `
+                <div class="row">
+                    <div class="col-md-6">
+                        Широта:
+                    </div>
+                    <div class="col-md-6">
+                        ${latitude}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        Долгота:
+                    </div>
+                    <div class="col-md-6">
+                        ${longitude}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        Кол-во:
+                    </div>
+                    <div class="col-md-6">
+                        ${count}
+                    </div>
+                </div>
+            `
         }
     }
 }
@@ -46,8 +81,7 @@ export default {
 const placemarkConfig = {
     properties: {}, // define properties here
     options: {}, // define options here
-    clusterName: '1',
-    balloonTemplate: '<b>Privet</b>'
+    clusterName: '1'
 }
 </script>
 

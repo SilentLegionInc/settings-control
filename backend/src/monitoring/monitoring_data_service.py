@@ -1,3 +1,4 @@
+from enum import Enum
 from support.singleton import Singleton
 from support.logger import Logger
 from monitoring.monitoring_config_service import MonitoringConfigService
@@ -7,6 +8,10 @@ import datetime
 from flask_api import status
 from support.server_exception import ServerException
 from dateutil import parser
+
+
+class ValueTypes(Enum):
+    NUMBER = 'number'
 
 
 class MonitoringDataService(metaclass=Singleton):
@@ -34,7 +39,8 @@ class MonitoringDataService(metaclass=Singleton):
         except Exception as ex:
             raise ServerException('Can\'t get information from config', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
 
-    def get_data_structure(self, robot_name):
+    @staticmethod
+    def get_data_structure(robot_name):
         try:
             fields_descr = MonitoringConfigService().get_sensors_data_config(robot_name)["fields_to_retrieve"]
         except Exception as ex:
@@ -49,7 +55,7 @@ class MonitoringDataService(metaclass=Singleton):
         return result
 
     # Запеканий нет, потому что их нет в sqlite3, а то, что есть, - фигня
-    def get_data(self, robot_name, field_name, filter_params=None, additional_params=None):
+    def get_chart_data(self, robot_name, field_name, filter_params=None, additional_params=None):
         if filter_params:
             filter_params = copy.deepcopy(filter_params)
             pass
@@ -118,7 +124,7 @@ class MonitoringDataService(metaclass=Singleton):
 
             query = ' '.join([main_query, filter_query, sort_query, additional_query])
 
-            Logger().debug_message(query, "Sensors database query: ")
+            Logger().debug_message(query, "get_charts_data :: Sensors database query: ")
 
             cursor.execute(query)
             result = []
@@ -135,7 +141,7 @@ class MonitoringDataService(metaclass=Singleton):
             )
             query = ' '.join([main_query, filter_query])
 
-            Logger().debug_message(query, "Sensors database query: ")
+            Logger().debug_message(query, "get_charts_data :: Sensors database query: ")
 
             cursor.execute(query)
             support_result = cursor.fetchone()
@@ -215,11 +221,9 @@ class MonitoringDataService(metaclass=Singleton):
             # handling sort conditions
             sort_conditions = []
             if sort_params.get('type') is not None:
-                order = 'ASC' if sort_params['type'] == 1 else 'DESC'
-                sort_conditions.append('type {}'.format(order))
+                sort_conditions.append('type {}'.format(sort_params['type']))
             if sort_params.get('time') is not None:
-                order = 'ASC' if sort_params['time'] == 1 else 'DESC'
-                sort_conditions.append('time {}'.format(order))
+                sort_conditions.append('dataTime {}'.format(sort_params['time']))
 
             sort_query = ''
             if sort_conditions:
@@ -238,7 +242,7 @@ class MonitoringDataService(metaclass=Singleton):
 
             query = ' '.join([main_query, filter_query, sort_query, additional_query])
 
-            Logger().debug_message(query, "Logs database query: ")
+            Logger().debug_message(query, "get_logs :: Logs database query: ")
 
             cursor.execute(query)
             result = []
@@ -254,7 +258,7 @@ class MonitoringDataService(metaclass=Singleton):
             main_query = 'SELECT COUNT(*) FROM {}'.format(collection_name)
             query = ' '.join([main_query, filter_query])
 
-            Logger().debug_message(query, "Sensors database query: ")
+            Logger().debug_message(query, "get_logs :: Logs database query: ")
 
             cursor.execute(query)
             count = cursor.fetchone()[0]
@@ -285,7 +289,7 @@ class MonitoringDataService(metaclass=Singleton):
             latitude_column_name = sensors_config['latitude_field']
             longitude_column_name = sensors_config['longitude_field']
 
-            query = 'SELECT {},{},COUNT() FROM {} group by {},{}'.format(
+            query = 'SELECT {},{},COUNT(*) FROM {} group by {},{}'.format(
                 latitude_column_name,
                 longitude_column_name,
                 collection_name,
@@ -293,7 +297,7 @@ class MonitoringDataService(metaclass=Singleton):
                 longitude_column_name
             )
 
-            Logger().debug_message(query, "Sensors database query: ")
+            Logger().debug_message(query, "get_maps_data :: Sensors database query: ")
 
             cursor.execute(query)
             points_result = []
@@ -311,6 +315,9 @@ class MonitoringDataService(metaclass=Singleton):
                 longitude_column_name,
                 collection_name
             )
+
+            Logger().debug_message(query, "get_maps_data :: Sensors database query: ")
+
             cursor.execute(query)
 
             support_result = cursor.fetchone()
@@ -332,16 +339,143 @@ class MonitoringDataService(metaclass=Singleton):
             connection.close()
             raise ServerException('Error while preparing and executing query', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
 
+    def get_table_data(self, robot_name, filter_params=None, sort_params=None, additional_params=None):
+        if filter_params:
+            filter_params = copy.deepcopy(filter_params)
+            pass
+        else:
+            filter_params = {}
+
+        if sort_params:
+            sort_params = copy.deepcopy(sort_params)
+        else:
+            sort_params = {}
+
+        if additional_params:
+            additional_params = copy.deepcopy(additional_params)
+        else:
+            additional_params = {}
+
+        try:
+            connection = sqlite3.connect(self.connections[robot_name]['sensors']['file_path'])
+            cursor = connection.cursor()
+        except Exception as ex:
+            raise ServerException(
+                'Can\'t connect to database with name {}'.format(self.connections[robot_name]['sensors']['file_path']),
+                status.HTTP_500_INTERNAL_SERVER_ERROR, ex
+            )
+
+        collection_name = self.connections[robot_name]['sensors']['collection_name']
+
+        try:
+            sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)
+            time_column_name = sensors_config['time_column']
+            latitude_column_name = sensors_config['latitude_field']
+            longitude_column_name = sensors_config['longitude_field']
+            needed_fields = list(sensors_config['fields_to_retrieve'].items())
+            fields_to_filter = list(
+                filter(
+                    lambda elem: elem[1]['type'] == ValueTypes.NUMBER.value,
+                    list(sensors_config['fields_to_retrieve'].items())
+                )
+            )
+
+            main_query = 'SELECT {},{},{},{} FROM {}'.format(
+                time_column_name,
+                latitude_column_name,
+                longitude_column_name,
+                ','.join(list(map(lambda elem: elem[1]['column_name'], needed_fields))),
+                collection_name
+            )
+
+            # handling filter conditions
+            filter_conditions = []
+            if filter_params.get('start_time') is not None:
+                if isinstance(filter_params['start_time'], datetime.datetime):
+                    filter_params['start_time'] = filter_params['start_time'].strftime("%Y-%m-%d %H:%M:%S")
+                filter_conditions.append('datetime({}) >= datetime("{}")'.format(time_column_name, filter_params['start_time']))
+            if filter_params.get('end_time') is not None:
+                if isinstance(filter_params['end_time'], datetime.datetime):
+                    filter_params['end_time'] = filter_params['end_time'].strftime("%Y-%m-%d %H:%M:%S")
+                filter_conditions.append('datetime({}) <= datetime("{}")'.format(time_column_name, filter_params['end_time']))
+            for field_to_filter in fields_to_filter:
+                min_name = 'min_{}'.format(field_to_filter[0])
+                max_name = 'max_{}'.format(field_to_filter[0])
+                if filter_params.get(min_name) is not None:
+                    filter_conditions.append('{} >= {}'.format(field_to_filter[1]['column_name'], filter_params[min_name]))
+                if filter_params.get(max_name) is not None:
+                    filter_conditions.append('{} <= {}'.format(field_to_filter[1]['column_name'], filter_params[max_name]))
+
+            filter_query = ''
+            if filter_conditions:
+                filter_query = 'WHERE ' + ' AND '.join(filter_conditions)
+
+            # handling sort conditions
+            sort_conditions = []
+            if sort_params.get('time') is not None:
+                sort_conditions.append('{} {}'.format(time_column_name, sort_params['time']))
+            for needed_field in needed_fields:
+                if sort_params.get(needed_field[0]) is not None:
+                    sort_conditions.append('{} {}'.format(needed_field[1]['column_name'], sort_params[needed_field[0]]))
+
+            sort_query = ''
+            if sort_conditions:
+                sort_query = 'ORDER BY ' + ' '.join(sort_conditions)
+
+            # handling additional conditions
+            additional_conditions = []
+            if additional_params.get('limit') is not None:
+                additional_conditions.append('limit {}'.format(additional_params['limit']))
+            if additional_params.get('offset') is not None:
+                additional_conditions.append('offset {}'.format(additional_params['offset']))
+
+            additional_query = ''
+            if additional_conditions:
+                additional_query = ' '.join(additional_conditions)
+
+            query = ' '.join([main_query, filter_query, sort_query, additional_query])
+
+            Logger().debug_message(query, "get_table_data :: Sensors database query: ")
+
+            cursor.execute(query)
+            result = []
+            for row in cursor:
+                res_elem = {
+                    'time': parser.parse(row[0]),
+                    'latitude': row[1],
+                    'longitude': row[2]
+                }
+                for index, needed_field in enumerate(needed_fields):
+                    res_elem[needed_field[0]] = row[3 + index]
+                result.append(res_elem)
+
+            main_query = 'SELECT COUNT(*) FROM {}'.format(collection_name)
+            query = ' '.join([main_query, filter_query])
+
+            Logger().debug_message(query, "get_table_data :: Sensors database query: ")
+
+            cursor.execute(query)
+            count = cursor.fetchone()[0]
+
+            cursor.close()
+            connection.close()
+
+            return {'result': result, 'count': count, 'data_structure': self.get_data_structure(robot_name)}
+        except Exception as ex:
+            cursor.close()
+            connection.close()
+            raise ServerException('Error while preparing and executing query', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
+
 
 if __name__ == '__main__':
-    structure = MonitoringDataService().get_data_structure('AMTS')
+    structure = MonitoringDataService.get_data_structure('AMTS')
     print(structure)
 
     filter_params = {
         'start_time': '2018-11-25 18:31:03',
         'end_time': datetime.datetime.now()
     }
-    data = MonitoringDataService().get_data('AMTS', 'atmospheric_sensor', filter_params=filter_params)
+    data = MonitoringDataService().get_chart_data('AMTS', 'atmospheric_sensor', filter_params=filter_params)
     print(data)
 
     filter_params = {

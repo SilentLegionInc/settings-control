@@ -101,26 +101,28 @@ export class RequestService {
         const path = this._constructPath(`api/monitoring/logs/${robotName}`);
 
         const body = {};
+        body['filter'] = {}
+        body['sort'] = {}
         if (startTime != null) {
-            body['start_time'] = startTime;
-            if (typeof body['start_time'] !== 'string') {
-                body['start_time'] = body['start_time'].toISOString();
+            body['filter']['start_time'] = startTime;
+            if (typeof body['filter']['start_time'] !== 'string') {
+                body['filter']['start_time'] = body['filter']['start_time'].toISOString();
             }
         }
         if (endTime != null) {
-            body['end_time'] = endTime.toISOString();
-            if (typeof body['end_time'] !== 'string') {
-                body['end_time'] = body['end_time'].toISOString();
+            body['filter']['end_time'] = endTime.toISOString();
+            if (typeof body['filter']['end_time'] !== 'string') {
+                body['filter']['end_time'] = body['filter']['end_time'].toISOString();
             }
         }
         if (type != null) {
-            body['type'] = type;
+            body['filter']['type'] = type;
         }
         if (sortByTime != null) {
-            body['sort_by_time'] = sortByTime ? 1 : 0;
+            body['sort']['time'] = sortByTime ? 1 : 0;
         }
         if (sortByType != null) {
-            body['sort_by_type'] = sortByType ? 1 : 0;
+            body['sort']['type'] = sortByType ? 1 : 0;
         }
         if (limit != null) {
             body['limit'] = limit;
@@ -138,20 +140,22 @@ export class RequestService {
     }
 
     async getStatisticsData(robotName, fieldName, limit = 1, offset = 0, startTime = null, endTime = null) {
-        const path = this._constructPath(`api/monitoring/data/${robotName}`);
+        const path = this._constructPath(`api/monitoring/chart_data/${robotName}`);
 
         const body = {};
+        body['filter'] = {}
         body['field_name'] = fieldName;
+        
         if (startTime != null) {
-            body['start_time'] = startTime;
-            if (typeof body['start_time'] !== 'string') {
-                body['start_time'] = body['start_time'].toISOString();
+            body['filter']['start_time'] = startTime;
+            if (typeof body['filter']['start_time'] !== 'string') {
+                body['filter']['start_time'] = body['filter']['start_time'].toISOString();
             }
         }
         if (endTime != null) {
-            body['end_time'] = endTime.toISOString();
-            if (typeof body['end_time'] !== 'string') {
-                body['end_time'] = body['end_time'].toISOString();
+            body['filter']['end_time'] = endTime;
+            if (typeof body['filter']['end_time'] !== 'string') {
+                body['filter']['end_time'] = body['filter']['end_time'].toISOString();
             }
         }
         if (limit != null) {
@@ -186,7 +190,7 @@ export class RequestService {
         Logger.debug(`Path: ${path}`);
     
         const result = await axios.get(path);
-        return MapperService.mapDataStructureResponse(result.data);
+        return MapperService.mapMapsDataResponse(result.data);
     }
     
     async uploadFile(formData) {

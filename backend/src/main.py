@@ -268,15 +268,24 @@ def api_change_password():
 @app.route('/api/monitoring/structure/<string:robot_name>', methods=['GET'])
 @handle_errors
 def api_get_monitoring_data_structure(robot_name):
-    return jsonify(MonitoringDataService().get_data_structure(robot_name)), status.HTTP_200_OK
+    result = MonitoringDataService.get_data_structure(robot_name)
+    return jsonify(Mapper.map_get_monitoring_data_structure_response(result)), status.HTTP_200_OK
 
 
-@app.route('/api/monitoring/data/<string:robot_name>', methods=['POST'])
+@app.route('/api/monitoring/chart_data/<string:robot_name>', methods=['POST'])
 @handle_errors
-def api_get_monitoring_data(robot_name):
+def api_get_monitoring_chart_data(robot_name):
     body = request.get_json()
-    result = MonitoringDataService().get_data(robot_name, **Mapper.map_get_monitoring_data_request(body))
-    return jsonify(Mapper.map_get_monitoring_data_response(result)), status.HTTP_200_OK
+    result = MonitoringDataService().get_chart_data(robot_name, **Mapper.map_get_monitoring_chart_data_request(body))
+    return jsonify(Mapper.map_get_monitoring_chart_data_response(result)), status.HTTP_200_OK
+
+
+@app.route('/api/monitoring/table_data/<string:robot_name>', methods=['POST'])
+@handle_errors
+def api_get_monitoring_table_data(robot_name):
+    body = request.get_json()
+    result = MonitoringDataService().get_table_data(robot_name, **Mapper.map_get_monitoring_table_data_request(robot_name, body))
+    return jsonify(Mapper.map_get_monitoring_table_data_response(result)), status.HTTP_200_OK
 
 
 @app.route('/api/monitoring/maps_data/<string:robot_name>', methods=['GET'])
