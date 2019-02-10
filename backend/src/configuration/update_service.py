@@ -87,8 +87,11 @@ class UpdateService(metaclass=Singleton):
 
         if need_clone:
             Repo.clone_from(lib_url, lib_path)
+            repo = Repo(lib_path)
+            repo.git.checkout('HEAD', b='develop')
         else:
             repo = Repo(lib_path)
+            repo.git.checkout('HEAD', b='develop')
             repo.git.reset('--hard')
             repo.git.pull()
 
@@ -108,7 +111,7 @@ class UpdateService(metaclass=Singleton):
         os.makedirs(build_path)
 
         qmake_command = '{} {} -o {}'.format(self.qmake_path, os.path.join(lib_path, '*.pro'), build_path)
-        make_command = 'cd {} && make install'.format(build_path)
+        make_command = 'cd {} && sudo make install'.format(build_path)
 
         compile_output = check_output(qmake_command, shell=True).decode('ascii')
         compile_output += check_output(make_command, shell=True).decode('ascii')
