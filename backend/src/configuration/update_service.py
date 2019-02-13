@@ -10,6 +10,7 @@ from subprocess import check_output
 import os
 import re
 import shutil
+import datetime
 
 
 class UpdateService(metaclass=Singleton):
@@ -76,6 +77,26 @@ class UpdateService(metaclass=Singleton):
         p = Process(target=self._create_ssh_key, args=(return_dict, key))
         p.start()
         return p
+
+    def get_lib_info(self, lib_name):
+        # TODO implement if you want
+        pass
+
+    def cloned_info(self, lib_name):
+        lib_path = os.path.join(self.sources_path, lib_name)
+        is_cloned = os.path.isdir(lib_path) and os.listdir(lib_path)
+        if is_cloned:
+            mtime = datetime.datetime.fromtimestamp(os.path.getmtime(lib_path))
+            return True, mtime
+        return False, None
+
+    def built_info(self, lib_name):
+        build_path = os.path.join(self.build_path, lib_name)
+        is_built = os.path.isdir(build_path) and os.listdir(build_path)
+        if is_built:
+            mtime = datetime.datetime.fromtimestamp(os.path.getmtime(build_path))
+            return True, mtime
+        return False, None
 
     def _update_lib(self, lib_name):
         lib_url = SettingsService().libraries['dependencies'][lib_name]

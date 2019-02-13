@@ -29,13 +29,19 @@ import { ServerExceptionModel } from '../models/ServerExceptionModel';
 import logger from '../logger';
 export default {
     name: 'LoginModal',
+    props: {
+        openOnMount: {
+            type: Boolean,
+            default: true
+        }
+    },
     data: function () {
         return {
             password: ''
         }
     },
     mounted: function() {
-        if (!this.$store.getters.isAuthenticated) {
+        if (this.openOnMount && !this.$store.getters.isAuthenticated) {
             this.showModal();
         }
     },

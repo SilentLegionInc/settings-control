@@ -6,6 +6,9 @@
 
         <ul>
             <li>
+                <router-link class="clickable" to="/">Home</router-link>
+            </li>
+            <li>
                 <a href="#" class="clickable" @click="switchMonitorList">
                     Statistics
 
@@ -50,10 +53,26 @@
                 </router-link>
             </li>
         </ul>
+        <ul>
+            <li v-if="!this.$store.getters.isAuthenticated">
+                <a class="clickable" @click="login()">Log in</a>
+            </li>
+            <li v-if="this.$store.getters.isAuthenticated">
+                <a class="clickable" @click="logout()">Log out</a>
+            </li>
+            <li v-if="this.$store.getters.isAuthenticated">
+                <router-link class="clickable" to="/change_password">Change password</router-link>
+            </li>
+        </ul>
+        <app-login-modal ref="modal_window" :open-on-mount="false"></app-login-modal>
     </div>
 </template>
 
 <script>
+import { ServerExceptionModel } from '../models/ServerExceptionModel';
+import Logger from '../logger';
+import LoginModal from './LoginModal';
+
 export default {
     name: 'Sidebar',
     props: ['isOpen'],
@@ -61,6 +80,9 @@ export default {
         return {
             monitorIsOpen: false
         }
+    },
+    components: {
+        'app-login-modal': LoginModal
     },
     computed: {
         currentStyle: function() {
@@ -88,6 +110,24 @@ export default {
 
         switchMonitorList: function() {
             this.monitorIsOpen = !this.monitorIsOpen;
+        },
+
+        login() {
+            this.$refs.modal_window.showModal();
+        },
+
+        async logout() {
+            try {
+                await this.$store.dispatch('deauthorize');
+                this.$router.push('/');
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Internal server error');
+                    Logger.error(err);
+                }
+            }
         }
     },
 

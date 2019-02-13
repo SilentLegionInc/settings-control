@@ -7,8 +7,31 @@ import ChartStatistics from './views/ChartStatistics';
 import Networks from './views/Networks';
 import Logs from './views/Logs';
 import Maps from './views/Maps';
+import Modules from './views/Modules';
+import ChangePassword from './views/ChangePassword';
+import store from './store';
 
 Vue.use(Router);
+
+// const ifNotAuthenticated = (to, from, next) => {
+//     if (!store.getters.isAuthenticated) {
+//         next()
+//         return
+//     }
+//     next('/');
+// }
+
+const ifAuthenticated = (to, from, next) => {
+    if (store.getters.isAuthenticated) {
+        next()
+        return
+    }
+    if (from) {
+        next(from);
+    } else {
+        next('/');
+    }
+}
 
 export default new Router({
     mode: 'history',
@@ -30,12 +53,20 @@ export default new Router({
         {
             path: '/settings',
             name: 'settings',
-            component: Settings
+            component: Settings,
+            beforeEnter: ifAuthenticated
         },
         {
             path: '/wifi',
             name: 'network',
-            component: Networks
+            component: Networks,
+            beforeEnter: ifAuthenticated
+        },
+        {
+            path: '/modules',
+            name: 'module',
+            component: Modules,
+            beforeEnter: ifAuthenticated
         },
         {
             path: '/table_statistics',
@@ -56,6 +87,12 @@ export default new Router({
             path: '/maps',
             name: 'maps',
             component: Maps
+        },
+        {
+            path: '/change_password',
+            name: 'change-password',
+            component: ChangePassword,
+            beforeEnter: ifAuthenticated
         }
     ]
 })

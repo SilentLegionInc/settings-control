@@ -1,18 +1,30 @@
 <template>
     <div>
-        <label class="offset-md-2 col-md-3 col-form-label" for="oldPassword">Текущий пароль</label>
-        <div class="col-md-5">
-            <input class="form-control" type="password" id="oldPassword" v-model="oldPassword" placeholder=""/>
+        <div class="row margin-top-sm">
+            <label class="offset-md-2 col-md-3 col-form-label" for="oldPassword">Текущий пароль</label>
+            <div class="col-md-5">
+                <input class="form-control" type="password" id="oldPassword" v-model="oldPassword" placeholder=""/>
+            </div>
         </div>
-        <label class="offset-md-2 col-md-3 col-form-label" for="newPassword">Новый пароль</label>
-        <div class="col-md-5">
-            <input class="form-control" type="password" id="newPassword" v-model="newPassword" placeholder=""/>
+        <div class="row margin-top-sm">
+            <label class="offset-md-2 col-md-3 col-form-label" for="newPassword">Новый пароль</label>
+            <div class="col-md-5">
+                <input class="form-control" type="password" id="newPassword" v-model="newPassword" placeholder=""/>
+            </div>
+        </div>
+        <div class="row margin-top-sm">
+            <div class="offset-md-8 col-md-2" align="right">
+                <button class="btn btn-success" @click="updatePassword()">Обновить</button>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
 // TODO think where this component must be.
+import { ServerExceptionModel } from '../models/ServerExceptionModel';
+import Logger from '../logger';
+
 export default {
     name: 'ChangePassword',
     data: () => {
@@ -23,14 +35,17 @@ export default {
     },
     methods: {
         async updatePassword() {
-            const res = await this.$store.state.requestService.changePassword(this.oldPassword, this.newPassword);
-            // TODO
-            if (res) {
-                // redirect to home page and delete token
-                // ok
-            } else {
-                // ???
-                // error
+            try {
+                await this.$store.state.requestService.changePassword(this.oldPassword, this.newPassword);
+                this.$toaster.success('Password changed');
+                this.$router.push('/');
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Internal server error');
+                    Logger.error(err);
+                }
             }
         }
     }

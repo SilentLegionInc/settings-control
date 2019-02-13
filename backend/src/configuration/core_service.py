@@ -11,6 +11,7 @@ from multiprocessing import Process
 import os
 import re
 import time
+import datetime
 
 
 class ProcessStatus(Enum):
@@ -34,6 +35,20 @@ class CoreService(metaclass=Singleton):
         self.compile_status = ProcessStatus.DEFAULT
         self.compile_output = None
         self.compile_thread = None
+
+    def cloned_info(self):
+        is_cloned = os.path.isdir(self.sources_path) and os.listdir(self.sources_path)
+        if is_cloned:
+            mtime = datetime.datetime.fromtimestamp(os.path.getmtime(self.sources_path))
+            return True, mtime
+        return False, None
+
+    def built_info(self):
+        is_built = os.path.isdir(self.build_path) and os.listdir(self.build_path)
+        if is_built:
+            mtime = datetime.datetime.fromtimestamp(os.path.getmtime(self.build_path))
+            return True, mtime
+        return False, None
 
     def run_core(self, exec_output=DEVNULL):
         if not self.core_is_active():

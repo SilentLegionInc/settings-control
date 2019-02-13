@@ -54,7 +54,7 @@ class SettingsService(metaclass=Singleton):
         Logger().info_message('Saving server config')
         try:
             config_file = open(self._server_config_path, 'w')
-            config_file.write(json.dumps(self.server_config))
+            config_file.write(json.dumps(self._server_config))
             config_file.close()
         except Exception as ex:
             Logger().error_message('Loading server config error: {}'.format(str(ex)))
