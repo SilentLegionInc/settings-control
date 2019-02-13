@@ -14,6 +14,7 @@
 import Header from './components/Header.vue';
 import Sidebar from './components/Sidebar.vue';
 import Footer from './components/Footer.vue';
+import axios from 'axios';
 
 export default {
     name: 'App',
@@ -35,6 +36,21 @@ export default {
         onSidebarClosed: function() {
             this.sidebarIsOpened = false;
         }
+    },
+    created: function () {
+        // TODO check that is work as expected.
+        axios.interceptors.response.use(undefined, function (err) {
+            return new Promise(function (resolve, reject) {
+                if (err.status === 401 && err.config && !err.config.__isRetryRequest) {
+                    // if you ever get an unauthorized, logout the user
+                    this.$store.dispatch('deauthorize');
+                    this.$toaster.error('You an unauthorize');
+                    this.$router.push('/');
+                    // you can also redirect to /login if needed !
+                }
+                throw err;
+            });
+        });
     }
 }
 </script>
