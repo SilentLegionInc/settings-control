@@ -460,7 +460,12 @@ class MonitoringDataService(metaclass=Singleton):
             cursor.close()
             connection.close()
 
-            return {'result': result, 'count': count, 'data_structure': self.get_data_structure(robot_name)}
+            return {
+                'result': result,
+                'count': count,
+                'data_structure': self.get_data_structure(robot_name),
+                'extended': additional_params.get('extended')
+            }
         except Exception as ex:
             cursor.close()
             connection.close()

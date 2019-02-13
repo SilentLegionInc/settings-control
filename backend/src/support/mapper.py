@@ -129,7 +129,8 @@ class Mapper:
             'sort_params': map_sort(body, field_names),
             'additional_params': {
                 'limit': body.get('limit'),
-                'offset': body.get('offset')
+                'offset': body.get('offset'),
+                'extended': body.get('extended')
             }
         }
 
@@ -153,11 +154,14 @@ class Mapper:
                 'type': elem['type']
             }, structure))
 
-        return {
+        return_val = {
             'result': map_result(body['result'], body['data_structure']),
-            'count': body['count'],
-            'data_structure': map_data_structure(body['data_structure'])
+            'count': body['count']
         }
+        if body['extended']:
+            return_val['data_structure'] = map_data_structure(body['data_structure'])
+
+        return return_val
 
     @staticmethod
     def map_get_monitoring_maps_data_response(body):

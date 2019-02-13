@@ -139,7 +139,7 @@ export class RequestService {
         return MapperService.mapLogsResponse(result.data);
     }
 
-    async getStatisticsData(robotName, fieldName, limit = 1, offset = 0, startTime = null, endTime = null) {
+    async getStatisticsChartData(robotName, fieldName, limit = 1, offset = 0, startTime = null, endTime = null) {
         const path = this._constructPath(`api/monitoring/chart_data/${robotName}`);
 
         const body = {};
@@ -171,6 +171,44 @@ export class RequestService {
 
         const result = await axios.post(path, body);
         return MapperService.mapChartDataResponse(result.data);
+    }
+    
+    async getStatisticsTableData(robotName, limit = 1, offset = 0, extended = false, filter = {}, sort = {}) {
+        const path = this._constructPath(`api/monitoring/table_data/${robotName}`);
+        
+        const body = {};
+        body['filter'] = {}
+        body['sort'] = {}
+        body['extended'] = extended;
+        
+        if (limit != null) {
+            body['limit'] = limit;
+        }
+        if (offset != null) {
+            body['offset'] = offset;
+        }
+    
+        for (let filterElem in filter) {
+            if (filter.hasOwnProperty(filterElem)) {
+                body['filter'][filterElem] = filter[filterElem]
+                if (['startTime', 'endTime'].includes(filterElem) && typeof body['filter']['start_time'] !== 'string') {
+                    body['filter'][filterElem] = body['filter'][filterElem].toISOString();
+                }
+            }
+        }
+    
+        for (let sortElem in sort) {
+            if (sort.hasOwnProperty(sortElem)) {
+                body['sort'][sortElem] = sort[sortElem]
+            }
+        }
+    
+        Logger.debug('POST request: get logs');
+        Logger.debug(`Path: ${path}`);
+        Logger.debug(`Body: ${JSON.stringify(body)}`);
+    
+        const result = await axios.post(path, body);
+        return MapperService.mapTableDataResponse(result.data);
     }
 
     async getStatisticsDataStructure(robotName) {
