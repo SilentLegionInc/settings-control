@@ -12,11 +12,15 @@ export class RequestService {
         axios.defaults.validateStatus = function (status) {
             return status <= 500; // Reject only if the status code is greater than 500
         }
-        Logger.info('i\'m born');
     }
 
     _constructPath(route) {
         return `${this._serverUri}/${route}`
+    }
+
+    _deleteAuthHeader() {
+        Logger.info(`Deleting auth token`);
+        delete axios.defaults.headers.common['authorization'];
     }
 
     _setAuthHeader(token) {
@@ -37,6 +41,18 @@ export class RequestService {
             throw new ServerExceptionModel(result.data.errorInfo, result.status);
             // Logger.error(result);
             // return false;
+        }
+    }
+
+    async _deauthorize() {
+        const path = this._constructPath(`api/logout`);
+        const result = await axios.get(path);
+        console.log(result.status);
+        if (result.status === 200) {
+            return true;
+        } else {
+            Logger.error(result.data.errorInfo);
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
         }
     }
 
@@ -156,7 +172,7 @@ export class RequestService {
         const body = {};
         body['filter'] = {}
         body['field_name'] = fieldName;
-        
+
         if (startTime != null) {
             body['filter']['start_time'] = startTime;
             if (typeof body['filter']['start_time'] !== 'string') {
@@ -193,23 +209,23 @@ export class RequestService {
         const result = await axios.get(path);
         return MapperService.mapDataStructureResponse(result.data);
     }
-    
+
     async getStatisticsMapsData(robotName) {
         const path = this._constructPath(`api/monitoring/maps_data/${robotName}`);
-    
+
         Logger.debug('GET request: get statistics maps data');
         Logger.debug(`Path: ${path}`);
-    
+
         const result = await axios.get(path);
         return MapperService.mapMapsDataResponse(result.data);
     }
-    
+
     async uploadFile(formData) {
         const path = this._constructPath(`api/update_module`);
-    
+
         Logger.debug('POST request: upload file');
         Logger.debug(`Path: ${path}`);
-    
+
         const result = await axios.post(path, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         if (result.status !== 200) {
             Logger.error(`Can't upload file`)

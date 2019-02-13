@@ -19,16 +19,28 @@ export default new Vuex.Store({
         setAuthToken(context, newToken) {
             this.state.authToken = newToken;
             this.state.requestService._setAuthHeader(newToken)
+        },
+        deleteAuthToken(context) {
+            this.state.authToken = null;
+            this.state.requestService._deleteAuthHeader();
         }
     },
     actions: {
         // Important! use need use only this function from vuex.
         async authorize(context, password) {
             const token = await this.state.requestService._authorize(password);
-            if (!token) {
-                // TODO make smth
-            } else {
+            if (token) {
                 this.commit('setAuthToken', token)
+            } else {
+                // Exception fly away
+            }
+        },
+        async deauthorize(context) {
+            const result = await this.state.requestService._deauthorize();
+            if (result) {
+                this.commit('deleteAuthToken');
+            } else {
+                // Exception fly away
             }
         }
     }
