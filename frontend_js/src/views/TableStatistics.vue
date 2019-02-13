@@ -105,8 +105,11 @@ export default {
             const offset = (page - 1) * this.elementsPerPage;
             const limit = this.elementsPerPage;
             const extended = this.dataStructure.length <= 0;
+            const filter = JSON.parse(JSON.stringify(this.filter));
+            filter.startTime = filter.startTime ? new Date(filter.startTime) : null;
+            filter.endTime = filter.endTime ? new Date(filter.endTime) : null;
 
-            const response = await this.$store.state.requestService.getStatisticsTableData('AMTS', limit, offset, extended, this.filter, this.sort);
+            const response = await this.$store.state.requestService.getStatisticsTableData('AMTS', limit, offset, extended, filter, this.sort);
             this.dbElementsCount = response.count;
             this.dataElements = response.result;
             if (extended) {

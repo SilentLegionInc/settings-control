@@ -217,16 +217,18 @@ export class RequestService {
     
         for (let filterElem in filter) {
             if (filter.hasOwnProperty(filterElem)) {
-                body['filter'][filterElem] = filter[filterElem]
-                if (['startTime', 'endTime'].includes(filterElem) && typeof body['filter']['start_time'] !== 'string') {
-                    body['filter'][filterElem] = body['filter'][filterElem].toISOString();
+                const newName = filterElem.replace(/([A-Z])/g, '_$1').toLowerCase();
+                body['filter'][newName] = filter[filterElem]
+                if (['startTime', 'endTime'].includes(filterElem) && typeof body['filter'][newName] !== 'string') {
+                    body['filter'][newName] = body['filter'][newName].toISOString();
                 }
             }
         }
     
         for (let sortElem in sort) {
             if (sort.hasOwnProperty(sortElem)) {
-                body['sort'][sortElem] = sort[sortElem]
+                const newName = sortElem.replace(/([A-Z])/g, '_$1').toLowerCase();
+                body['sort'][newName] = sort[sortElem]
             }
         }
     
