@@ -60,6 +60,9 @@
             <li v-if="this.$store.getters.isAuthenticated">
                 <a class="clickable" @click="logout()">Log out</a>
             </li>
+            <li v-if="this.$store.getters.isAuthenticated">
+                <router-link class="clickable" to="/change_password">Change password</router-link>
+            </li>
         </ul>
         <app-login-modal ref="modal_window" :open-on-mount="false"></app-login-modal>
     </div>

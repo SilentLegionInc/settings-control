@@ -8,6 +8,7 @@ import Networks from './views/Networks';
 import Logs from './views/Logs';
 import Maps from './views/Maps';
 import Modules from './views/Modules';
+import ChangePassword from './views/ChangePassword';
 
 Vue.use(Router);
 
@@ -62,6 +63,11 @@ export default new Router({
             path: '/maps',
             name: 'maps',
             component: Maps
+        },
+        {
+            path: '/change_password',
+            name: 'change-password',
+            component: ChangePassword
         }
     ]
 })

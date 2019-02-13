@@ -61,7 +61,7 @@ export class RequestService {
         const res = await axios.post(path, { oldPassword, newPassword });
         if (res.status === 200) {
             const body = res.data;
-            store.commit('setAuthToken', body.token)
+            store.commit('setAuthToken', body.token);
         } else {
             Logger.error(res.data.errorInfo);
             throw new ServerExceptionModel(res.data.errorInfo, res.status);
