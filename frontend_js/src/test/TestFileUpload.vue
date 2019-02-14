@@ -7,7 +7,7 @@
         <div class="container">
             <div class="large-12 medium-12 small-12 cell">
                 <label>File
-                    <input type="file" id="file" ref="file" v-on:change="handleFileUpload()"/>
+                    <input type="file" @change="handleFileUpload($event)"/>
                 </label>
                 <button v-on:click="submitFile()">Submit</button>
             </div>
@@ -16,6 +16,8 @@
 </template>
 
 <script>
+import { ServerExceptionModel } from '../models/ServerExceptionModel';
+import Logger from '../logger';
 export default {
     name: 'TestFileUpload',
     data: function() {
@@ -25,14 +27,25 @@ export default {
     },
 
     methods: {
-        submitFile() {
-            let formData = new FormData();
+        submitFile: async function() {
+            const formData = new FormData();
             formData.append('file', this.file);
-            this.$store.state.requestService.uploadFile(formData);
+            try {
+                // TODO add module name and build on download variables to request.
+                await this.$store.state.requestService.uploadFile(formData);
+                this.$toaster.success('Загружено, сучечка');
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Internal server error');
+                    Logger.error(err);
+                }
+            }
         },
 
-        handleFileUpload() {
-            this.file = this.$refs.file.files[0];
+        handleFileUpload(event) {
+            this.file = event.target.files[0];
         }
     }
 }

@@ -48,6 +48,12 @@
             </li>
 
             <li>
+                <router-link class="clickable" to="/modules" @click.native="close">
+                    Module
+                </router-link>
+            </li>
+
+            <li>
                 <router-link class="clickable" to="/logs" @click.native="close">
                     Logs
                 </router-link>
