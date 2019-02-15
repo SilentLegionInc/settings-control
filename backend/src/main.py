@@ -388,6 +388,44 @@ def api_get_modules():
     return jsonify({'core': core_info, 'dependencies': mapped_dependencies}), status.HTTP_200_OK
 
 
+@app.route('/api/update_ssh', methods=['POST'])
+@handle_errors
+@api_authorization
+def api_update_ssh():
+    allowed_extensions = {'zip'}
+
+    def allowed_file(filename):
+        return '.' in filename and \
+               filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+    if 'file' not in request.files:
+        raise ServerException('Can\'t file part in request', status.HTTP_400_BAD_REQUEST)
+
+    file = request.files['file']
+    if not file or not file.filename:
+        raise ServerException('Don\'t select file', status.HTTP_400_BAD_REQUEST)
+
+    if not allowed_file(file.filename):
+        raise ServerException('Incorrect file format. Allow only {}'.format(allowed_extensions),
+                              status.HTTP_406_NOT_ACCEPTABLE)
+
+    file_name = secure_filename(file.filename)
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+    file.save(file_path)
+    zip_archive = zipfile.ZipFile(file_path, 'r')
+    zip_archive.extractall(app.config['UPLOAD_FOLDER'])
+    zip_archive.close()
+    # TODO check
+    ssh_path = os.path.expanduser('~/.ssh')
+    # TODO need to remove ssh folder?
+    cmd('cp -Rf {}/* {}'.format(file_path, ssh_path))
+    hosts_file_name = os.path.join(ssh_path, 'known_hosts')
+    if os.path.isfile(hosts_file_name):
+        os.remove(hosts_file_name)
+    os.system('ssh-keyscan ' + SettingsService().server_config['repositories_platform'] + ' >> ' + hosts_file_name)
+    return jsonify({'code': 0}), status.HTTP_200_OK
+
+
 @app.route('/api/update_module', methods=['POST'])
 @handle_errors
 @api_authorization
