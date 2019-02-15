@@ -398,6 +398,11 @@ class MonitoringDataService(metaclass=Singleton):
                 if isinstance(filter_params['end_time'], datetime.datetime):
                     filter_params['end_time'] = filter_params['end_time'].strftime("%Y-%m-%d %H:%M:%S")
                 filter_conditions.append('datetime({}) <= datetime("{}")'.format(time_column_name, filter_params['end_time']))
+            if filter_params.get('latitude') is not None:
+                filter_conditions.append('{} = {}'.format(latitude_column_name, filter_params['latitude']))
+            if filter_params.get('longitude') is not None:
+                filter_conditions.append('{} = {}'.format(longitude_column_name, filter_params['longitude']))
+
             for field_to_filter in fields_to_filter:
                 min_name = 'min_{}'.format(field_to_filter[0])
                 max_name = 'max_{}'.format(field_to_filter[0])

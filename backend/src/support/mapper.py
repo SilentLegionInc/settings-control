@@ -103,7 +103,9 @@ class Mapper:
             }
             filter_params = {
                 'start_time': parser.parse(body_filter['start_time']) if body_filter.get('start_time') else None,
-                'end_time': parser.parse(body_filter['end_time']) if body_filter.get('end_time') else None
+                'end_time': parser.parse(body_filter['end_time']) if body_filter.get('end_time') else None,
+                'latitude': body_filter['latitude'] if body_filter.get('latitude') else None,
+                'longitude': body_filter['longitude'] if body_filter.get('longitude') else None
             }
             filter_params.update(filter_params_min)
             filter_params.update(filter_params_max)
