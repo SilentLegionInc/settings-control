@@ -219,7 +219,7 @@ export class RequestService {
             if (filter.hasOwnProperty(filterElem)) {
                 const newName = filterElem.replace(/([A-Z])/g, '_$1').toLowerCase();
                 body['filter'][newName] = filter[filterElem]
-                if (['startTime', 'endTime'].includes(filterElem) && typeof body['filter'][newName] !== 'string') {
+                if (['startTime', 'endTime'].includes(filterElem) && body['filter'][newName] && typeof body['filter'][newName] !== 'string') {
                     body['filter'][newName] = body['filter'][newName].toISOString();
                 }
             }

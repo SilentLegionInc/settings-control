@@ -73,6 +73,7 @@ export default {
                         ${count}
                     </div>
                 </div>
+                <a href="/table_statistics?latitude=${latitude}&longitude=${longitude}">Подробнее</a>
             `
         }
     }

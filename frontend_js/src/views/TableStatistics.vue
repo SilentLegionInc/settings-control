@@ -122,6 +122,11 @@ export default {
         }
     },
     mounted() {
+        if (this.$route.query.latitude && this.$route.query.longitude) {
+            this.filter.latitude = this.$route.query.latitude;
+            this.filter.longitude = this.$route.query.longitude;
+        }
+
         this.currentPage = 1;
     }
 }
