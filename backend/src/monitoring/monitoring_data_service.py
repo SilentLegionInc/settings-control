@@ -32,30 +32,50 @@ class MonitoringDataService(metaclass=Singleton):
                 self.connections[robot_name]['logs']['file_path'] = logs_db_file_path
                 self.connections[robot_name]['logs']['collection_name'] = logs_collection_name
 
-                sensors_db_file_path = MonitoringConfigService().get_sensors_data_config(robot_name)['file_path']
-                sensors_collection_name = MonitoringConfigService().get_sensors_data_config(robot_name)['collection_name']
-                self.connections[robot_name]['sensors']['file_path'] = sensors_db_file_path
-                self.connections[robot_name]['sensors']['collection_name'] = sensors_collection_name
+                sensors_dbs = MonitoringConfigService().get_sensors_data_config(robot_name)
+                for key, value in sensors_dbs.items():
+                    sensors_db_file_path = value['file_path']
+                    sensors_collection_name = value['collection_name']
+                    self.connections[robot_name]['sensors'][key] = {}
+                    self.connections[robot_name]['sensors'][key]['file_path'] = sensors_db_file_path
+                    self.connections[robot_name]['sensors'][key]['collection_name'] = sensors_collection_name
         except Exception as ex:
             raise ServerException('Can\'t get information from config', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
 
     @staticmethod
     def get_data_structure(robot_name):
         try:
-            fields_descr = MonitoringConfigService().get_sensors_data_config(robot_name)["fields_to_retrieve"]
+            sensors_dbs = MonitoringConfigService().get_sensors_data_config(robot_name)
+            result = {}
+            for db_key, db_value in sensors_dbs.items():
+                fields_descr = db_value['fields_to_retrieve']
+                result[db_key] = {
+                    'name': db_value['name'],
+                    'fields': []
+                }
+                for field_key, field_value in fields_descr.items():
+                    result[db_key]['fields'].append({
+                        'system_name': field_key,
+                        'name': field_value['name'],
+                        'type': field_value['type']
+                    })
         except Exception as ex:
             raise ServerException('Can\'t get information from config', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
-        result = []
-        for key, value in fields_descr.items():
-            result.append({
-                "system_name": key,
-                "name": value["name"],
-                "type": value["type"]
-            })
+        return result
+
+    @staticmethod
+    def get_short_data_structure(robot_name):
+        try:
+            sensors_dbs = MonitoringConfigService().get_sensors_data_config(robot_name)
+            result = {}
+            for db_key, db_value in sensors_dbs.items():
+                result[db_key] = db_value['name']
+        except Exception as ex:
+            raise ServerException('Can\'t get information from config', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
         return result
 
     # Запеканий нет, потому что их нет в sqlite3, а то, что есть, - фигня
-    def get_chart_data(self, robot_name, field_name, filter_params=None, additional_params=None):
+    def get_chart_data(self, robot_name, db_name, field_name, filter_params=None, additional_params=None):
         if filter_params:
             filter_params = copy.deepcopy(filter_params)
             pass
@@ -68,18 +88,18 @@ class MonitoringDataService(metaclass=Singleton):
             additional_params = {}
 
         try:
-            connection = sqlite3.connect(self.connections[robot_name]['sensors']['file_path'])
+            connection = sqlite3.connect(self.connections[robot_name]['sensors'][db_name]['file_path'])
             cursor = connection.cursor()
         except Exception as ex:
             raise ServerException(
-                'Can\'t connect to database with name {}'.format(self.connections[robot_name]['sensors']['file_path']),
+                'Can\'t connect to database with name {}'.format(self.connections[robot_name]['sensors'][db_name]['file_path']),
                 status.HTTP_500_INTERNAL_SERVER_ERROR, ex
             )
 
-        collection_name = self.connections[robot_name]['sensors']['collection_name']
+        collection_name = self.connections[robot_name]['sensors'][db_name]['collection_name']
 
         try:
-            sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)
+            sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
             needed_column_name = sensors_config['fields_to_retrieve'][field_name]["column_name"]
             time_column_name = sensors_config['time_column']
             latitude_column_name = sensors_config['latitude_field']
@@ -272,20 +292,20 @@ class MonitoringDataService(metaclass=Singleton):
             connection.close()
             raise ServerException('Error while preparing and executing query', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
 
-    def get_maps_data(self, robot_name):
+    def get_maps_data(self, robot_name, db_name):
         try:
-            connection = sqlite3.connect(self.connections[robot_name]['sensors']['file_path'])
+            connection = sqlite3.connect(self.connections[robot_name]['sensors'][db_name]['file_path'])
             cursor = connection.cursor()
         except Exception as ex:
             raise ServerException(
-                'Can\'t connect to database with name {}'.format(self.connections[robot_name]['sensors']['file_path']),
+                'Can\'t connect to database with name {}'.format(self.connections[robot_name]['sensors'][db_name]['file_path']),
                 status.HTTP_500_INTERNAL_SERVER_ERROR, ex
             )
 
-        collection_name = self.connections[robot_name]['sensors']['collection_name']
+        collection_name = self.connections[robot_name]['sensors'][db_name]['collection_name']
 
         try:
-            sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)
+            sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
             latitude_column_name = sensors_config['latitude_field']
             longitude_column_name = sensors_config['longitude_field']
 
@@ -339,7 +359,7 @@ class MonitoringDataService(metaclass=Singleton):
             connection.close()
             raise ServerException('Error while preparing and executing query', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
 
-    def get_table_data(self, robot_name, filter_params=None, sort_params=None, additional_params=None):
+    def get_table_data(self, robot_name, db_name, filter_params=None, sort_params=None, additional_params=None):
         if filter_params:
             filter_params = copy.deepcopy(filter_params)
             pass
@@ -357,18 +377,18 @@ class MonitoringDataService(metaclass=Singleton):
             additional_params = {}
 
         try:
-            connection = sqlite3.connect(self.connections[robot_name]['sensors']['file_path'])
+            connection = sqlite3.connect(self.connections[robot_name]['sensors'][db_name]['file_path'])
             cursor = connection.cursor()
         except Exception as ex:
             raise ServerException(
-                'Can\'t connect to database with name {}'.format(self.connections[robot_name]['sensors']['file_path']),
+                'Can\'t connect to database with name {}'.format(self.connections[robot_name]['sensors'][db_name]['file_path']),
                 status.HTTP_500_INTERNAL_SERVER_ERROR, ex
             )
 
-        collection_name = self.connections[robot_name]['sensors']['collection_name']
+        collection_name = self.connections[robot_name]['sensors'][db_name]['collection_name']
 
         try:
-            sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)
+            sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
             time_column_name = sensors_config['time_column']
             latitude_column_name = sensors_config['latitude_field']
             longitude_column_name = sensors_config['longitude_field']

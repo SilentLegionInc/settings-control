@@ -271,26 +271,33 @@ def api_get_monitoring_data_structure(robot_name):
     return jsonify(Mapper.map_get_monitoring_data_structure_response(result)), status.HTTP_200_OK
 
 
-@app.route('/api/monitoring/chart_data/<string:robot_name>', methods=['POST'])
+@app.route('/api/monitoring/short_structure/<string:robot_name>', methods=['GET'])
 @handle_errors
-def api_get_monitoring_chart_data(robot_name):
+def api_get_monitoring_short_data_structure(robot_name):
+    result = MonitoringDataService.get_short_data_structure(robot_name)
+    return jsonify(Mapper.map_get_monitoring_short_data_structure_response(result)), status.HTTP_200_OK
+
+
+@app.route('/api/monitoring/chart_data/<string:robot_name>/<string:db_name>', methods=['POST'])
+@handle_errors
+def api_get_monitoring_chart_data(robot_name, db_name):
     body = request.get_json()
-    result = MonitoringDataService().get_chart_data(robot_name, **Mapper.map_get_monitoring_chart_data_request(body))
+    result = MonitoringDataService().get_chart_data(robot_name, db_name, **Mapper.map_get_monitoring_chart_data_request(body))
     return jsonify(Mapper.map_get_monitoring_chart_data_response(result)), status.HTTP_200_OK
 
 
-@app.route('/api/monitoring/table_data/<string:robot_name>', methods=['POST'])
+@app.route('/api/monitoring/table_data/<string:robot_name>/<string:db_name>', methods=['POST'])
 @handle_errors
-def api_get_monitoring_table_data(robot_name):
+def api_get_monitoring_table_data(robot_name, db_name):
     body = request.get_json()
-    result = MonitoringDataService().get_table_data(robot_name, **Mapper.map_get_monitoring_table_data_request(robot_name, body))
-    return jsonify(Mapper.map_get_monitoring_table_data_response(result)), status.HTTP_200_OK
+    result = MonitoringDataService().get_table_data(robot_name, db_name, **Mapper.map_get_monitoring_table_data_request(robot_name, db_name, body))
+    return jsonify(Mapper.map_get_monitoring_table_data_response(result, db_name)), status.HTTP_200_OK
 
 
-@app.route('/api/monitoring/maps_data/<string:robot_name>', methods=['GET'])
+@app.route('/api/monitoring/maps_data/<string:robot_name>/<string:db_name>', methods=['GET'])
 @handle_errors
-def api_get_monitoring_maps_data(robot_name):
-    result = MonitoringDataService().get_maps_data(robot_name)
+def api_get_monitoring_maps_data(robot_name, db_name):
+    result = MonitoringDataService().get_maps_data(robot_name, db_name)
     return jsonify(Mapper.map_get_monitoring_maps_data_response(result)), status.HTTP_200_OK
 
 

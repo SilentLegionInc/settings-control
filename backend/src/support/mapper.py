@@ -4,11 +4,24 @@ from dateutil import parser
 class Mapper:
     @staticmethod
     def map_get_monitoring_data_structure_response(body):
-        return list(map(lambda elem: {
-            'system_name': elem['system_name'],
-            'name': elem['name'],
-            'type': elem['type']
-        }, body))
+        result = {}
+        for key, value in body.items():
+            result[key] = {
+                'name': value['name'],
+                'fields': list(map(lambda elem: {
+                    'system_name': elem['system_name'],
+                    'name': elem['name'],
+                    'type': elem['type']
+                }, value['fields']))
+            }
+        return result
+
+    @staticmethod
+    def map_get_monitoring_short_data_structure_response(body):
+        result = {}
+        for key, value in body.items():
+            result[key] = value
+        return result
 
     @staticmethod
     def map_get_monitoring_chart_data_request(body):
@@ -92,7 +105,7 @@ class Mapper:
         }
 
     @staticmethod
-    def map_get_monitoring_table_data_request(robot_name, body):
+    def map_get_monitoring_table_data_request(robot_name, db_name, body):
         def map_filter(request_body, fields):
             body_filter = request_body.get('filter', {})
             filter_params_min = {
@@ -123,7 +136,10 @@ class Mapper:
             return body_sort
 
         from monitoring.monitoring_data_service import MonitoringDataService
-        field_names = list(map(lambda elem: elem['system_name'], MonitoringDataService.get_data_structure(robot_name)))
+        field_names = list(map(
+                lambda elem: elem['system_name'],
+                MonitoringDataService.get_data_structure(robot_name)[db_name]['fields']
+        ))
 
         # TODO validate body
         return {
@@ -137,7 +153,7 @@ class Mapper:
         }
 
     @staticmethod
-    def map_get_monitoring_table_data_response(body):
+    def map_get_monitoring_table_data_response(body, db_name):
         def map_result(result, structure):
             field_names = list(map(lambda struct_elem: struct_elem['system_name'], structure))
             return_value = []
@@ -157,11 +173,11 @@ class Mapper:
             }, structure))
 
         return_val = {
-            'result': map_result(body['result'], body['data_structure']),
+            'result': map_result(body['result'], body['data_structure'][db_name]['fields']),
             'count': body['count']
         }
         if body['extended']:
-            return_val['data_structure'] = map_data_structure(body['data_structure'])
+            return_val['data_structure'] = map_data_structure(body['data_structure'][db_name]['fields'])
 
         return return_val
 
