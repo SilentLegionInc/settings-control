@@ -54,6 +54,12 @@
             </li>
 
             <li>
+                <router-link class="clickable" to="/monitoring_navigation" @click.native="close">
+                    Monitoring
+                </router-link>
+            </li>
+
+            <li>
                 <router-link class="clickable" to="/logs" @click.native="close">
                     Logs
                 </router-link>

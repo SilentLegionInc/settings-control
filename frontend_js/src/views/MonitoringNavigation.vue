@@ -1,0 +1,47 @@
+<template>
+    <div>
+        <div v-for="(elem, index) in databasesInfo" :key="index" class="row">
+            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                {{elem.name}}
+            </div>
+
+            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                <router-link :to="`/chart_statistics?dbName=${elem.systemName}`">
+                    Графики
+                </router-link>
+            </div>
+
+            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                <router-link :to="`/table_statistics?dbName=${elem.systemName}`">
+                    Таблицы
+                </router-link>
+            </div>
+
+            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                <router-link :to="`/maps_statistics?dbName=${elem.systemName}`">
+                    Карты
+                </router-link>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+export default {
+    name: 'MonitoringNavigation',
+    data() {
+        return {
+            robotName: null,
+            databasesInfo: []
+        }
+    },
+    async mounted() {
+        this.robotName = this.$store.state.robotName;
+        this.databasesInfo = await this.$store.state.requestService.getStatisticsDatabasesInfo(this.robotName);
+    }
+}
+</script>
+
+<style scoped>
+
+</style>

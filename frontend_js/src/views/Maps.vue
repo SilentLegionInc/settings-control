@@ -19,13 +19,16 @@ export default {
     data() {
         return {
             placemarks: [],
-            currentRobot: 'AMTS', // TODO get if from $store
             centerLatitude: 0,
-            centerLongitude: 0
+            centerLongitude: 0,
+            robotName: null,
+            databaseName: null
         }
     },
     async mounted() {
-        const result = await this.$store.state.requestService.getStatisticsMapsData(this.currentRobot);
+        this.databaseName = this.$route.query.dbName;
+        this.robotName = this.$store.state.robotName;
+        const result = await this.$store.state.requestService.getStatisticsMapsData(this.robotName, this.databaseName);
         this.centerLatitude = result.centerLatitude;
         this.centerLongitude = result.centerLongitude;
         this.placemarks = result.points.map((elem, index) => {
@@ -73,7 +76,7 @@ export default {
                         ${count}
                     </div>
                 </div>
-                <a href="/table_statistics?latitude=${latitude}&longitude=${longitude}">Подробнее</a>
+                <a href="/table_statistics?dbName=${this.databaseName}&latitude=${latitude}&longitude=${longitude}">Подробнее</a>
             `
         }
     }

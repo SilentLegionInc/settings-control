@@ -43,28 +43,23 @@ class MonitoringDataService(metaclass=Singleton):
             raise ServerException('Can\'t get information from config', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
 
     @staticmethod
-    def get_data_structure(robot_name):
+    def get_data_structure(robot_name, db_name):
         try:
-            sensors_dbs = MonitoringConfigService().get_sensors_data_config(robot_name)
-            result = {}
-            for db_key, db_value in sensors_dbs.items():
-                fields_descr = db_value['fields_to_retrieve']
-                result[db_key] = {
-                    'name': db_value['name'],
-                    'fields': []
-                }
-                for field_key, field_value in fields_descr.items():
-                    result[db_key]['fields'].append({
-                        'system_name': field_key,
-                        'name': field_value['name'],
-                        'type': field_value['type']
-                    })
+            structure = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
+            fields_descr = structure['fields_to_retrieve']
+            result = []
+            for field_key, field_value in fields_descr.items():
+                result.append({
+                    'system_name': field_key,
+                    'name': field_value['name'],
+                    'type': field_value['type']
+                })
         except Exception as ex:
             raise ServerException('Can\'t get information from config', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
         return result
 
     @staticmethod
-    def get_short_data_structure(robot_name):
+    def get_databases_info(robot_name):
         try:
             sensors_dbs = MonitoringConfigService().get_sensors_data_config(robot_name)
             result = {}
@@ -485,16 +480,18 @@ class MonitoringDataService(metaclass=Singleton):
             cursor.close()
             connection.close()
 
-            return {
-                'result': result,
-                'count': count,
-                'data_structure': self.get_data_structure(robot_name),
-                'extended': additional_params.get('extended')
-            }
         except Exception as ex:
             cursor.close()
             connection.close()
-            raise ServerException('Error while preparing and executing query', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
+            raise ServerException('Error while preparing and executing query', status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                  ex)
+
+        return {
+            'result': result,
+            'count': count,
+            'data_structure': self.get_data_structure(robot_name, db_name),
+            'extended': additional_params.get('extended')
+        }
 
 
 if __name__ == '__main__':

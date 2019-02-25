@@ -264,18 +264,18 @@ def api_change_password():
     return jsonify({'token': new_token}), status.HTTP_200_OK
 
 
-@app.route('/api/monitoring/structure/<string:robot_name>', methods=['GET'])
+@app.route('/api/monitoring/structure/<string:robot_name>/<string:db_name>', methods=['GET'])
 @handle_errors
-def api_get_monitoring_data_structure(robot_name):
-    result = MonitoringDataService.get_data_structure(robot_name)
+def api_get_monitoring_data_structure(robot_name, db_name):
+    result = MonitoringDataService.get_data_structure(robot_name, db_name)
     return jsonify(Mapper.map_get_monitoring_data_structure_response(result)), status.HTTP_200_OK
 
 
-@app.route('/api/monitoring/short_structure/<string:robot_name>', methods=['GET'])
+@app.route('/api/monitoring/databases_info/<string:robot_name>', methods=['GET'])
 @handle_errors
-def api_get_monitoring_short_data_structure(robot_name):
-    result = MonitoringDataService.get_short_data_structure(robot_name)
-    return jsonify(Mapper.map_get_monitoring_short_data_structure_response(result)), status.HTTP_200_OK
+def api_get_monitoring_databases_info(robot_name):
+    result = MonitoringDataService.get_databases_info(robot_name)
+    return jsonify(Mapper.map_get_monitoring_databases_info_response(result)), status.HTTP_200_OK
 
 
 @app.route('/api/monitoring/chart_data/<string:robot_name>/<string:db_name>', methods=['POST'])

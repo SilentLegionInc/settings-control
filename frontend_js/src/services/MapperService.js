@@ -3,10 +3,11 @@ import { NetworkModel } from '../models/NetworkModel';
 import { LogModel } from '../models/LogModel';
 import { ChartDataResponse } from '../models/ChartDataResponse';
 import { ChartDataModel } from '../models/ChartDataModel';
-import { DataStructureModel } from '../models/DataStructureModel';
 import { MapsDataModel } from '../models/MapsDataModel';
 import { TableDataResponse } from '../models/TableDataResponse'
 import { TableDataModel } from '../models/TableDataModel'
+import { ShortDataStructureModel } from '../models/ShortDataStructureModel'
+import { DataStructureElementModel } from '../models/DataStructureElementModel';
 
 export class MapperService {
     static mapNetworksResponse(responseBody) {
@@ -40,7 +41,17 @@ export class MapperService {
     }
 
     static mapDataStructureResponse(responseBody) {
-        return responseBody.map(elem => new DataStructureModel(elem.name, elem.system_name, elem.type));
+        return responseBody.map(elem => new DataStructureElementModel(elem.name, elem.system_name, elem.type));
+    }
+    
+    static mapDatabasesInfoResponse(responseBody) {
+        const result = [];
+        for (let key in responseBody) {
+            if (responseBody.hasOwnProperty(key)) {
+                result.push(new ShortDataStructureModel(responseBody[key], key));
+            }
+        }
+        return result
     }
     
     static mapMapsDataResponse(responseBody) {

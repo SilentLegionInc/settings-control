@@ -81,7 +81,7 @@ export default {
     components: {
         LineChart
     },
-    props: ['robotName', 'fieldName'],
+    props: ['robotName', 'fieldName', 'dbName'],
     data: function() {
         return {
             chartData: [],
@@ -142,7 +142,9 @@ export default {
             const filterStartTime = this.filterStartTime ? new Date(this.filterStartTime) : null;
             const filterEndTime = this.filterEndTime ? new Date(this.filterEndTime) : null;
 
-            const response = await this.$store.state.requestService.getStatisticsChartData(this.robotName, this.fieldName, limit, offset, filterStartTime, filterEndTime);
+            const response = await this.$store.state.requestService.getStatisticsChartData(
+                this.robotName, this.dbName, this.fieldName, limit, offset, filterStartTime, filterEndTime
+            );
             this.dbElementsCount = response.count;
             this.minimumValue = response.minimum;
             this.averageValue = response.average;

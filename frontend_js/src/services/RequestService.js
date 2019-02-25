@@ -165,9 +165,29 @@ export class RequestService {
         const result = await axios.post(path, body);
         return MapperService.mapLogsResponse(result.data);
     }
+    
+    async getStatisticsDataStructure(robotName, dbName) {
+        const path = this._constructPath(`api/monitoring/structure/${robotName}/${dbName}`);
+        
+        Logger.debug('GET request: get statistics data structure');
+        Logger.debug(`Path: ${path}`);
+        
+        const result = await axios.get(path);
+        return MapperService.mapDataStructureResponse(result.data);
+    }
+    
+    async getStatisticsDatabasesInfo(robotName) {
+        const path = this._constructPath(`api/monitoring/databases_info/${robotName}`);
+        
+        Logger.debug('GET request: get statistics databases info');
+        Logger.debug(`Path: ${path}`);
+        
+        const result = await axios.get(path);
+        return MapperService.mapDatabasesInfoResponse(result.data);
+    }
 
-    async getStatisticsChartData(robotName, fieldName, limit = 1, offset = 0, startTime = null, endTime = null) {
-        const path = this._constructPath(`api/monitoring/chart_data/${robotName}`);
+    async getStatisticsChartData(robotName, dbName, fieldName, limit = 1, offset = 0, startTime = null, endTime = null) {
+        const path = this._constructPath(`api/monitoring/chart_data/${robotName}/${dbName}`);
 
         const body = {};
         body['filter'] = {}
@@ -200,8 +220,8 @@ export class RequestService {
         return MapperService.mapChartDataResponse(result.data);
     }
     
-    async getStatisticsTableData(robotName, limit = 1, offset = 0, extended = false, filter = {}, sort = {}) {
-        const path = this._constructPath(`api/monitoring/table_data/${robotName}`);
+    async getStatisticsTableData(robotName, dbName, limit = 1, offset = 0, extended = false, filter = {}, sort = {}) {
+        const path = this._constructPath(`api/monitoring/table_data/${robotName}/${dbName}`);
         
         const body = {};
         body['filter'] = {}
@@ -240,18 +260,8 @@ export class RequestService {
         return MapperService.mapTableDataResponse(result.data);
     }
 
-    async getStatisticsDataStructure(robotName) {
-        const path = this._constructPath(`api/monitoring/structure/${robotName}`);
-
-        Logger.debug('GET request: get statistics data structure');
-        Logger.debug(`Path: ${path}`);
-
-        const result = await axios.get(path);
-        return MapperService.mapDataStructureResponse(result.data);
-    }
-
-    async getStatisticsMapsData(robotName) {
-        const path = this._constructPath(`api/monitoring/maps_data/${robotName}`);
+    async getStatisticsMapsData(robotName, dbName) {
+        const path = this._constructPath(`api/monitoring/maps_data/${robotName}/${dbName}`);
 
         Logger.debug('GET request: get statistics maps data');
         Logger.debug(`Path: ${path}`);

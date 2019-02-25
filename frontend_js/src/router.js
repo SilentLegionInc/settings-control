@@ -10,6 +10,7 @@ import Maps from './views/Maps';
 import Modules from './views/Modules';
 import ChangePassword from './views/ChangePassword';
 import store from './store';
+import MonitoringNavigation from './views/MonitoringNavigation'
 
 Vue.use(Router);
 
@@ -69,6 +70,11 @@ export default new Router({
             beforeEnter: ifAuthenticated
         },
         {
+            path: '/monitoring_navigation',
+            name: 'monitoring-navigation',
+            component: MonitoringNavigation
+        },
+        {
             path: '/table_statistics',
             name: 'table-statistics',
             component: TableStatistics
@@ -79,14 +85,14 @@ export default new Router({
             component: ChartStatistics
         },
         {
+            path: '/maps_statistics',
+            name: 'maps-statistics',
+            component: Maps
+        },
+        {
             path: '/logs',
             name: 'logs',
             component: Logs
-        },
-        {
-            path: '/maps',
-            name: 'maps',
-            component: Maps
         },
         {
             path: '/change_password',

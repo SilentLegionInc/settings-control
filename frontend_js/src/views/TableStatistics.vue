@@ -77,7 +77,9 @@ export default {
             dbElementsCount: 0,
             dataStructure: [],
             filter: {},
-            sort: {}
+            sort: {},
+            robotName: null,
+            databaseName: null
         }
     },
     computed: {
@@ -109,7 +111,9 @@ export default {
             filter.startTime = filter.startTime ? new Date(filter.startTime) : null;
             filter.endTime = filter.endTime ? new Date(filter.endTime) : null;
 
-            const response = await this.$store.state.requestService.getStatisticsTableData('AMTS', limit, offset, extended, filter, this.sort);
+            const response = await this.$store.state.requestService.getStatisticsTableData(
+                this.robotName, this.databaseName, limit, offset, extended, filter, this.sort
+            );
             this.dbElementsCount = response.count;
             this.dataElements = response.result;
             if (extended) {
@@ -122,11 +126,14 @@ export default {
         }
     },
     mounted() {
+        this.databaseName = this.$route.query.dbName;
+
         if (this.$route.query.latitude && this.$route.query.longitude) {
             this.filter.latitude = this.$route.query.latitude;
             this.filter.longitude = this.$route.query.longitude;
         }
 
+        this.robotName = this.$store.state.robotName;
         this.currentPage = 1;
     }
 }

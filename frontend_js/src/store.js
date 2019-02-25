@@ -8,7 +8,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         authToken: null,
-        requestService: new RequestService(config.get('backendHost'), config.get('backendPort'))
+        requestService: new RequestService(config.get('backendHost'), config.get('backendPort')),
+        robotName: 'AMTS'
     },
     getters: {
         isAuthenticated: state => {

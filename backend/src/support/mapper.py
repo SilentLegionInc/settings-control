@@ -4,20 +4,14 @@ from dateutil import parser
 class Mapper:
     @staticmethod
     def map_get_monitoring_data_structure_response(body):
-        result = {}
-        for key, value in body.items():
-            result[key] = {
-                'name': value['name'],
-                'fields': list(map(lambda elem: {
-                    'system_name': elem['system_name'],
-                    'name': elem['name'],
-                    'type': elem['type']
-                }, value['fields']))
-            }
-        return result
+        return list(map(lambda elem: {
+                'system_name': elem['system_name'],
+                'name': elem['name'],
+                'type': elem['type']
+        }, body))
 
     @staticmethod
-    def map_get_monitoring_short_data_structure_response(body):
+    def map_get_monitoring_databases_info_response(body):
         result = {}
         for key, value in body.items():
             result[key] = value
@@ -138,7 +132,7 @@ class Mapper:
         from monitoring.monitoring_data_service import MonitoringDataService
         field_names = list(map(
                 lambda elem: elem['system_name'],
-                MonitoringDataService.get_data_structure(robot_name)[db_name]['fields']
+                MonitoringDataService.get_data_structure(robot_name, db_name)
         ))
 
         # TODO validate body
@@ -173,11 +167,11 @@ class Mapper:
             }, structure))
 
         return_val = {
-            'result': map_result(body['result'], body['data_structure'][db_name]['fields']),
+            'result': map_result(body['result'], body['data_structure']),
             'count': body['count']
         }
         if body['extended']:
-            return_val['data_structure'] = map_data_structure(body['data_structure'][db_name]['fields'])
+            return_val['data_structure'] = map_data_structure(body['data_structure'])
 
         return return_val
 
