@@ -26,7 +26,9 @@ export class MapperService {
         const res = new TableDataResponse();
         res.count = responseBody.count;
         res.result = responseBody.result.map(elem => new TableDataModel(elem));
-        res.dataStructure = this.mapDataStructureResponse(responseBody['data_structure'])
+        if (responseBody['data_structure']) {
+            res.dataStructure = this.mapDataStructureResponse(responseBody['data_structure'])
+        }
         return res;
     }
 
@@ -36,7 +38,7 @@ export class MapperService {
         res.minimum = responseBody.minimum;
         res.average = responseBody.average;
         res.maximum = responseBody.maximum;
-        res.result = responseBody.result.map(elem => new ChartDataModel(elem.latitude, elem.longitude, new Date(elem.time), elem.value));
+        res.result = responseBody.result.map(elem => new ChartDataModel(elem.id, elem.latitude, elem.longitude, new Date(elem.time), elem.value));
         return res;
     }
 

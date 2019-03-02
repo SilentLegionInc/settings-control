@@ -40,7 +40,7 @@
             </thead>
 
             <tbody class="custom-table-body">
-            <tr v-for="(dataElem, index) in data" :key="index">
+            <tr v-for="(dataElem, index) in data" :id="`elem${dataElem.id}`" :key="index">
                 <td>{{ (_currentPage - 1) * elementsPerPage + index + 1 }}</td>
                 <td>{{ dataElem.time | moment("DD.MM.YYYY HH:mm:ss.SSS") }}</td>
                 <td>{{ dataElem.value }}</td>
@@ -85,7 +85,7 @@ export default {
     data: function() {
         return {
             chartData: [],
-            chartOptions: getChartOptions(this.$moment),
+            chartOptions: getChartOptions(this.$moment, this.scrollToTableRow),
             tableData: [],
             elementsPerPage: 20,
             _currentPage: 1,
@@ -117,6 +117,28 @@ export default {
                         borderJoinStyle: 'round'
                     }
                 ]
+            }
+        },
+
+        scrollToTableRow(datasetIndex, index) {
+            const neededId = this.chartData.datasets[datasetIndex].data[index].id;
+            if (neededId !== null && neededId !== undefined) {
+                console.log(`Scroll to elem${neededId}`);
+                this.$scrollTo(`#elem${neededId}`, 500, {
+                    container: 'body',
+                    easing: 'ease',
+                    offset: 0,
+                    force: true,
+                    cancelable: true,
+                    onStart: false,
+                    onDone: false,
+                    onCancel: false,
+                    x: false,
+                    y: true
+                });
+                const htmlElement = document.getElementById(`elem${neededId}`);
+                htmlElement.classList.add('highlighted');
+                setTimeout(() => { htmlElement.classList.remove('highlighted') }, 2000);
             }
         },
 
@@ -176,7 +198,8 @@ export default {
                         x: elem.time,
                         y: elem.value,
                         latitude: elem.latitude,
-                        longitude: elem.longitude
+                        longitude: elem.longitude,
+                        id: elem.id
                     }
                 });
 
@@ -225,7 +248,7 @@ export default {
     }
 }
 
-function getChartOptions(moment) {
+function getChartOptions(moment, scrollToFunc) {
     return {
         scales: {
             xAxes: [{
@@ -269,24 +292,24 @@ function getChartOptions(moment) {
                     const text = [];
 
                     switch (data.datasets[tooltipItem.datasetIndex].supported) {
-                    case 1:
-                        text.push(`Минимальное значение`);
-                        break;
-                    case 2:
-                        text.push(`Среднее значение`);
-                        break;
-                    case 3:
-                        text.push(`Максимальное значение`);
-                        break;
-                    default:
-                        const time = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x;
-                        const latitude = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].latitude;
-                        const longitude = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].longitude;
+                        case 1:
+                            text.push(`Минимальное значение`);
+                            break;
+                        case 2:
+                            text.push(`Среднее значение`);
+                            break;
+                        case 3:
+                            text.push(`Максимальное значение`);
+                            break;
+                        default:
+                            const time = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x;
+                            const latitude = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].latitude;
+                            const longitude = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].longitude;
 
-                        text.push(`Время: ${moment(time).format('DD.MM.YYYY HH:mm:ss.SSS')}`);
-                        text.push(`Широта: ${latitude}`);
-                        text.push(`Долгота: ${longitude}`);
-                        break;
+                            text.push(`Время: ${moment(time).format('DD.MM.YYYY HH:mm:ss.SSS')}`);
+                            text.push(`Широта: ${latitude}`);
+                            text.push(`Долгота: ${longitude}`);
+                            break;
                     }
 
                     return text;
@@ -315,6 +338,13 @@ function getChartOptions(moment) {
             // Zooming directions. Remove the appropriate direction to disable
             // Eg. 'y' would only allow zooming in the y direction
             mode: 'x'
+        },
+        onClick: function (event, selectedElements) {
+            if (selectedElements.length > 0) {
+                const datasetIndex = selectedElements[0]._datasetIndex;
+                const index = selectedElements[0]._index;
+                scrollToFunc(datasetIndex, index);
+            }
         }
     }
 }
@@ -379,5 +409,19 @@ const datasetOptions = {
         flex-direction: row;
         justify-content: center;
         align-items: center;
+    }
+
+    @keyframes highlight {
+        $startBackground: currentBackground;
+        0% { background: $startBackground; }
+        50% { background: rgb(190, 190, 190); }
+        100% { background: $startBackground; }
+    }
+
+    tr.highlighted {
+        animation-duration: 2s;
+        animation-name: highlight;
+        animation-iteration-count: 1;
+        animation-direction: alternate;
     }
 </style>

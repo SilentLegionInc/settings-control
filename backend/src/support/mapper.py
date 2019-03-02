@@ -40,6 +40,7 @@ class Mapper:
 
         def map_result(result):
             return list(map(lambda elem: {
+                'id': elem['id'],
                 'value': elem['value'],
                 'time': elem['time'].isoformat(),
                 'latitude': elem['latitude'],

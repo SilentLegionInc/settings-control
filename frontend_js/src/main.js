@@ -6,6 +6,7 @@ import BootstrapVue from 'bootstrap-vue';
 import Toaster from 'v-toaster'
 import VModal from 'vue-js-modal';
 import Datetime from 'vue-datetime';
+import VueScrollTo from 'vue-scrollto';
 
 import 'vue-datetime/dist/vue-datetime.css';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -25,19 +26,32 @@ Vue.use(BootstrapVue);
 Vue.use(moment);
 Vue.use(Datetime);
 Vue.use(Toaster, { timeout: 5000 })
+Vue.use(VueScrollTo, {
+    container: 'body',
+    duration: 500,
+    easing: 'ease',
+    offset: 0,
+    force: true,
+    cancelable: true,
+    onStart: false,
+    onDone: false,
+    onCancel: false,
+    x: false,
+    y: true
+})
 
 Vue.filter('logLevelToString', level => {
     switch (level) {
-    case LogLevel.INFO:
-        return 'Info';
-    case LogLevel.DEBUG:
-        return 'Debug';
-    case LogLevel.WARNING:
-        return 'Warning';
-    case LogLevel.CRITICAL:
-        return 'Critical';
-    default:
-        return 'Unknown';
+        case LogLevel.INFO:
+            return 'Info';
+        case LogLevel.DEBUG:
+            return 'Debug';
+        case LogLevel.WARNING:
+            return 'Warning';
+        case LogLevel.CRITICAL:
+            return 'Critical';
+        default:
+            return 'Unknown';
     }
 });
 

@@ -204,14 +204,14 @@ export default {
     }
 
     .monitor-enter, .monitor-leave-to {
-        height: 0;
+        max-height: 0;
     }
 
     .monitor-enter-to, .monitor-leave {
-        height: 73px;
+        max-height: 100px;
     }
 
     .monitor-enter-active, .monitor-leave-active {
-        transition: height 0.4s;
+        transition: max-height 0.4s;
     }
 </style>

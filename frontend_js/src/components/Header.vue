@@ -10,7 +10,7 @@
             </ul>
 
             <div class="navbar-brand">
-                Configuration tool
+                Settings tool
             </div>
 
             <ul class="navbar-nav ml-auto">
@@ -25,14 +25,14 @@
 </template>
 
 <script>
-    export default {
-        name: 'Header',
-        methods: {
-            onHamburgerClicked: function() {
-                this.$emit('onHamburger');
-            }
+export default {
+    name: 'Header',
+    methods: {
+        onHamburgerClicked: function() {
+            this.$emit('onHamburger');
         }
     }
+}
 </script>
 
 <style scoped lang="scss">

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="databaseName && robotName">
         <h1>
             Chart statistics
         </h1>
@@ -20,6 +20,7 @@
 import ChartStatisticsComponent from '../components/ChartStatisticsComponent';
 import { VueTabs, VTab } from 'vue-nav-tabs';
 import 'vue-nav-tabs/themes/vue-tabs.css';
+import Logger from '../logger';
 
 export default {
     name: 'ChartStatistics',
@@ -35,7 +36,13 @@ export default {
     async mounted() {
         this.robotName = this.$store.state.robotName;
         this.databaseName = this.$route.query.dbName;
+        if (this.databaseName == null) {
+            Logger.warn(`Chart statistics: can't load data, database name is empty`);
+            return;
+        }
+
         this.dataStructure = await this.$store.state.requestService.getStatisticsDataStructure(this.robotName, this.databaseName);
+        this.dataStructure = this.dataStructure.filter(elem => elem.type === 'number');
     }
 }
 </script>

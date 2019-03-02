@@ -96,11 +96,13 @@ class MonitoringDataService(metaclass=Singleton):
         try:
             sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
             needed_column_name = sensors_config['fields_to_retrieve'][field_name]["column_name"]
+            id_column_name = sensors_config['id_column']
             time_column_name = sensors_config['time_column']
             latitude_column_name = sensors_config['latitude_field']
             longitude_column_name = sensors_config['longitude_field']
 
-            main_query = 'SELECT {},{},{},{} FROM {}'.format(
+            main_query = 'SELECT {},{},{},{},{} FROM {}'.format(
+                id_column_name,
                 time_column_name,
                 needed_column_name,
                 latitude_column_name,
@@ -145,10 +147,11 @@ class MonitoringDataService(metaclass=Singleton):
             result = []
             for row in cursor:
                 result.append({
-                    'time': parser.parse(row[0]),
-                    'value': row[1],
-                    'latitude': row[2],
-                    'longitude': row[3]
+                    'id': row[0],
+                    'time': parser.parse(row[1]),
+                    'value': row[2],
+                    'latitude': row[3],
+                    'longitude': row[4]
                 })
 
             main_query = 'SELECT COUNT(*), MIN({}), AVG({}), MAX({}) FROM {}'.format(
