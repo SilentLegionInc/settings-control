@@ -306,10 +306,12 @@ class MonitoringDataService(metaclass=Singleton):
             sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
             latitude_column_name = sensors_config['latitude_field']
             longitude_column_name = sensors_config['longitude_field']
+            numeric_fields = list(filter(lambda elem: elem[1]['type'] == 'number', sensors_config['fields_to_retrieve'].items()))
 
-            query = 'SELECT {},{},COUNT(*) FROM {} group by {},{}'.format(
+            query = 'SELECT {},{},COUNT(*),{} FROM {} group by {},{}'.format(
                 latitude_column_name,
                 longitude_column_name,
+                ','.join(list(map(lambda elem: 'SUM({})'.format(elem[1]['column_name']), numeric_fields))),
                 collection_name,
                 latitude_column_name,
                 longitude_column_name
@@ -320,11 +322,18 @@ class MonitoringDataService(metaclass=Singleton):
             cursor.execute(query)
             points_result = []
             for row in cursor:
-                points_result.append({
+                result_elem = {
                     'latitude': row[0],
                     'longitude': row[1],
-                    'count': row[2]
-                })
+                    'count': row[2],
+                    'average': {}
+                }
+                for index, field in enumerate(numeric_fields):
+                    result_elem['average'][field[0]] = {
+                        'name': field[1]['name'],
+                        'value': row[index + 3] / result_elem.get('count')
+                    }
+                points_result.append(result_elem)
 
             query = 'SELECT  MIN({}),MIN({}),MAX({}),MAX({}) FROM {}'.format(
                 latitude_column_name,
@@ -422,8 +431,8 @@ class MonitoringDataService(metaclass=Singleton):
                 filter_conditions.append('{} = {}'.format(longitude_column_name, filter_params['longitude']))
 
             for field_to_filter in fields_to_filter:
-                min_name = 'min_{}'.format(field_to_filter[0])
-                max_name = 'max_{}'.format(field_to_filter[0])
+                min_name = 'min__{}'.format(field_to_filter[0])
+                max_name = 'max__{}'.format(field_to_filter[0])
                 if filter_params.get(min_name) is not None:
                     filter_conditions.append('{} >= {}'.format(field_to_filter[1]['column_name'], filter_params[min_name]))
                 if filter_params.get(max_name) is not None:

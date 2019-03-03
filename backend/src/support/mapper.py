@@ -104,10 +104,10 @@ class Mapper:
         def map_filter(request_body, fields):
             body_filter = request_body.get('filter', {})
             filter_params_min = {
-                'min_' + field_name: body_filter['min_' + field_name] for field_name in fields if body_filter.get('min_' + field_name)
+                'min__' + field_name: body_filter['min__' + field_name] for field_name in fields if body_filter.get('min__' + field_name)
             }
             filter_params_max = {
-                'max_' + field_name: body_filter['max_' + field_name] for field_name in fields if body_filter.get('max_' + field_name)
+                'max__' + field_name: body_filter['max__' + field_name] for field_name in fields if body_filter.get('max__' + field_name)
             }
             filter_params = {
                 'start_time': parser.parse(body_filter['start_time']) if body_filter.get('start_time') else None,
@@ -180,11 +180,18 @@ class Mapper:
     def map_get_monitoring_maps_data_response(body):
 
         def map_points(points):
-            return list(map(lambda elem: {
-                'latitude': elem['latitude'],
-                'longitude': elem['longitude'],
-                'count': elem['count']
-            }, points))
+            result = []
+            for elem in points:
+                result_elem = {
+                    'latitude': elem['latitude'],
+                    'longitude': elem['longitude'],
+                    'count': elem['count'],
+                    'average': {}
+                }
+                for key, value in elem['average'].items():
+                    result_elem['average'][key] = value
+                result.append(result_elem)
+            return result
 
         return {
             'points': map_points(body['points']),
