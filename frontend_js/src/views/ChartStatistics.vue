@@ -1,9 +1,5 @@
 <template>
     <div v-if="databaseName && robotName">
-        <h1>
-            Chart statistics
-        </h1>
-
         <vue-tabs>
             <v-tab v-for="elem in dataStructure" :key="elem.systemName" :title="elem.name">
                 <chart-statistics-component

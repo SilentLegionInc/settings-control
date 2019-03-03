@@ -19,11 +19,11 @@
                             <div class="row margin-bottom-sm" v-for="(element, index) in numDataStructure" :key="index">
                                 <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
                                     <span>Мин. {{element.name.toLowerCase()}}: </span>
-                                    <input type="number" class="form-control" v-model="filter[`min_${element.systemName}`]">
+                                    <input type="number" class="form-control" v-model="filter[`min__${element.systemName}`]">
                                 </div>
                                 <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
                                     <span>Макс. {{element.name.toLowerCase()}}: </span>
-                                    <input type="number" class="form-control" v-model="filter[`max_${element.systemName}`]">
+                                    <input type="number" class="form-control" v-model="filter[`max__${element.systemName}`]">
                                 </div>
                             </div>
                         </div>
@@ -138,7 +138,7 @@ export default {
                 if (filter.hasOwnProperty(key)) {
                     if (key === 'startTime' || key === 'endTime') {
                         filter[key] = filter[key] ? new Date(filter[key]) : null;
-                    } else if (key.startsWith('min_') || key.startsWith('max_')) {
+                    } else if (key.startsWith('min__') || key.startsWith('max__')) {
                         filter[key] = filter[key] ? parseFloat(filter[key]) : null;
                     }
                 }

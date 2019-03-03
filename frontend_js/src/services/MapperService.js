@@ -59,11 +59,21 @@ export class MapperService {
     static mapMapsDataResponse(responseBody) {
         return new MapsDataModel(
             responseBody['points'].map(elem => {
-                return {
+                const result = {
                     latitude: elem.latitude,
                     longitude: elem.longitude,
-                    count: elem.count
+                    count: elem.count,
+                    average: {}
+                };
+                for (let key in elem.average) {
+                    if (elem.average.hasOwnProperty(key)) {
+                        result.average[key] = {
+                            name: elem.average[key].name,
+                            value: elem.average[key].value
+                        };
+                    }
                 }
+                return result;
             }),
             responseBody['center_latitude'],
             responseBody['center_longitude']
