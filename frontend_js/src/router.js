@@ -10,7 +10,8 @@ import Maps from './views/Maps';
 import Modules from './views/Modules';
 import ChangePassword from './views/ChangePassword';
 import store from './store';
-import MonitoringNavigation from './views/MonitoringNavigation'
+import MonitoringNavigation from './views/MonitoringNavigation';
+import SystemInfo from './views/SystemInfo';
 
 Vue.use(Router);
 
@@ -93,6 +94,11 @@ export default new Router({
             path: '/logs',
             name: 'logs',
             component: Logs
+        },
+        {
+            path: '/system_info',
+            name: 'sytem-info',
+            component: SystemInfo
         },
         {
             path: '/change_password',

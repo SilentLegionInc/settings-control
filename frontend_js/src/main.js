@@ -11,10 +11,9 @@ import VueScrollTo from 'vue-scrollto';
 import 'vue-datetime/dist/vue-datetime.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
-// import 'font-awesome/css/font-awesome.css';
 import './global_css/styles.scss';
 import 'v-toaster/dist/v-toaster.css'
-import '@fortawesome/fontawesome-free/css/all.css'
+import '@fortawesome/fontawesome-free/css/all.css';
 
 import { LogLevel } from './models/LogModel';
 
@@ -25,7 +24,7 @@ Vue.use(VModal);
 Vue.use(BootstrapVue);
 Vue.use(moment);
 Vue.use(Datetime);
-Vue.use(Toaster, { timeout: 5000 })
+Vue.use(Toaster, { timeout: 5000 });
 Vue.use(VueScrollTo, {
     container: 'body',
     duration: 500,
@@ -38,7 +37,7 @@ Vue.use(VueScrollTo, {
     onCancel: false,
     x: false,
     y: true
-})
+});
 
 Vue.filter('logLevelToString', level => {
     switch (level) {

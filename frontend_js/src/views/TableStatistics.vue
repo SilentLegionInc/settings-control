@@ -46,10 +46,26 @@
             <thead class="custom-table-header">
             <tr>
                 <th>№</th>
-                <th>Время</th>
-                <th>Широта</th>
-                <th>Долгота</th>
-                <th v-for="(element, index) in dataStructure" :key="index">{{element.name}}</th>
+                <th @click="changeSort('time')" class="clickable-header-elem">
+                    <span v-if="sort.time">
+                        <i v-if="sort.time === 1" key="1" class="fa fa-chevron-down" aria-hidden="true"></i>
+                        <i v-else key="2" class="fa fa-chevron-up" aria-hidden="true"></i>
+                    </span>
+                    Время
+                </th>
+                <th>
+                    Широта
+                </th>
+                <th>
+                    Долгота
+                </th>
+                <th v-for="(element, index) in dataStructure" :key="index" @click="changeSort(element.systemName)" class="clickable-header-elem">
+                    <span v-if="sort[element.systemName]">
+                        <i v-if="sort[element.systemName] === 1" key="1" class="fa fa-chevron-down" aria-hidden="true"></i>
+                        <i v-else key="2" class="fa fa-chevron-up" aria-hidden="true"></i>
+                    </span>
+                    {{element.name}}
+                </th>
             </tr>
             </thead>
 
@@ -122,6 +138,13 @@ export default {
                     this.filter[key] = null;
                 }
             }
+        },
+
+        changeSort(systemFieldName) {
+            const oldValue = this.sort[systemFieldName];
+            this.sort = {}
+            this.sort[systemFieldName] = oldValue ? -oldValue : 1;
+            this.loadData(this.currentPage);
         },
 
         changeElementsPerPage(event) {
@@ -232,5 +255,13 @@ export default {
         height: auto;
         max-height: 300px;
         overflow-y: auto;
+    }
+
+    th.clickable-header-elem {
+        cursor: pointer;
+    }
+
+    th.clickable-header-elem:hover {
+        color: #DAB6C8;
     }
 </style>

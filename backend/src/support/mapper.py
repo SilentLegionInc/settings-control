@@ -128,7 +128,7 @@ class Mapper:
             if body_sort.get('time'):
                 sort_params['time'] = 'ASC' if body_sort['time'] == 1 else 'DESC'
 
-            return body_sort
+            return sort_params
 
         from monitoring.monitoring_data_service import MonitoringDataService
         field_names = list(map(
