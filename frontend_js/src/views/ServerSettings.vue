@@ -19,7 +19,32 @@
             <div class="col-md-8 offset-md-2">
                 <h3>Конфигурация ssh ключей</h3>
             </div>
-            <div class="col-md-8 offset-md-2"></div>
+        </div>
+        <div class="row margin-bottom-sm">
+            <div class="col-md-8 offset-md-2">
+                <b-form-file
+                    v-model="file"
+                    placeholder="Архив с ssh ключами для обновления"
+                    accept=".zip"
+                    drop-placeholder="Перетащите архив сюда"
+                />
+
+                <!--<div class="custom-file" id="customFile">-->
+                    <!--<input type="file" class="custom-file-input" accept=".zip" id="ssh"-->
+                           <!--@change="handleFileUpload($event)">-->
+                    <!--<label class="custom-file-label" for="ssh">-->
+                        <!--Архив с ssh ключами для обновления-->
+                    <!--</label>-->
+                <!--</div>-->
+
+            </div>
+        </div>
+        <div class="row margin-bottom-sm">
+            <div class="offset-md-2 col-md-8" align="right">
+                <button class="btn btn-success" @click="updateSSH()">
+                    Обновить
+                </button>
+            </div>
         </div>
         <div class="row margin-bottom-sm">
             <div class="col-md-8 offset-md-2">
@@ -75,7 +100,8 @@ export default {
         return {
             oldPassword: '',
             newPassword: '',
-            newPasswordAgain: ''
+            newPasswordAgain: '',
+            file: null
         }
     },
     methods: {
@@ -109,6 +135,25 @@ export default {
                     Logger.error(err);
                 }
             }
+        },
+        async updateSSH() {
+            const formData = new FormData();
+            formData.append('file', this.file);
+            try {
+                await this.$store.state.requestService.uploadSSHArchive(formData);
+                this.$toaster.success('Ключи успешно обновлены');
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.file = null;
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Серверная ошибка');
+                    Logger.error(err);
+                }
+            }
+        },
+        handleFileUpload(event) {
+            this.file = event.target.files[0];
         }
     }
 }

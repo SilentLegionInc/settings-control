@@ -81,7 +81,6 @@ export class RequestService {
         } catch (e) {
             return false;
         }
-
     }
 
     async getNetworks() {
@@ -286,7 +285,7 @@ export class RequestService {
         return MapperService.mapMapsDataResponse(result.data);
     }
 
-    async uploadFile(formData) {
+    async uploadModuleArchive(formData) {
         const path = this._constructPath(`api/update_module`);
 
         Logger.debug('POST request: upload file');
@@ -295,6 +294,18 @@ export class RequestService {
         const result = await axios.post(path, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         if (result.status !== 200) {
             Logger.error(`Can't upload file`)
+        }
+    }
+
+    async uploadSSHArchive(formData) {
+        const path = this._constructPath(`api/update_ssh`);
+        const result = await axios.post(path, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        if (result.status === 200) {
+            // TODO change answer format in backend
+            return true;
+        } else {
+            Logger.error(result.data.errorInfo);
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
         }
     }
 }
