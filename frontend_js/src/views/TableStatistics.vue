@@ -14,27 +14,25 @@
                 </div>
 
                 <div class="scrollable-filters">
-                    <transition name="filter">
-                        <div v-if="showAdditionalFilters" style="overflow: hidden;">
-                            <div class="row margin-bottom-sm" v-for="(element, index) in numDataStructure" :key="index">
-                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                                    <span>Мин. {{element.name.toLowerCase()}}: </span>
-                                    <input type="number" class="form-control" v-model="filter[`min__${element.systemName}`]">
-                                </div>
-                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                                    <span>Макс. {{element.name.toLowerCase()}}: </span>
-                                    <input type="number" class="form-control" v-model="filter[`max__${element.systemName}`]">
-                                </div>
+                    <b-collapse id="filters-collapse">
+                        <div class="row margin-bottom-sm" v-for="(element, index) in numDataStructure" :key="index">
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                <span>Мин. {{element.name.toLowerCase()}}: </span>
+                                <input type="number" class="form-control" v-model="filter[`min__${element.systemName}`]">
+                            </div>
+                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                <span>Макс. {{element.name.toLowerCase()}}: </span>
+                                <input type="number" class="form-control" v-model="filter[`max__${element.systemName}`]">
                             </div>
                         </div>
-                    </transition>
+                    </b-collapse>
                 </div>
 
                 <div class="row">
                     <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
                         <button type="button" class="btn btn-primary margin-right-sm" @click="loadData(1)">Применить</button>
                         <button type="button" class="btn btn-secondary margin-right-sm" @click="clearFilters()">Очистить</button>
-                        <button type="button" class="btn btn-secondary margin-right-sm" @click="showAdditionalFilters = !showAdditionalFilters">Доп. фильтры</button>
+                        <button type="button" class="btn btn-secondary margin-right-sm" v-b-toggle.filters-collapse>Доп. фильтры</button>
                     </div>
                 </div>
             </div>
@@ -115,9 +113,9 @@ export default {
             dataStructure: [],
             filter: {},
             sort: {},
-            showAdditionalFilters: false,
             robotName: null,
-            databaseName: null
+            databaseName: null,
+            numDataStructure: null
         }
     },
     computed: {
@@ -142,7 +140,7 @@ export default {
 
         changeSort(systemFieldName) {
             const oldValue = this.sort[systemFieldName];
-            this.sort = {}
+            this.sort = {};
             this.sort[systemFieldName] = oldValue ? -oldValue : 1;
             this.loadData(this.currentPage);
         },
@@ -239,22 +237,11 @@ export default {
         flex-grow: 1;
     }
 
-    .filter-enter, .filter-leave-to {
-        max-height: 0;
-    }
-
-    .filter-enter-to, .filter-leave {
-        max-height: 300px;
-    }
-
-    .filter-leave-active, .filter-enter-active {
-        transition: max-height 0.5s;
-    }
-
     .scrollable-filters {
         height: auto;
         max-height: 300px;
         overflow-y: auto;
+        overflow-x: hidden;
     }
 
     th.clickable-header-elem {

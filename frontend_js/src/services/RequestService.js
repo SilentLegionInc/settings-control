@@ -165,23 +165,23 @@ export class RequestService {
         const result = await axios.post(path, body);
         return MapperService.mapLogsResponse(result.data);
     }
-    
+
     async getStatisticsDataStructure(robotName, dbName) {
         const path = this._constructPath(`api/monitoring/structure/${robotName}/${dbName}`);
-        
+
         Logger.debug('GET request: get statistics data structure');
         Logger.debug(`Path: ${path}`);
-        
+
         const result = await axios.get(path);
         return MapperService.mapDataStructureResponse(result.data);
     }
-    
+
     async getStatisticsDatabasesInfo(robotName) {
         const path = this._constructPath(`api/monitoring/databases_info/${robotName}`);
-        
+
         Logger.debug('GET request: get statistics databases info');
         Logger.debug(`Path: ${path}`);
-        
+
         const result = await axios.get(path);
         return MapperService.mapDatabasesInfoResponse(result.data);
     }
@@ -219,22 +219,22 @@ export class RequestService {
         const result = await axios.post(path, body);
         return MapperService.mapChartDataResponse(result.data);
     }
-    
+
     async getStatisticsTableData(robotName, dbName, limit = 1, offset = 0, extended = false, filter = {}, sort = {}) {
         const path = this._constructPath(`api/monitoring/table_data/${robotName}/${dbName}`);
-        
+
         const body = {};
-        body['filter'] = {}
-        body['sort'] = {}
+        body['filter'] = {};
+        body['sort'] = {};
         body['extended'] = extended;
-        
+
         if (limit != null) {
             body['limit'] = limit;
         }
         if (offset != null) {
             body['offset'] = offset;
         }
-    
+
         for (let filterElem in filter) {
             if (filter.hasOwnProperty(filterElem)) {
                 const newName = filterElem.replace(/([A-Z])/g, '_$1').toLowerCase();
@@ -244,20 +244,30 @@ export class RequestService {
                 }
             }
         }
-    
+
         for (let sortElem in sort) {
             if (sort.hasOwnProperty(sortElem)) {
                 const newName = sortElem.replace(/([A-Z])/g, '_$1').toLowerCase();
                 body['sort'][newName] = sort[sortElem]
             }
         }
-    
+
         Logger.debug('POST request: get logs');
         Logger.debug(`Path: ${path}`);
         Logger.debug(`Body: ${JSON.stringify(body)}`);
-    
+
         const result = await axios.post(path, body);
         return MapperService.mapTableDataResponse(result.data);
+    }
+
+    async getSystemInfo(extended = true) {
+        const path = this._constructPath(`api/monitoring/system_info?extended=${extended}`);
+
+        Logger.debug('GET request: get system info');
+        Logger.debug(`Path: ${path}`);
+
+        const result = await axios.get(path);
+        return MapperService.mapSystemInfoResponse(result.data);
     }
 
     async getStatisticsMapsData(robotName, dbName) {

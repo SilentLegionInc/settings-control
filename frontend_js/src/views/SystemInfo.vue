@@ -14,7 +14,18 @@ export default {
         return {
             percentValue: 72.1,
             freeValue: 70947196928,
-            maxValue: 254721126400
+            maxValue: 254721126400,
+
+            diskInfo: null,
+            memoryInfo: null
+        }
+    },
+    methods: {
+        async loadFullData() {
+            const response = await this.$store.state.requestService.getSystemInfo();
+            this.diskInfo = response.diskInfo;
+            this.memoryInfo = response.memoryInfo;
+            // TODO increment cpu info array
         }
     }
 }
