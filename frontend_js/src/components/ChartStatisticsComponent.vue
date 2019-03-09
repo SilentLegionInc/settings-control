@@ -84,7 +84,7 @@ export default {
     props: ['robotName', 'fieldName', 'dbName'],
     data: function() {
         return {
-            chartData: [],
+            chartData: null,
             chartOptions: getChartOptions(this.$moment, this.scrollToTableRow),
             tableData: [],
             elementsPerPage: 20,

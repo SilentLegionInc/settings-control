@@ -125,10 +125,14 @@ export class MapperService {
             return new MemoryInfoModel(ramInfo, swapInfo);
         }
 
-        return new SystemInfoModel(
-            mapCpuInfo(responseBody['cpu']),
-            mapDiskInfo(responseBody['disk']),
-            mapMemoryInfo(responseBody['memory'])
-        );
+        if (responseBody['memory']) {
+            return new SystemInfoModel(
+                mapCpuInfo(responseBody['cpu']),
+                mapDiskInfo(responseBody['disk']),
+                mapMemoryInfo(responseBody['memory'])
+            );
+        } else {
+            return mapCpuInfo(responseBody);
+        }
     }
 }
