@@ -1,1 +1,0 @@
-{"attitudePin": "0x66", "headlampPin": "0x5555555", "leftMotorPin": "0x53", "rightMotorPin": "0x54", "sensorsCoefficientsPath": "/home/befezdow/Workspace/sciencebitch/Befezdow/AMTS_Server/coefficients.json", "sensorsServerIp": "192.168.0.98", "sensorsServerPort": "9123"}
