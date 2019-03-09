@@ -12,6 +12,7 @@ import ChangePassword from './views/ChangePassword';
 import store from './store';
 import MonitoringNavigation from './views/MonitoringNavigation';
 import SystemInfo from './views/SystemInfo';
+import ServerSettings from './views/ServerSettings'
 
 Vue.use(Router);
 
@@ -68,6 +69,12 @@ export default new Router({
             path: '/modules',
             name: 'module',
             component: Modules,
+            beforeEnter: ifAuthenticated
+        },
+        {
+            path: '/server_settings',
+            name: 'server-settings',
+            component: ServerSettings,
             beforeEnter: ifAuthenticated
         },
         {

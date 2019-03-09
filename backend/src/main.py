@@ -436,6 +436,12 @@ def api_update_ssh():
     return jsonify({'code': 0}), status.HTTP_200_OK
 
 
+@app.route('/api/utils/health', methods=['GET'])
+@handle_errors
+def api_get_server_health():
+    return jsonify({'code': 0}), status.HTTP_200_OK
+
+
 @app.route('/api/update_module', methods=['POST'])
 @handle_errors
 @api_authorization

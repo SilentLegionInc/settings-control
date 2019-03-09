@@ -42,7 +42,7 @@
 <script>
 import LoginModal from '@/components/LoginModal'
 import { ServerExceptionModel } from '../models/ServerExceptionModel'
-import logger from '../logger'
+import Logger from '../logger'
 import VueJsonEditor from 'vue-json-editor'
 
 export default {
@@ -62,7 +62,7 @@ export default {
                         const value = this.settings[key];
                         if (value instanceof Object || value instanceof Array) {
                             this.rawMode = true;
-                            logger.info('Forced raw mode enabled');
+                            Logger.info('Forced raw mode enabled');
                             break;
                         }
                     }
@@ -72,7 +72,7 @@ export default {
                     this.$toaster.error(err.message)
                 } else {
                     this.$toaster.error('Internal server error')
-                    logger.error(err)
+                    Logger.error(err)
                 }
                 this.settings = {}
             }
@@ -91,7 +91,7 @@ export default {
                     this.$toaster.error(err.message)
                 } else {
                     this.$toaster.error('Internal server error')
-                    logger.error(err)
+                    Logger.error(err)
                 }
             }
         },

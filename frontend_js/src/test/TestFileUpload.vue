@@ -32,7 +32,7 @@ export default {
             formData.append('file', this.file);
             try {
                 // TODO add module name and build on download variables to request.
-                await this.$store.state.requestService.uploadFile(formData);
+                await this.$store.state.requestService.uploadModuleArchive(formData);
                 this.$toaster.success('Загружено, сучечка');
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {

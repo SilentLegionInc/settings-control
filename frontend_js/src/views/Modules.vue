@@ -113,7 +113,7 @@ export default {
             const formData = new FormData();
             formData.append('file', this.file);
             try {
-                await this.$store.state.requestService.uploadFile(formData);
+                await this.$store.state.requestService.uploadModuleArchive(formData);
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);

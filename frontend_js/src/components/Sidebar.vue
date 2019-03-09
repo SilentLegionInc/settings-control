@@ -36,24 +36,6 @@
             </li>
 
             <li>
-                <router-link class="clickable" to="/settings" @click.native="close">
-                    Configuration
-                </router-link>
-            </li>
-
-            <li>
-                <router-link class="clickable" to="/wifi" @click.native="close">
-                    Network
-                </router-link>
-            </li>
-
-            <li>
-                <router-link class="clickable" to="/modules" @click.native="close">
-                    Module
-                </router-link>
-            </li>
-
-            <li>
                 <router-link class="clickable" to="/monitoring_navigation" @click.native="close">
                     Monitoring
                 </router-link>
@@ -62,6 +44,30 @@
             <li>
                 <router-link class="clickable" to="/logs" @click.native="close">
                     Logs
+                </router-link>
+            </li>
+
+            <li v-if="$store.getters.isAuthenticated">
+                <router-link class="clickable" to="/settings" @click.native="close">
+                    Configuration
+                </router-link>
+            </li>
+
+            <li v-if="$store.getters.isAuthenticated">
+                <router-link class="clickable" to="/wifi" @click.native="close">
+                    Network
+                </router-link>
+            </li>
+
+            <li v-if="$store.getters.isAuthenticated">
+                <router-link class="clickable" to="/modules" @click.native="close">
+                    Modules
+                </router-link>
+            </li>
+
+            <li v-if="$store.getters.isAuthenticated">
+                <router-link class="clickable" to="/server_settings" @click.native="close">
+                    Server Settings
                 </router-link>
             </li>
         </ul>
