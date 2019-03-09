@@ -40,7 +40,7 @@
             </thead>
 
             <tbody class="custom-table-body">
-            <tr v-for="(dataElem, index) in data" :id="`elem${dataElem.id}`" :key="index">
+            <tr v-for="(dataElem, index) in data" :id="`${fieldName}_elem${dataElem.id}`" :key="index">
                 <td>{{ (_currentPage - 1) * elementsPerPage + index + 1 }}</td>
                 <td>{{ dataElem.time | moment("DD.MM.YYYY HH:mm:ss.SSS") }}</td>
                 <td>{{ dataElem.value }}</td>
@@ -124,7 +124,7 @@ export default {
             const neededId = this.chartData.datasets[datasetIndex].data[index].id;
             if (neededId !== null && neededId !== undefined) {
                 console.log(`Scroll to elem${neededId}`);
-                this.$scrollTo(`#elem${neededId}`, 500, {
+                this.$scrollTo(`#${this.fieldName}_elem${neededId}`, 500, {
                     container: 'body',
                     easing: 'ease',
                     offset: 0,
@@ -136,7 +136,7 @@ export default {
                     x: false,
                     y: true
                 });
-                const htmlElement = document.getElementById(`elem${neededId}`);
+                const htmlElement = document.getElementById(`${this.fieldName}_elem${neededId}`);
                 htmlElement.classList.add('highlighted');
                 setTimeout(() => { htmlElement.classList.remove('highlighted') }, 2000);
             }
