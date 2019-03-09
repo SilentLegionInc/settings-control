@@ -1,21 +1,26 @@
 import axios from 'axios';
 import { MapperService } from './MapperService';
 import Logger from '../logger';
-import store from '../store';
 import { ServerExceptionModel } from '../models/ServerExceptionModel';
 
 export class RequestService {
-    constructor(host, port) {
-        this._serverHost = host; // Config.get('backendHost')
-        this._serverPort = port; // Config.get('backendPort');
-        this._serverUri = `http://${this._serverHost}:${this._serverPort}`;
+    constructor(url) {
+        this._serverUrl = `http://${url}`;
         axios.defaults.validateStatus = function (status) {
             return status <= 500; // Reject only if the status code is greater than 500
         }
     }
 
-    _constructPath(route) {
-        return `${this._serverUri}/${route}`
+    _changeHostUrl(url) {
+        this._serverUrl = `http://${url}`;
+    }
+
+    _constructPath(route, anotherUrl = null) {
+        if (!anotherUrl) {
+            return `${this._serverUrl}/${route}`;
+        } else {
+            return `http://${anotherUrl}/${route}`;
+        }
     }
 
     _deleteAuthHeader() {
@@ -56,16 +61,27 @@ export class RequestService {
         }
     }
 
-    async changePassword(oldPassword, newPassword) {
+    async _changePassword(oldPassword, newPassword) {
         const path = this._constructPath(`api/password`);
         const res = await axios.post(path, { oldPassword, newPassword });
         if (res.status === 200) {
             const body = res.data;
-            store.commit('setAuthToken', body.token);
+            return body.token;
         } else {
             Logger.error(res.data.errorInfo);
             throw new ServerExceptionModel(res.data.errorInfo, res.status);
         }
+    }
+
+    async getHealth(url = null) {
+        const path = this._constructPath('api/utils/health', url);
+        try {
+            const res = await axios.get(path, { timeout: 1000 });
+            return res.status === 200 && res.data.code === 0;
+        } catch (e) {
+            return false;
+        }
+
     }
 
     async getNetworks() {
@@ -165,23 +181,23 @@ export class RequestService {
         const result = await axios.post(path, body);
         return MapperService.mapLogsResponse(result.data);
     }
-    
+
     async getStatisticsDataStructure(robotName, dbName) {
         const path = this._constructPath(`api/monitoring/structure/${robotName}/${dbName}`);
-        
+
         Logger.debug('GET request: get statistics data structure');
         Logger.debug(`Path: ${path}`);
-        
+
         const result = await axios.get(path);
         return MapperService.mapDataStructureResponse(result.data);
     }
-    
+
     async getStatisticsDatabasesInfo(robotName) {
         const path = this._constructPath(`api/monitoring/databases_info/${robotName}`);
-        
+
         Logger.debug('GET request: get statistics databases info');
         Logger.debug(`Path: ${path}`);
-        
+
         const result = await axios.get(path);
         return MapperService.mapDatabasesInfoResponse(result.data);
     }
@@ -219,22 +235,22 @@ export class RequestService {
         const result = await axios.post(path, body);
         return MapperService.mapChartDataResponse(result.data);
     }
-    
+
     async getStatisticsTableData(robotName, dbName, limit = 1, offset = 0, extended = false, filter = {}, sort = {}) {
         const path = this._constructPath(`api/monitoring/table_data/${robotName}/${dbName}`);
-        
+
         const body = {};
         body['filter'] = {}
         body['sort'] = {}
         body['extended'] = extended;
-        
+
         if (limit != null) {
             body['limit'] = limit;
         }
         if (offset != null) {
             body['offset'] = offset;
         }
-    
+
         for (let filterElem in filter) {
             if (filter.hasOwnProperty(filterElem)) {
                 const newName = filterElem.replace(/([A-Z])/g, '_$1').toLowerCase();
@@ -244,18 +260,18 @@ export class RequestService {
                 }
             }
         }
-    
+
         for (let sortElem in sort) {
             if (sort.hasOwnProperty(sortElem)) {
                 const newName = sortElem.replace(/([A-Z])/g, '_$1').toLowerCase();
                 body['sort'][newName] = sort[sortElem]
             }
         }
-    
+
         Logger.debug('POST request: get logs');
         Logger.debug(`Path: ${path}`);
         Logger.debug(`Body: ${JSON.stringify(body)}`);
-    
+
         const result = await axios.post(path, body);
         return MapperService.mapTableDataResponse(result.data);
     }
