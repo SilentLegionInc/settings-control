@@ -9,6 +9,9 @@ import { TableDataModel } from '../models/TableDataModel'
 import { ShortDataStructureModel } from '../models/ShortDataStructureModel'
 import { DataStructureElementModel } from '../models/DataStructureElementModel';
 import { ModuleModel } from '../models/ModuleModel'
+import {CapacityInfoModel} from "../models/CapacityInfoModel";
+import {MemoryInfoModel} from "../models/MemoryInfoModel";
+import {SystemInfoModel} from "../models/SystemInfoModel";
 
 export class MapperService {
     static mapNetworksResponse(responseBody) {
@@ -90,5 +93,58 @@ export class MapperService {
             responseBody['center_latitude'],
             responseBody['center_longitude']
         );
+    }
+
+    static mapSystemInfoResponse(responseBody) {
+        function mapCpuInfo(cpuInfoResponse) {
+            let result = {};
+            for (let cpuName in cpuInfoResponse) {
+                if (cpuInfoResponse.hasOwnProperty(cpuName)) {
+                    result[cpuName] = cpuInfoResponse[cpuName];
+                }
+            }
+            return result;
+        }
+
+        function mapDiskInfo(diskInfoResponse) {
+            let result = {};
+            for (let diskName in diskInfoResponse) {
+                if (diskInfoResponse.hasOwnProperty(diskName)) {
+                    result[diskName] = new CapacityInfoModel(
+                        diskInfoResponse[diskName].percent,
+                        diskInfoResponse[diskName].free,
+                        diskInfoResponse[diskName].used,
+                        diskInfoResponse[diskName].total
+                    );
+                }
+            }
+            return result;
+        }
+
+        function mapMemoryInfo(memoryInfoResponse) {
+            let ramInfo = new CapacityInfoModel(
+                memoryInfoResponse['ram_info'].percent,
+                memoryInfoResponse['ram_info'].free,
+                memoryInfoResponse['ram_info'].used,
+                memoryInfoResponse['ram_info'].total
+            );
+            let swapInfo = new CapacityInfoModel(
+                memoryInfoResponse['swap_info'].percent,
+                memoryInfoResponse['swap_info'].free,
+                memoryInfoResponse['swap_info'].used,
+                memoryInfoResponse['swap_info'].total
+            );
+            return new MemoryInfoModel(ramInfo, swapInfo);
+        }
+
+        if (responseBody['memory']) {
+            return new SystemInfoModel(
+                mapCpuInfo(responseBody['cpu']),
+                mapDiskInfo(responseBody['disk']),
+                mapMemoryInfo(responseBody['memory'])
+            );
+        } else {
+            return mapCpuInfo(responseBody);
+        }
     }
 }

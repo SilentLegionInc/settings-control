@@ -126,7 +126,7 @@ class MonitoringDataService(metaclass=Singleton):
                 filter_query = 'WHERE ' + ' AND '.join(filter_conditions)
 
             # handling sort conditions
-            sort_query = 'ORDER BY datetime({}) DESC'.format(time_column_name)
+            sort_query = 'ORDER BY datetime({}) ASC'.format(time_column_name)
 
             # handling additional conditions
             additional_conditions = []

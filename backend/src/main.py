@@ -312,7 +312,7 @@ def api_get_monitoring_logs(robot_name):
 @app.route('/api/monitoring/system_info', methods=['GET'])
 @handle_errors
 def api_get_system_info():
-    if request.args.get('extended'):
+    if request.args.get('extended') == 'true':
         result = {
             'cpu': SystemMonitoringService().get_cpu_usage(),
             'disk': SystemMonitoringService().get_disks_usage(),
