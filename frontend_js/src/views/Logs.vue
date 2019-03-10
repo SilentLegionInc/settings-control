@@ -1,7 +1,7 @@
 <template>
     <div>
         <form>
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 filter-flexbox-container padding-left-sm padding-right-sm">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-lg-8 filter-flexbox-container padding-left-sm padding-right-sm">
                 <span class="filter-flexbox-item margin-left-xs margin-right-xs">
                     <span>Нач. время: </span>
                     <datetime v-model="filterStartTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
@@ -74,7 +74,7 @@
             </div>
         </div>
 
-        <app-logs-modal ref="logsModal"></app-logs-modal>
+        <logs-modal ref="logsModal"></logs-modal>
     </div>
 </template>
 
@@ -85,7 +85,7 @@ import LogsModal from '../components/LogsModal';
 export default {
     name: 'Logs',
     components: {
-        'app-logs-modal': LogsModal
+        'logs-modal': LogsModal
     },
     data: function() {
         return {

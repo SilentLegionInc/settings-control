@@ -1,23 +1,23 @@
 <template>
-    <div>
+    <div class="container-fluid">
         <div v-for="(elem, index) in databasesInfo" :key="index" class="row">
-            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+            <div class="col-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
                 {{elem.name}}
             </div>
 
-            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+            <div class="col-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
                 <router-link :to="`/chart_statistics?dbName=${elem.systemName}`">
                     Графики
                 </router-link>
             </div>
 
-            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+            <div class="col-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
                 <router-link :to="`/table_statistics?dbName=${elem.systemName}`">
                     Таблицы
                 </router-link>
             </div>
 
-            <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+            <div class="col-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
                 <router-link :to="`/maps_statistics?dbName=${elem.systemName}`">
                     Карты
                 </router-link>

@@ -1,5 +1,5 @@
 <template>
-    <div class="col-lg-2 padding-top-xs">
+    <div class="padding-top-xs">
         <div>
             <b-progress :value="percentValue" :variant="percentValue | variantType" :style="{background: backgroundColor}"/>
         </div>

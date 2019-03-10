@@ -1,10 +1,80 @@
 <template>
-    <div>
-        <div style="max-width: 700px; margin-left: auto; margin-right: auto">
-            <line-chart v-if="chartData" :chart-data="chartData" :options="chartOptions"></line-chart>
-        </div>
-        <div>
-            <capacity-component :percent-value="72.1" :free-value="70947196928" :max-value="254721126400"></capacity-component>
+    <div class="container-fluid">
+        <div class="row" style="margin: auto">
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 margin-bottom-sm">
+                <h4 align="center">Нагрузка процессора</h4>
+                <div style="max-width: 600px; margin-left: auto; margin-right: auto">
+                    <line-chart v-if="chartData" :chart-data="chartData" :options="chartOptions"></line-chart>
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                <h4 align="center">Точки монтирования</h4>
+                <div class="row">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 padding-bottom-md">
+                        <b-card v-if="memoryInfo">
+                            <div class="row">
+                                <div class="col-2 col-sm-2 col-md-3 col-lg-3 col-xl-3">
+                                    <img src="@/assets/ram.svg" width="100%" height="100%" alt="ram image">
+                                </div>
+                                <div class="col-10 col-sm-10 col-md-9 col-lg-9 col-xl-9 flexbox">
+                                    <div>
+                                        <h5 class="custom-card-header">RAM</h5>
+                                    </div>
+                                    <div>
+                                        <capacity-component
+                                            :percent-value="memoryInfo.ramInfo.percent"
+                                            :free-value="memoryInfo.ramInfo.free"
+                                            :max-value="memoryInfo.ramInfo.total"
+                                        ></capacity-component>
+                                    </div>
+                                </div>
+                            </div>
+                        </b-card>
+                    </div>
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 padding-bottom-md">
+                        <b-card v-if="memoryInfo">
+                            <div class="row">
+                                <div class="col-2 col-sm-2 col-md-3 col-lg-3 col-xl-3">
+                                    <img src="@/assets/swap.svg" width="100%" height="100%" alt="swap image">
+                                </div>
+                                <div class="col-10 col-sm-10 col-md-9 col-lg-9 col-xl-9 flexbox">
+                                    <div>
+                                        <h5 class="custom-card-header">Swap</h5>
+                                    </div>
+                                    <div>
+                                        <capacity-component
+                                            :percent-value="memoryInfo.swapInfo.percent"
+                                            :free-value="memoryInfo.swapInfo.free"
+                                            :max-value="memoryInfo.swapInfo.total"
+                                        ></capacity-component>
+                                    </div>
+                                </div>
+                            </div>
+                        </b-card>
+                    </div>
+                    <div v-for="(disk, index) of diskInfo" v-bind:key="index" class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 padding-bottom-md padding-top-md">
+                        <b-card>
+                            <div class="row">
+                                <div class="col-2 col-sm-2 col-md-3 col-lg-3 col-xl-3">
+                                    <img src="@/assets/disk.svg" width="100%" height="100%" alt="disk image">
+                                </div>
+                                <div class="col-10 col-sm-10 col-md-9 col-lg-9 col-xl-9 flexbox">
+                                    <div>
+                                        <h5 class="custom-card-header">{{disk.name}}</h5>
+                                    </div>
+                                    <div>
+                                        <capacity-component
+                                            :percent-value="disk.info.percent"
+                                            :free-value="disk.info.free"
+                                            :max-value="disk.info.total"
+                                        ></capacity-component>
+                                    </div>
+                                </div>
+                            </div>
+                        </b-card>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -19,7 +89,7 @@ export default {
     components: { CapacityComponent, LineChart },
     data: function() {
         return {
-            diskInfo: null,
+            diskInfo: [],
             memoryInfo: null,
             chartData: null,
             chartOptions: options,
@@ -36,20 +106,18 @@ export default {
             cpuInfoKeys.sort();
             this.chartData = {
                 datasets: [],
-                labels: []
+                labels: Array(this.elementsPerChart).fill('')
             };
             for (const key of cpuInfoKeys) {
                 if (response.cpuInfo.hasOwnProperty(key)) {
                     const color = this.getRandomColor();
-                    this.chartData.datasets.push({
-                        label: key,
-                        backgroundColor: color,
-                        border: color,
-                        data: [response.cpuInfo[key]],
-                        fill: false,
-                        lineTension: 0
-                    });
-                    this.chartData.labels = Array(this.elementsPerChart).fill('');
+                    const dataset = JSON.parse(JSON.stringify(datasetOptions));
+                    dataset.label = key;
+                    dataset.backgroundColor = color;
+                    dataset.borderColor = color;
+                    dataset.data = [...Array(this.elementsPerChart - 1).fill(null), response.cpuInfo[key]];
+
+                    this.chartData.datasets.push(dataset);
                 }
             }
         },
@@ -66,24 +134,22 @@ export default {
 
             this.chartData = {
                 datasets: [],
-                labels: []
+                labels: this.chartData.labels
             };
 
             let index = 0;
             for (const key of cpuInfoKeys) {
                 if (response.hasOwnProperty(key)) {
                     const color = oldDatasets[index].backgroundColor;
-                    this.chartData.datasets.push({
-                        label: key,
-                        backgroundColor: color,
-                        borderColor: color,
-                        data: [...oldDatasets[index++].data.slice(-(this.elementsPerChart - 1)), response[key]],
-                        fill: false,
-                        lineTension: 0
-                    });
+                    const dataset = JSON.parse(JSON.stringify(datasetOptions));
+                    dataset.label = key;
+                    dataset.backgroundColor = color;
+                    dataset.borderColor = color;
+                    dataset.data = [...oldDatasets[index++].data.slice(-(this.elementsPerChart - 1)), response[key]];
+
+                    this.chartData.datasets.push(dataset);
                 }
             }
-            this.chartData.labels = Array(this.elementsPerChart).fill('');
         },
         getRandomColor() {
             return '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6);
@@ -99,11 +165,6 @@ const options = {
     animation: false,
     scales: {
         yAxes: [{
-            scaleLabel: {
-                display: true,
-                labelString: 'Нагрузка',
-                fontSize: 14
-            },
             ticks: {
                 max: 100,
                 min: 0,
@@ -123,8 +184,29 @@ const options = {
         reverse: false
     }
 };
+
+const datasetOptions = {
+    borderWidth: 3,
+    fill: false,
+    lineTension: 0,
+    borderCapStyle: 'round',
+    borderJoinStyle: 'round',
+    pointRadius: 3,
+    pointHoverRadius: 4,
+    pointHitRadius: 10,
+    pointBorderWidth: 2
+};
 </script>
 
 <style scoped>
+    .flexbox {
+        display:flex;
+        justify-content: center;
+        align-items: stretch;
+        flex-flow: column;
+    }
 
+    .custom-card-header {
+        margin-bottom: 0 !important;
+    }
 </style>

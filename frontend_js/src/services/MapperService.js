@@ -95,15 +95,18 @@ export class MapperService {
         }
 
         function mapDiskInfo(diskInfoResponse) {
-            let result = {};
+            let result = [];
             for (let diskName in diskInfoResponse) {
                 if (diskInfoResponse.hasOwnProperty(diskName)) {
-                    result[diskName] = new CapacityInfoModel(
-                        diskInfoResponse[diskName].percent,
-                        diskInfoResponse[diskName].free,
-                        diskInfoResponse[diskName].used,
-                        diskInfoResponse[diskName].total
-                    );
+                    result.push({
+                        name: diskName,
+                        info: new CapacityInfoModel(
+                            diskInfoResponse[diskName].percent,
+                            diskInfoResponse[diskName].free,
+                            diskInfoResponse[diskName].used,
+                            diskInfoResponse[diskName].total
+                        )
+                    });
                 }
             }
             return result;

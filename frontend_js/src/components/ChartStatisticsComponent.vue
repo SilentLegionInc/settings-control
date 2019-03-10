@@ -1,7 +1,7 @@
 <template>
     <div>
         <form>
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-10 filter-flexbox-container">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-xl-8 filter-flexbox-container">
                 <span class="filter-flexbox-item margin-left-xs margin-right-xs">
                     <span>Нач. время:</span>
                     <datetime v-model="filterStartTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>

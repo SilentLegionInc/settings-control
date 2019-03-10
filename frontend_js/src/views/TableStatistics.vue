@@ -1,13 +1,13 @@
 <template>
     <div v-if="databaseName && robotName">
         <form>
-            <div class="col-xs-12 col-sm-11 col-md-9 col-lg-7">
+            <div class="col-12 col-sm-11 col-md-9 col-lg-7 col-xl-6">
                 <div class="row margin-bottom-sm">
-                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                    <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
                         <span>Нач. время: </span>
                         <datetime v-model="filter.startTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                     </div>
-                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                    <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
                         <span>Кон. время: </span>
                         <datetime v-model="filter.endTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                     </div>
@@ -16,11 +16,11 @@
                 <div class="scrollable-filters">
                     <b-collapse id="filters-collapse">
                         <div class="row margin-bottom-sm" v-for="(element, index) in numDataStructure" :key="index">
-                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
                                 <span>Мин. {{element.name.toLowerCase()}}: </span>
                                 <input type="number" class="form-control" v-model="filter[`min__${element.systemName}`]">
                             </div>
-                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
                                 <span>Макс. {{element.name.toLowerCase()}}: </span>
                                 <input type="number" class="form-control" v-model="filter[`max__${element.systemName}`]">
                             </div>
@@ -29,10 +29,10 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                        <button type="button" class="btn btn-primary margin-right-sm" @click="loadData(1)">Применить</button>
-                        <button type="button" class="btn btn-secondary margin-right-sm" @click="clearFilters()">Очистить</button>
-                        <button type="button" class="btn btn-secondary margin-right-sm" v-b-toggle.filters-collapse>Доп. фильтры</button>
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <button type="button" class="btn btn-primary margin-right-sm margin-bottom-sm" @click="loadData(1)">Применить</button>
+                        <button type="button" class="btn btn-secondary margin-right-sm margin-bottom-sm" @click="clearFilters()">Очистить</button>
+                        <button type="button" class="btn btn-secondary margin-right-sm margin-bottom-sm" v-b-toggle.filters-collapse>Доп. фильтры</button>
                     </div>
                 </div>
             </div>

@@ -1,61 +1,63 @@
 <template>
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-7 col-lg-7 margin-bottom-sm">
-            <yandex-map
-                :coords="[centerLatitude, centerLongitude]"
-                zoom="10"
-                style="width: 100%; height: 100%;"
-                :cluster-options="{openBalloonOnClick: false}"
-                :behaviors="['drag', 'multiTouch', 'scrollZoom', 'dblClickZoom', 'rightMouseButtonMagnifier']"
-                :controls="['fullscreenControl', 'zoomControl', 'typeSelector', 'rulerControl']"
-                :placemarks="placemarks"
-            >
-            </yandex-map>
-        </div>
+    <div class="container-fluid">
+        <div class="row" style="margin: auto; height: 100%;">
+            <div class="col-12 col-sm-12 col-md-6 col-lg-7 col-xl-8 margin-bottom-sm">
+                <yandex-map
+                    :coords="[centerLatitude, centerLongitude]"
+                    zoom="10"
+                    style="width: 100%; height: 100%;"
+                    :cluster-options="{openBalloonOnClick: false}"
+                    :behaviors="['drag', 'multiTouch', 'scrollZoom', 'dblClickZoom', 'rightMouseButtonMagnifier']"
+                    :controls="['fullscreenControl', 'zoomControl', 'typeSelector', 'rulerControl']"
+                    :placemarks="placemarks"
+                >
+                </yandex-map>
+            </div>
 
-        <div v-if="selectedIndex !== null" class="col-xs-12 col-sm-12 col-md-5 col-lg-5 scrollable-info">
-            <div class="row custom-list-header">
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                    Информация
+            <div v-if="selectedIndex !== null" class="col-12 col-sm-12 col-md-6 col-lg-5 col-xl-4 scrollable-info">
+                <div class="row custom-list-header">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        Информация
+                    </div>
                 </div>
-            </div>
-            <div class="custom-list-body">
+                <div class="custom-list-body">
+                    <div class="row">
+                        <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                            Широта:
+                        </div>
+                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                            {{elements[selectedIndex].latitude}}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                            Долгота:
+                        </div>
+                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                            {{elements[selectedIndex].longitude}}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                            Количество:
+                        </div>
+                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                            {{elements[selectedIndex].count}}
+                        </div>
+                    </div>
+                    <div class="row" v-for="(elem, index) in elements[selectedIndex].average" :key="index">
+                        <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8" style="word-wrap: break-word;">
+                            Средн. {{elem.name.toLowerCase()}}:
+                        </div>
+                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                            {{elem.value}}
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
-                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                        Широта:
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 margin-top-sm" style="padding-right: 0 !important;" align="right">
+                        <button type="button" class="btn btn-primary" @click="redirectToTableStatistics">Подробнее</button>
                     </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                        {{elements[selectedIndex].latitude}}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                        Долгота:
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                        {{elements[selectedIndex].longitude}}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                        Количество:
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                        {{elements[selectedIndex].count}}
-                    </div>
-                </div>
-                <div class="row" v-for="(elem, index) in elements[selectedIndex].average" :key="index">
-                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8" style="word-wrap: break-word;">
-                        Средн. {{elem.name.toLowerCase()}}:
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                        {{elem.value}}
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 margin-top-sm" style="padding-right: 0 !important;" align="right">
-                    <button type="button" class="btn btn-primary" @click="redirectToTableStatistics">Подробнее</button>
                 </div>
             </div>
         </div>
