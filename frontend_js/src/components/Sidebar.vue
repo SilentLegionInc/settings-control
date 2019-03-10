@@ -6,33 +6,15 @@
 
         <ul>
             <li>
-                <router-link class="clickable" to="/">Домашняя страница</router-link>
+                <router-link class="clickable" to="/" @click.native="close">
+                    Домашняя страница
+                </router-link>
             </li>
+
             <li>
-                <a href="#" class="clickable" @click="switchMonitorList">
-                    Статистика
-
-                    <transition name="flip" mode="out-in">
-                        <i v-if="!monitorIsOpen" key="1" class="fa fa-chevron-down" aria-hidden="true"></i>
-                        <i v-else key="2" class="fa fa-chevron-up" aria-hidden="true"></i>
-                    </transition>
-                </a>
-
-                <transition name="monitor">
-                    <ul v-if="monitorIsOpen" class="list-container">
-                        <li>
-                            <router-link class="clickable" to="/chart_statistics" @click.native="close">
-                                Графики
-                            </router-link>
-                        </li>
-
-                        <li>
-                            <router-link class="clickable" to="/table_statistics" @click.native="close">
-                                Таблицы
-                            </router-link>
-                        </li>
-                    </ul>
-                </transition>
+                <router-link class="clickable" to="/system_info" @click.native="close">
+                    Нагрузка
+                </router-link>
             </li>
 
             <li>
@@ -46,7 +28,9 @@
                     Логи
                 </router-link>
             </li>
+        </ul>
 
+        <ul>
             <li>
                 <router-link class="clickable" to="/connect_to_server" @click.native="close">
                     Выбор сервера
@@ -77,15 +61,22 @@
                 </router-link>
             </li>
         </ul>
+
         <ul>
             <li v-if="!this.$store.getters.isAuthenticated">
-                <a class="clickable" @click="login()">Вход</a>
+                <a href="#" class="clickable" @click="login()">
+                    Вход
+                </a>
             </li>
             <li v-if="this.$store.getters.isAuthenticated">
-                <a class="clickable" @click="logout()">Выход</a>
+                <a class="clickable" @click="logout()">
+                    Выход
+                </a>
             </li>
             <li v-if="this.$store.getters.isAuthenticated">
-                <router-link class="clickable" to="/change_password">Смена пароля</router-link>
+                <router-link class="clickable" to="/change_password" @click.native="close">
+                    Смена пароля
+                </router-link>
             </li>
         </ul>
         <app-login-modal ref="modal_window" :open-on-mount="false"></app-login-modal>
@@ -112,12 +103,8 @@ export default {
         currentStyle: function() {
             return {
                 'width': this.isOpen ? '20%' : '0',
-                'min-width': this.isOpen ? '250px' : '0'
+                'min-width': this.isOpen ? '300px' : '0'
             };
-        },
-
-        monitorListStyle: function() {
-            return { 'height': this.monitorIsOpen ? '20%' : '0' };
         }
     },
 
@@ -137,10 +124,12 @@ export default {
         },
 
         login() {
+            this.close();
             this.$refs.modal_window.showModal();
         },
 
         async logout() {
+            this.close();
             try {
                 await this.$store.dispatch('deauthorize');
                 this.$router.push('/');
@@ -197,33 +186,5 @@ export default {
         right: 0;
         font-size: 30px;
         padding: 0 10px 0 0;
-    }
-
-    .list-container {
-        overflow: hidden;
-    }
-
-    .flip-enter, .flip-leave-to {
-        transform: rotateX(90deg);
-    }
-
-    .flip-leave, .flip-enter-to {
-        transform: rotateX(0deg);
-    }
-
-    .flip-enter-active, .flip-leave-active {
-        transition: transform 0.2s;
-    }
-
-    .monitor-enter, .monitor-leave-to {
-        max-height: 0;
-    }
-
-    .monitor-enter-to, .monitor-leave {
-        max-height: 100px;
-    }
-
-    .monitor-enter-active, .monitor-leave-active {
-        transition: max-height 0.4s;
     }
 </style>
