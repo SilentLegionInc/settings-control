@@ -16,7 +16,7 @@ def cmd(command):
 
 
 # abstracts class of Wifi configurator
-class WifiService(metaclass=Singleton):
+class NetworkService(metaclass=Singleton):
     _driver_name = None
     _driver = None
 
@@ -25,7 +25,7 @@ class WifiService(metaclass=Singleton):
         # detect and init appropriate driver
         self._driver_name = self._detect_driver()
         if self._driver_name == 'nmcli0990':
-            self._driver = Nmcli0990Wireless(interface=interface)
+            self._driver = Nmcli0990(interface=interface)
 
         # attempt to auto detect the interface if none was provided
         if self.interface() is None:
@@ -57,9 +57,26 @@ class WifiService(metaclass=Singleton):
 
         raise Exception('Unable to find compatible wireless driver.')
 
+    def connection_up(self, uuid):
+        pass
+
+    def connection_down(self, uuid):
+        pass
+
+    def create_connection(self):
+        pass
+
+    def delete_connection(self, uuid):
+        pass
+
+    def change_connection_dhcp_mode(self, uuid, dhcp):
+        pass
+
+    # def connect(self, uuid=None, ssid=None, password=None):
+
     # connect to a network
-    def connect(self, ssid, password):
-        return self._driver.connect(ssid, password)
+    # def connect(self, ssid, password):
+    #     return self._driver.connect(ssid, password)
 
     # return the ssid of the current network
     def current(self):
@@ -82,11 +99,12 @@ class WifiService(metaclass=Singleton):
         return self._driver_name
 
     def list_of_connections(self, rescan=True):
+        # TODO scan eth, wifi (ssids) match uuid of connection with ssid if possible
         return self._driver.list_of_connections(rescan)
 
 
 # abstract class for all wifi drivers
-class WifiDriver(metaclass=ABCMeta):
+class NetworkDriver(metaclass=ABCMeta):
 
     @abstractmethod
     def connect(self, ssid, password):
@@ -119,7 +137,7 @@ class WifiDriver(metaclass=ABCMeta):
 
 # Linux nmcli Driver >= 0.9.9.0 (Actual driver)
 # TODO make cleanup, add static ip (look at set_static_ip.bash)
-class Nmcli0990Wireless(WifiDriver):
+class Nmcli0990(NetworkDriver):
     _interface = None
 
     # init
@@ -143,7 +161,7 @@ class Nmcli0990Wireless(WifiDriver):
 
     # ignore warnings in nmcli output
     # sometimes there are warnings but we connected just fine
-    def _errorInResponse(self, response):
+    def _error_in_response(self, response):
         # no error if no response
         if len(response) == 0:
             return False
@@ -169,7 +187,7 @@ class Nmcli0990Wireless(WifiDriver):
         print(response)
         # parse response
         # TODO if error need to up old connection
-        if self._errorInResponse(response):
+        if self._error_in_response(response):
             raise ServerException(response, status.HTTP_400_BAD_REQUEST)
         else:
             return True
@@ -247,25 +265,3 @@ class Nmcli0990Wireless(WifiDriver):
             sleep(1)
 
         return self._map_connections_list(cmd('nmcli device wifi list'))
-
-
-# Linux wpa_supplicant Driver
-# TODO Actualize me later... if you want
-# class WpasupplicantWireless(WifiDriver):
-
-
-def get_mocked_list():
-    r = 'IN-USE  SSID               MODE   CHAN  RATE        SIGNAL  BARS  SECURITY\n' + \
-        '*       Silence_2G         Infra  1     270 Mbit/s  83      ▂▄▆█  WPA1 WPA2\n' + \
-        '        akm                Infra  1     130 Mbit/s  55      ▂▄__  WPA1 WPA2\n' + \
-        '        Keenetic-3871      Infra  2     270 Mbit/s  55      ▂▄__  WPA2'
-
-    return Nmcli0990Wireless._map_connections_list(r)
-
-
-if __name__ == '__main__':
-    print(get_mocked_list())
-    # wifi = WifiService()
-    # print(wifi.list_of_connections())
-
-

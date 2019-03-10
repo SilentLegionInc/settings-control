@@ -98,7 +98,7 @@ export class RequestService {
         const path = this._constructPath('api/modules');
         const res = await axios.get(path);
         if (res.status === 200) {
-            return res.data;
+            return MapperService.mapModulesResponse(res.data);
         } else {
             Logger.error(res.data.errorInfo);
             throw new ServerExceptionModel(res.data.errorInfo, res.status);
