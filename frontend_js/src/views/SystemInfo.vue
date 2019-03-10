@@ -198,9 +198,9 @@ const datasetOptions = {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
     .flexbox {
-        display:flex;
+        display: flex;
         justify-content: center;
         align-items: stretch;
         flex-flow: column;

@@ -14,6 +14,7 @@ import MonitoringNavigation from './views/MonitoringNavigation';
 import SystemInfo from './views/SystemInfo';
 import ServerSettings from './views/ServerSettings'
 import ServerConnect from './components/ServerConnect'
+import LoginPage from './views/LoginPage';
 
 Vue.use(Router);
 
@@ -27,7 +28,7 @@ Vue.use(Router);
 
 const ifAuthenticated = (to, from, next) => {
     if (store.getters.isAuthenticated) {
-        next()
+        next();
         return
     }
     if (from) {
@@ -35,7 +36,7 @@ const ifAuthenticated = (to, from, next) => {
     } else {
         next('/');
     }
-}
+};
 
 export default new Router({
     mode: 'history',
@@ -118,6 +119,11 @@ export default new Router({
             path: '/connect_to_server',
             name: 'connect-to-server',
             component: ServerConnect
+        },
+        {
+            path: '/login_page',
+            name: 'login-page',
+            component: LoginPage
         }
     ]
 })
