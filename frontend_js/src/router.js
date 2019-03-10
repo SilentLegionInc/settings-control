@@ -13,6 +13,7 @@ import store from './store';
 import MonitoringNavigation from './views/MonitoringNavigation';
 import SystemInfo from './views/SystemInfo';
 import ServerSettings from './views/ServerSettings'
+import ServerConnect from './components/ServerConnect'
 
 Vue.use(Router);
 
@@ -112,6 +113,11 @@ export default new Router({
             name: 'change-password',
             component: ChangePassword,
             beforeEnter: ifAuthenticated
+        },
+        {
+            path: '/connect_to_server',
+            name: 'connect-to-server',
+            component: ServerConnect
         }
     ]
 })

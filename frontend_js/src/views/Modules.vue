@@ -1,13 +1,16 @@
 <template>
-    <div>
+    <div class="container-fluid">
         <div class="row margin-bottom-sm" @click="switchDetailedCore()">
-            <div class="col-md-2 offset-md-2 col-sm-3 offset-sm-0 offset-0 col-2">
+            <!--col-md-2 offset-md-2 col-sm-3 offset-sm-0 -->
+            <div class="offset-md-2 col-2">
                 {{core.name}}
             </div>
-            <div class="col-md-5 col-sm-7 col-8" align="right">
+            <!--col-md-5 col-sm-7-->
+            <div class="col-md-4 col-0" align="right">
                 {{core.url}}
             </div>
-            <div class="col-md-1 col-sm-2 col-2" align="right">
+            <!--col-md-1 col-sm-2 -->
+            <div class="col-2" align="right">
                 <!--TODO onclick download/build?-->
                 <i class="fa fa-box-open" :style="{color: core.isBuilt ? 'green': 'red'}"></i>&nbsp;
                 <i class="fa fa-download" :style="{color: core.isCloned ? 'green': 'red'}"></i>
@@ -15,10 +18,10 @@
         </div>
         <div v-if="core.detail" class="margin-bottom-sm">
             <div class="row margin-bottom-sm">
-                <div class="col-md-4 offset-md-2">
+                <div class="col-6 offset-md-2 col-md-4">
                     Имя файла конфигурации:
                 </div>
-                <div class="col-md-4" align="right">
+                <div class="col-6 col-md-4" align="right">
                     {{core.configPath}}
                 </div>
             </div>

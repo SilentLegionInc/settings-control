@@ -1,21 +1,25 @@
 <template>
-    <div>
-        <div class="row margin-bottom-sm">
-            <label class="offset-md-2 col-md-3 col-form-label" for="hostAddress">Адрес сервера</label>
-            <div class="col-md-5">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <label class="col-xl-3 col-form-label" for="hostAddress">Адрес сервера: </label>
+            <div class="col-xl-9 col-12">
                 <input class="form-control" type="text" id="hostAddress" v-model="url"
                        :placeholder="'Введите адрес сервера host:port'"/>
             </div>
         </div>
-        <div class="row margin-bottom-sm">
-            <div class="offset-md-2 col-md-8" align="right">
-                <button class="btn btn-default" @click="setClientUrl()">
-                    Использовать адрес клиента
+        <div class="row mb-2">
+            <div class="offset-xl-3 col-xl-3 col-12 col-md-4 mt-1">
+                <button class="btn btn-default btn-block" @click="setClientUrl()">
+                    Ввести адрес клиента
                 </button>
-                <button class="ml-3 btn btn-info" @click="checkConnectionStatus()">
+            </div>
+            <div class="col-xl-3 col-12 col-md-4 mt-1">
+                <button class="btn btn-info btn-block" @click="checkConnectionStatus()">
                     Проверить адрес
                 </button>
-                <button class="ml-3 btn btn-success" @click="changeHostAddress()">
+            </div>
+            <div class="col-xl-3 col-12 col-md-4 mt-1">
+                <button class="btn btn-success btn-block" @click="changeHostAddress()">
                     Подключить
                 </button>
                 <!--<i class="fa fa-circle" :style="{'color': connectionStatus ? 'green': 'red'}"></i>-->

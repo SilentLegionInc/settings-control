@@ -1,85 +1,96 @@
 <template>
-    <div>
-        <div class="mb-3">
-            <h2 align="center">Настройки сервера</h2>
+    <div class="container-fluid">
+        <div class="row mb-3">
+            <div class="col-12"  align="center">
+                <h2>Настройки сервера</h2>
+                <hr>
+            </div>
+
         </div>
-        <div class="row margin-bottom-sm">
-            <div class="col-md-8 offset-md-2">
+        <div class="row mb-3">
+            <div class="col-12" align="center">
                 <h3>Конфигурация подключения к серверу</h3>
             </div>
         </div>
         <app-server-connection></app-server-connection>
-
-        <div class="row margin-bottom-sm">
-            <div class="col-md-8 offset-md-2">
+        <div class="row mb-3">
+            <div class="col-12" align="center">
                 <h3>Конфигурация сервера</h3>
             </div>
         </div>
-        <div class="row margin-bottom-sm">
-            <div class="col-md-8 offset-md-2">
+        <div class="row mb-3">
+            <div class="col-12" align="center">
                 <h3>Конфигурация ssh ключей</h3>
             </div>
         </div>
-        <div class="row margin-bottom-sm">
-            <div class="col-md-8 offset-md-2">
-                <b-form-file
-                    v-model="file"
-                    placeholder="Архив с ssh ключами для обновления"
-                    accept=".zip"
-                    drop-placeholder="Перетащите архив сюда"
-                />
+        <div class="container-fluid">
+            <div class="row mb-3">
+                <label class="col-xl-3 col-form-label" for="ssh">Новые ssh ключи:</label>
+                <div class="col-12 col-xl-9">
+                    <b-form-file
+                        id="ssh"
+                        v-model="file"
+                        placeholder="Загрузить архив"
+                        accept=".zip"
+                        drop-placeholder="Перетащите архив сюда"
+                    />
 
-                <!--<div class="custom-file" id="customFile">-->
-                    <!--<input type="file" class="custom-file-input" accept=".zip" id="ssh"-->
-                           <!--@change="handleFileUpload($event)">-->
-                    <!--<label class="custom-file-label" for="ssh">-->
-                        <!--Архив с ssh ключами для обновления-->
-                    <!--</label>-->
-                <!--</div>-->
+                    <!--<div class="custom-file" id="customFile">-->
+                        <!--<input type="file" class="custom-file-input" accept=".zip" id="ssh"-->
+                               <!--@change="handleFileUpload($event)">-->
+                        <!--<label class="custom-file-label" for="ssh">-->
+                            <!--Архив с ssh ключами для обновления-->
+                        <!--</label>-->
+                    <!--</div>-->
 
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="offset-xl-9 col-xl-3 col-12">
+                    <button class="btn btn-success btn-block mt-1" @click="updateSSH()">
+                        Обновить
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="row margin-bottom-sm">
-            <div class="offset-md-2 col-md-8" align="right">
-                <button class="btn btn-success" @click="updateSSH()">
-                    Обновить
-                </button>
-            </div>
-        </div>
-        <div class="row margin-bottom-sm">
-            <div class="col-md-8 offset-md-2">
+        <div class="row mb-2">
+            <div class="col-12" align="center">
                 <h3>Смена пароля</h3>
             </div>
         </div>
-        <div class="row margin-bottom-sm">
-            <label class="offset-md-2 col-md-3 col-form-label" for="oldPassword">Текущий пароль</label>
-            <div class="col-md-5">
-                <input class="form-control" type="password" id="oldPassword" v-model="oldPassword"
-                       :placeholder="'Текущий пароль'"/>
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <label class="col-xl-3 col-form-label" for="oldPassword">Текущий пароль:</label>
+                <div class="col-xl-9 col-12">
+                    <input class="form-control" type="password" id="oldPassword" v-model="oldPassword"
+                           :placeholder="'Введите текущий пароль'"/>
+                </div>
             </div>
-        </div>
-        <div class="row margin-bottom-sm">
-            <label class="offset-md-2 col-md-3 col-form-label" for="newPassword">Новый пароль</label>
-            <div class="col-md-5">
-                <input class="form-control" type="password" id="newPassword" v-model="newPassword"
-                       :placeholder="'Новый пароль'"/>
+            <div class="row mb-2">
+                <label class="col-xl-3 col-form-label" for="newPassword">Новый пароль:</label>
+                <div class="col-xl-9 col-12">
+                    <input class="form-control" type="password" id="newPassword" v-model="newPassword"
+                           :placeholder="'Введите новый пароль'"/>
+                </div>
             </div>
-        </div>
-        <div class="row margin-bottom-sm">
-            <label class="offset-md-2 col-md-3 col-form-label" for="newPasswordAgain">Повторно новый пароль</label>
-            <div class="col-md-5">
-                <input class="form-control" type="password" id="newPasswordAgain" v-model="newPasswordAgain"
-                       :placeholder="'Повторно новый пароль'"/>
+            <div class="row mb-2">
+                <label class="col-xl-3 col-form-label" for="newPasswordAgain">Повторно новый пароль:</label>
+                <div class="col-xl-9 col-12">
+                    <input class="form-control" type="password" id="newPasswordAgain" v-model="newPasswordAgain"
+                           :placeholder="'Повторно введите новый пароль'"/>
+                </div>
             </div>
-        </div>
-        <div class="row margin-bottom-sm">
-            <div class="offset-md-2 col-md-8" align="right">
-                <button class="btn btn-danger" @click="resetPassword()">
-                    Сбросить
-                </button>
-                <button class="ml-3 btn btn-success" @click="updatePassword()">
-                    Обновить
-                </button>
+            <div class="row mb-2">
+                <div class="offset-xl-6 col-xl-3 col-6 mt-1">
+                    <button class="btn btn-danger btn-block" @click="resetPassword()">
+                        Сбросить
+                    </button>
+                </div>
+                <div class="col-xl-3 col-6 mt-1">
+                    <button class="btn btn-success btn-block" @click="updatePassword()">
+                        Обновить
+                    </button>
+                </div>
             </div>
         </div>
     </div>
