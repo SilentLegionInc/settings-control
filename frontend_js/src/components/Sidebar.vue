@@ -6,11 +6,11 @@
 
         <ul>
             <li>
-                <router-link class="clickable" to="/">Home</router-link>
+                <router-link class="clickable" to="/">Домашняя страница</router-link>
             </li>
             <li>
                 <a href="#" class="clickable" @click="switchMonitorList">
-                    Statistics
+                    Статистика
 
                     <transition name="flip" mode="out-in">
                         <i v-if="!monitorIsOpen" key="1" class="fa fa-chevron-down" aria-hidden="true"></i>
@@ -22,13 +22,13 @@
                     <ul v-if="monitorIsOpen" class="list-container">
                         <li>
                             <router-link class="clickable" to="/chart_statistics" @click.native="close">
-                                Charts
+                                Графики
                             </router-link>
                         </li>
 
                         <li>
                             <router-link class="clickable" to="/table_statistics" @click.native="close">
-                                Tables
+                                Таблицы
                             </router-link>
                         </li>
                     </ul>
@@ -37,49 +37,55 @@
 
             <li>
                 <router-link class="clickable" to="/monitoring_navigation" @click.native="close">
-                    Monitoring
+                    Мониторинг
                 </router-link>
             </li>
 
             <li>
                 <router-link class="clickable" to="/logs" @click.native="close">
-                    Logs
+                    Логи
+                </router-link>
+            </li>
+
+            <li>
+                <router-link class="clickable" to="/connect_to_server" @click.native="close">
+                    Выбор сервера
                 </router-link>
             </li>
 
             <li v-if="$store.getters.isAuthenticated">
                 <router-link class="clickable" to="/settings" @click.native="close">
-                    Configuration
+                    Конфигурация ядра
                 </router-link>
             </li>
 
             <li v-if="$store.getters.isAuthenticated">
                 <router-link class="clickable" to="/wifi" @click.native="close">
-                    Network
+                    Сети
                 </router-link>
             </li>
 
             <li v-if="$store.getters.isAuthenticated">
                 <router-link class="clickable" to="/modules" @click.native="close">
-                    Modules
+                    Модули
                 </router-link>
             </li>
 
             <li v-if="$store.getters.isAuthenticated">
                 <router-link class="clickable" to="/server_settings" @click.native="close">
-                    Server Settings
+                    Конфигурация сервера
                 </router-link>
             </li>
         </ul>
         <ul>
             <li v-if="!this.$store.getters.isAuthenticated">
-                <a class="clickable" @click="login()">Log in</a>
+                <a class="clickable" @click="login()">Вход</a>
             </li>
             <li v-if="this.$store.getters.isAuthenticated">
-                <a class="clickable" @click="logout()">Log out</a>
+                <a class="clickable" @click="logout()">Выход</a>
             </li>
             <li v-if="this.$store.getters.isAuthenticated">
-                <router-link class="clickable" to="/change_password">Change password</router-link>
+                <router-link class="clickable" to="/change_password">Смена пароля</router-link>
             </li>
         </ul>
         <app-login-modal ref="modal_window" :open-on-mount="false"></app-login-modal>

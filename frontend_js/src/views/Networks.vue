@@ -5,9 +5,9 @@
         </div>
         <div v-if="networks.length > 0">
             <div v-for="(network, index) of networks" v-bind:key="index">
-                <div class="row" v-on:click="switchDetailed(index)">
+                <div class="row" @click="switchDetailed(index)">
                     <div class="offset-md-2 col-md-1">
-                        <i class="fa fa-circle" v-bind:style="{'color': network.active ? 'green' : 'red'}"></i>
+                        <i class="fa fa-circle" :style="{'color': network.active ? 'green' : 'red'}"></i>
                     </div>
                     <div class="col-md-5">
                         {{network.name}}

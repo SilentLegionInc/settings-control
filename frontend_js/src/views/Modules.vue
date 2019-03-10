@@ -1,57 +1,84 @@
 <template>
-    <div>
-        <div class="row margin-top-sm" @click="switchDetailedCore()">
-            <div class="col-md-4 offset-md-2">
+    <div class="container-fluid">
+        <div class="row margin-bottom-sm" @click="switchDetailedCore()">
+            <!--col-md-2 offset-md-2 col-sm-3 offset-sm-0 -->
+            <div class="offset-md-2 col-2">
                 {{core.name}}
             </div>
-            <div class="col-md-4">
+            <!--col-md-5 col-sm-7-->
+            <div class="col-md-4 col-0" align="right">
                 {{core.url}}
             </div>
-            <div class="col-md-2">
+            <!--col-md-1 col-sm-2 -->
+            <div class="col-2" align="right">
                 <!--TODO onclick download/build?-->
-                <i class="fa fa-box-open" :style="{color: core.is_built ? 'green': 'red'}"></i>&nbsp;
-                <i class="fa fa-download" :style="{color: core.is_cloned ? 'green': 'red'}"></i>
+                <i class="fa fa-box-open" :style="{color: core.isBuilt ? 'green': 'red'}"></i>&nbsp;
+                <i class="fa fa-download" :style="{color: core.isCloned ? 'green': 'red'}"></i>
             </div>
         </div>
-        {{core.detail}}
-        <div v-if="core.detail" class="row margin-top-sm">
-            <div class="col-md-12">
-                {{core.name}} DETAILED
-                <label>Update by archive
-                    <input type="file" id="core_file" ref="core_file" v-on:change="handleFileUpload()"/>
-                </label>
-                <button v-on:click="submitFile()">Submit</button>
-                Hello
-            </div>
-        </div>
-        <div v-for="(module_elem, index) in modules" v-bind:key="index">
-            <div class="row margin-top-sm" v-on:click="switchDetailed(index)">
-                <div class="offset-md-2 col-md-1">
-                    {{module_elem.index}}
+        <div v-if="core.detail" class="margin-bottom-sm">
+            <div class="row margin-bottom-sm">
+                <div class="col-6 offset-md-2 col-md-4">
+                    Имя файла конфигурации:
                 </div>
-                <div class="col-md-3">
-                    {{module_elem.name}}
-                </div>
-                <div class="col-md-4">
-                    {{module_elem.url}}
-                </div>
-                <div class="col-md-2">
-                    <!--TODO onclick download/build?-->
-                    <i class="fa fa-box-open" :style="{color: module_elem.is_built ? 'green': 'red'}"></i>&nbsp;
-                    <i class="fa fa-download" :style="{color: module_elem.is_cloned ? 'green': 'red'}"></i>
+                <div class="col-6 col-md-4" align="right">
+                    {{core.configPath}}
                 </div>
             </div>
-            <div v-if="module_elem.detail" class="row margin-top-sm">
-                <div class="col-md-12">
-                    Module {{module_elem.index}} detailed
-                    <!--<label>Update by archive-->
-                        <!--<input type="file" :id="index" :ref="index" v-on:change="handleFileUpload()"/>-->
-                    <!--</label>-->
-                    <!--<button v-on:click="submitFile()">Submit</button>-->
+            <div class="row margin-bottom-sm">
+                <div class="col-md-8 offset-md-2">
+                    <b-form-file
+                        v-model="file"
+                        placeholder="Архив с исходниками для обновления"
+                        accept=".zip"
+                        drop-placeholder="Перетащите архив сюда"
+                    />
+                </div>
+            </div>
+            <div class="row">
+                <div class="offset-md-2 col-md-8" align="right">
+                    <button class="btn btn-success" @click="updateModule()">
+                        Обновить
+                    </button>
                 </div>
             </div>
         </div>
-
+        <div v-if="modules.length > 0">
+            <div v-for="(module_elem, index) of modules" v-bind:key="index">
+                <div class="row margin-bottom-sm" v-on:click="switchDetailed(index)">
+                    <div class="col-md-3 offset-md-2">
+                        {{module_elem.name}}
+                    </div>
+                    <div class="col-md-4">
+                        {{module_elem.url}}
+                    </div>
+                    <div class="col-md-1" align="right">
+                        <!--TODO onclick download/build?-->
+                        <i class="fa fa-box-open" :style="{color: module_elem.isBuilt ? 'green': 'red'}"></i>&nbsp;
+                        <i class="fa fa-download" :style="{color: module_elem.isCloned ? 'green': 'red'}"></i>
+                    </div>
+                </div>
+                <div v-if="module_elem.detail" class="margin-bottom-sm">
+                    <div class="row margin-bottom-sm">
+                        <div class="col-md-8 offset-md-2">
+                            <b-form-file
+                                v-model="file"
+                                placeholder="Архив с исходниками для обновления"
+                                accept=".zip"
+                                drop-placeholder="Перетащите архив сюда"
+                            />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="offset-md-2 col-md-8" align="right">
+                            <button class="btn btn-success" @click="updateModule()">
+                                Обновить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -61,28 +88,24 @@ import Logger from '../logger';
 
 export default {
     name: 'Modules',
-    data() {
+    data: () => {
         return {
             core: {},
             modules: [],
             file: null
         }
     },
-    watch: {
-    },
     async mounted() {
         await this.loadData();
     },
     methods: {
-        switchDetailedCore: function() {
+        switchDetailedCore() {
             this.core.detail = !this.core.detail;
-            console.log('core switched ' + this.core.detail);
         },
-        switchDetailed: function(index) {
-            console.log(`module ${index} switched`);
+        switchDetailed(index) {
             this.modules[index].detail = !this.modules[index].detail;
         },
-        loadData: async function() {
+        async loadData() {
             try {
                 const answer = await this.$store.state.requestService.getModules();
                 this.modules = answer.dependencies;
@@ -105,11 +128,7 @@ export default {
                 this.core = {}
             }
         },
-        handleFileUpload(event) {
-            Logger.info(event);
-            this.file = this.$refs.file.files[0];
-        },
-        async updateCore() {
+        async updateModule() {
             const formData = new FormData();
             formData.append('file', this.file);
             try {
@@ -118,13 +137,10 @@ export default {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
                 } else {
-                    this.$toaster.error('Internal server error');
+                    this.$toaster.error('Серверная ошибка');
                     Logger.error(err);
                 }
             }
-        },
-        updateModule() {
-
         }
     }
 }
