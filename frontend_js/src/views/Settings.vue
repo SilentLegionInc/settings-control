@@ -33,14 +33,10 @@
                 </div>
             </div>
         </div>
-
-        <app-login-modal @logged="loadData"></app-login-modal>
-
     </div>
 </template>
 
 <script>
-import LoginModal from '@/components/LoginModal'
 import { ServerExceptionModel } from '../models/ServerExceptionModel'
 import Logger from '../logger'
 import VueJsonEditor from 'vue-json-editor'
@@ -50,6 +46,9 @@ export default {
     mounted: function () {
         if (this.$store.getters.isAuthenticated) {
             this.loadData()
+        } else {
+            this.$toaster.error('Для доступа к этой странице необходима авторизация');
+            this.$router.push('/login');
         }
     },
     methods: {
@@ -101,8 +100,7 @@ export default {
         }
     },
     components: {
-        VueJsonEditor,
-        'app-login-modal': LoginModal
+        VueJsonEditor
     },
     data: () => {
         return {

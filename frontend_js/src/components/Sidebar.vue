@@ -64,9 +64,9 @@
 
         <ul>
             <li v-if="!this.$store.getters.isAuthenticated">
-                <a href="#" class="clickable" @click="login()">
+                <router-link class="clickable" to="/login" @click.native="close">
                     Вход
-                </a>
+                </router-link>
             </li>
             <li v-if="this.$store.getters.isAuthenticated">
                 <a class="clickable" @click="logout()">
@@ -79,14 +79,12 @@
                 </router-link>
             </li>
         </ul>
-        <app-login-modal ref="modal_window" :open-on-mount="false"></app-login-modal>
     </div>
 </template>
 
 <script>
 import { ServerExceptionModel } from '../models/ServerExceptionModel';
 import Logger from '../logger';
-import LoginModal from './LoginModal';
 
 export default {
     name: 'Sidebar',
@@ -95,9 +93,6 @@ export default {
         return {
             monitorIsOpen: false
         }
-    },
-    components: {
-        'app-login-modal': LoginModal
     },
     computed: {
         currentStyle: function() {
@@ -123,10 +118,10 @@ export default {
             this.monitorIsOpen = !this.monitorIsOpen;
         },
 
-        login() {
-            this.close();
-            this.$refs.modal_window.showModal();
-        },
+        // login() {
+        //     this.close();
+        //     this.$refs.modal_window.showModal();
+        // },
 
         async logout() {
             this.close();

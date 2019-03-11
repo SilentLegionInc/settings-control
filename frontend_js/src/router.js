@@ -121,7 +121,7 @@ export default new Router({
             component: ServerConnect
         },
         {
-            path: '/login_page',
+            path: '/login',
             name: 'login-page',
             component: LoginPage
         }

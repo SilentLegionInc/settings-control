@@ -65,25 +65,21 @@
                 </div>
             </div>
         </div>
-
-        <app-login-modal @logged="loadData"></app-login-modal>
-
     </div>
 </template>
 
 <script>
-import LoginModal from '@/components/LoginModal';
 import { ServerExceptionModel } from '../models/ServerExceptionModel';
 import Logger from '../logger';
 
 export default {
     name: 'Networks',
-    components: {
-        'app-login-modal': LoginModal
-    },
     mounted: function() {
         if (this.$store.getters.isAuthenticated) {
             this.loadData();
+        } else {
+            this.$toaster.error('Для доступа к этой странице необходима авторизация');
+            this.$router.push('/login');
         }
     },
     methods: {
