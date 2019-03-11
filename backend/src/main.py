@@ -25,8 +25,10 @@ from monitoring.system_monitoring_service import SystemMonitoringService
 from werkzeug.utils import secure_filename
 import os
 import zipfile
+import shutil
 from configuration.authoriztaion_service import AuthorizationService
 from collections import OrderedDict
+from configuration.core_service import ProcessStatus
 
 # Init flask application
 app = Flask(__name__)
@@ -64,7 +66,7 @@ def handle_errors(func):
             else:
                 Logger().error_message('Got an unknown exception')
                 Logger().error_message(traceback.format_exc())
-                return jsonify({'errorInfo': 'Internal server error',
+                return jsonify({'errorInfo': 'Серверная ошибка',
                                 'errorStatus': HTTP_STATUS_CODES[status.HTTP_500_INTERNAL_SERVER_ERROR]}), \
                        status.HTTP_500_INTERNAL_SERVER_ERROR
     return wrapper
@@ -79,7 +81,7 @@ def api_authorization(func):
             return func(*args, **kwargs)
 
         if not request.authorization:
-            raise ServerException('Can\'t find Authorization header', status.HTTP_401_UNAUTHORIZED)
+            raise ServerException('Отсутствует заголовок авторизации', status.HTTP_401_UNAUTHORIZED)
 
         token_uuid = request.authorization.username
         password = request.authorization.password
@@ -331,14 +333,14 @@ def api_build_current_machine():
     with_update = request.get_json().get('with_update')
     machine_config = SettingsService().current_machine_config
     if not machine_config:
-        raise ServerException('Can\'t find machine config for type {}'.format(SettingsService().server_config['type']),
+        raise ServerException('Не удалось найти конфигурацию для комплекса: {}'.format(SettingsService().server_config['type']),
                               status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     dependencies = dict(OrderedDict(sorted(machine_config['dependencies'].items(), key=lambda x: x[1])))
     for dependency in dependencies:
         dependency_url = SettingsService().libraries['dependencies'].get(dependency)
         if not dependency_url:
-            raise ServerException('Unknown dependency {} while building'.format(dependency),
+            raise ServerException('Ошибка сборки. Неизвестная зависимость: {}'.format(dependency),
                                   status.HTTP_500_INTERNAL_SERVER_ERROR)
         if with_update:
             UpdateService().update_and_upgrade_lib_sync(dependency)
@@ -359,7 +361,7 @@ def api_get_modules():
     # TODO get all modules?
     machine_config = SettingsService().current_machine_config
     if not machine_config:
-        raise ServerException('Can\'t find machine config for type {}'.format(SettingsService().server_config['type']),
+        raise ServerException('Не удалось найти конфигурацию для комплекса: {}'.format(SettingsService().server_config['type']),
                               status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     mapped_dependencies = []
@@ -409,14 +411,14 @@ def api_update_ssh():
                filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
     if 'file' not in request.files:
-        raise ServerException('Can\'t file part in request', status.HTTP_400_BAD_REQUEST)
+        raise ServerException('В форме отсутсвтвуют файлы', status.HTTP_400_BAD_REQUEST)
 
     file = request.files['file']
     if not file or not file.filename:
-        raise ServerException('Don\'t select file', status.HTTP_400_BAD_REQUEST)
+        raise ServerException('Не найден файл', status.HTTP_400_BAD_REQUEST)
 
     if not allowed_file(file.filename):
-        raise ServerException('Incorrect file format. Allow only {}'.format(allowed_extensions),
+        raise ServerException('Некорректный формат файла. Разрешены только: {}'.format(allowed_extensions),
                               status.HTTP_406_NOT_ACCEPTABLE)
 
     file_name = secure_filename(file.filename)
@@ -442,10 +444,45 @@ def api_get_server_health():
     return jsonify({'code': 0}), status.HTTP_200_OK
 
 
-@app.route('/api/update_module', methods=['POST'])
+@app.route('/api/clone_module/<string:module_name>', methods=['GET'])
 @handle_errors
 @api_authorization
-def api_update_module():
+def api_clone_module(module_name):
+    if module_name in SettingsService().libraries['dependencies']:
+        UpdateService().update_lib_sync(module_name)
+    elif module_name in SettingsService().libraries['cores']:
+        CoreService().update_core_sync()
+
+    return jsonify({'code': 0}), status.HTTP_200_OK
+
+
+@app.route('/api/build_module/<string:module_name>', methods=['GET'])
+@handle_errors
+@api_authorization
+def api_build_module(module_name):
+    (compile_status, compile_output) = (ProcessStatus.DEFAULT, None)
+    if module_name in SettingsService().libraries['dependencies']:
+        (is_cloned, _) = UpdateService().cloned_info(module_name)
+        if not is_cloned:
+            UpdateService().update_lib_sync(module_name)
+        (compile_status, compile_output) = UpdateService().upgrade_lib_sync(module_name)
+    elif module_name in SettingsService().libraries['cores']:
+        (is_cloned, _) = CoreService().cloned_info()
+        if not is_cloned:
+            CoreService().update_core_sync()
+        (compile_status, compile_output) = CoreService().compile_core()
+
+    if compile_status is ProcessStatus.SUCCESS:
+        return jsonify({'code': 0}), status.HTTP_200_OK
+    else:
+        raise ServerException('Ошибка сборки. Статус компиляции: {}. Информация о сборке: {}'
+                              .format(compile_status, compile_output), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.route('/api/update_module/<string:module_name>', methods=['POST'])
+@handle_errors
+@api_authorization
+def api_update_module(module_name):
     allowed_extensions = {'zip'}
 
     def allowed_file(filename):
@@ -453,30 +490,35 @@ def api_update_module():
                filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
     if 'file' not in request.files:
-        raise ServerException('Can\'t file part in request', status.HTTP_400_BAD_REQUEST)
+        raise ServerException('В форме отсутсвтвуют файлы', status.HTTP_400_BAD_REQUEST)
 
     file = request.files['file']
     if not file or not file.filename:
-        raise ServerException('Don\'t select file', status.HTTP_400_BAD_REQUEST)
+        raise ServerException('Не найден файл', status.HTTP_400_BAD_REQUEST)
 
     if not allowed_file(file.filename):
-        raise ServerException('Incorrect file format. Allow only {}'.format(allowed_extensions),
+        raise ServerException('Некорректный формат файла. Разрешены только: {}'.format(allowed_extensions),
                               status.HTTP_406_NOT_ACCEPTABLE)
 
     file_name = secure_filename(file.filename)
-    lib_name = file_name.rsplit('.', 1)[0]
-    target_lib_path = os.path.join(
-        os.path.expanduser(SettingsService().server_config['sources_path']),
-        lib_name
-    )
+
     # TODO refactor, move to separate manager?
-    source_lib_path = os.path.join(app.config['UPLOAD_FOLDER'], lib_name)
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
     file.save(file_path)
     zip_archive = zipfile.ZipFile(file_path, 'r')
     zip_archive.extractall(app.config['UPLOAD_FOLDER'])
     zip_archive.close()
-    cmd('cp -Rf {} {}'.format(source_lib_path, target_lib_path))
+
+    lib_name = module_name
+    target_lib_path = os.path.join(
+        os.path.expanduser(SettingsService().server_config['sources_path']),
+        lib_name
+    )
+    source_lib_path = os.path.join(app.config['UPLOAD_FOLDER'], lib_name)
+    if not os.path.isdir(target_lib_path):
+        shutil.rmtree(target_lib_path, ignore_errors=True)
+        os.makedirs(target_lib_path)
+    cmd('cp -Rf {}/* {}'.format(source_lib_path, target_lib_path))
     # TODO get module name from post request
     if lib_name in SettingsService().libraries['dependencies']:
         UpdateService().upgrade_lib_sync(lib_name)
@@ -484,7 +526,7 @@ def api_update_module():
         # TODO check
         CoreService().compile_core()
     else:
-        raise ServerException('Unknown module {}'.format(lib_name), status.HTTP_400_BAD_REQUEST)
+        raise ServerException('Неизвестный модуль {}'.format(lib_name), status.HTTP_400_BAD_REQUEST)
     return jsonify({'code': 0}), status.HTTP_200_OK
 
 

@@ -3,7 +3,7 @@ import App from './App.vue';
 import router from './router';
 import store from './store';
 import BootstrapVue from 'bootstrap-vue';
-import Toaster from 'v-toaster'
+import Toaster from 'v-toaster';
 import VModal from 'vue-js-modal';
 import Datetime from 'vue-datetime';
 import VueScrollTo from 'vue-scrollto';

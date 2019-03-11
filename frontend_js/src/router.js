@@ -18,23 +18,17 @@ import LoginPage from './views/LoginPage';
 
 Vue.use(Router);
 
-// const ifNotAuthenticated = (to, from, next) => {
-//     if (!store.getters.isAuthenticated) {
-//         next()
-//         return
-//     }
-//     next('/');
-// }
-
 const ifAuthenticated = (to, from, next) => {
     if (store.getters.isAuthenticated) {
         next();
         return
     }
     if (from) {
-        next(from);
+        Vue.prototype.$toaster.error('Для доступа к этой странице необходима авторизация');
+        next('/login');
     } else {
-        next('/');
+        Vue.prototype.$toaster.error('Для доступа к этой странице необходима авторизация');
+        next('/login');
     }
 };
 
@@ -121,7 +115,7 @@ export default new Router({
             component: ServerConnect
         },
         {
-            path: '/login_page',
+            path: '/login',
             name: 'login-page',
             component: LoginPage
         }

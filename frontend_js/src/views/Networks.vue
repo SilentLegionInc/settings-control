@@ -65,25 +65,21 @@
                 </div>
             </div>
         </div>
-
-        <app-login-modal @logged="loadData"></app-login-modal>
-
     </div>
 </template>
 
 <script>
-import LoginModal from '@/components/LoginModal';
 import { ServerExceptionModel } from '../models/ServerExceptionModel';
 import Logger from '../logger';
 
 export default {
     name: 'Networks',
-    components: {
-        'app-login-modal': LoginModal
-    },
     mounted: function() {
         if (this.$store.getters.isAuthenticated) {
             this.loadData();
+        } else {
+            this.$toaster.error('Для доступа к этой странице необходима авторизация');
+            this.$router.push('/login');
         }
     },
     methods: {
@@ -94,7 +90,7 @@ export default {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
                 } else {
-                    this.$toaster.error('Internal server error');
+                    this.$toaster.error('Серверная ошибка');
                     Logger.error(err);
                 }
                 this.networks = [];
@@ -126,7 +122,7 @@ export default {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
                 } else {
-                    this.$toaster.error('Internal server error');
+                    this.$toaster.error('Серверная ошибка');
                     Logger.error(err);
                 }
             }

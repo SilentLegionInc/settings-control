@@ -295,15 +295,38 @@ export class RequestService {
         return MapperService.mapMapsDataResponse(result.data);
     }
 
-    async uploadModuleArchive(formData) {
-        const path = this._constructPath(`api/update_module`);
+    async uploadModuleArchive(formData, moduleName) {
+        const path = this._constructPath(`api/update_module/${moduleName}`);
 
         Logger.debug('POST request: upload file');
         Logger.debug(`Path: ${path}`);
 
         const result = await axios.post(path, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-        if (result.status !== 200) {
+        if (result.status === 200) {
+            return true;
+        } else {
             Logger.error(`Can't upload file`)
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+        }
+    }
+
+    async cloneModule(moduleName) {
+        const path = this._constructPath(`api/clone_module/${moduleName}`);
+        const result = await axios.get(path);
+        if (result.status === 200) {
+            return true;
+        } else {
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+        }
+    }
+
+    async buildModule(moduleName) {
+        const path = this._constructPath(`api/build_module/${moduleName}`);
+        const result = await axios.get(path);
+        if (result.status === 200) {
+            return true;
+        } else {
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
         }
     }
 

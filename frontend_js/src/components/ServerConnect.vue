@@ -9,7 +9,7 @@
         </div>
         <div class="row mb-2">
             <div class="offset-xl-3 col-xl-3 col-12 col-md-4 mt-1">
-                <button class="btn btn-default btn-block" @click="setClientUrl()">
+                <button class="btn btn-primary btn-block" @click="setClientUrl()">
                     Ввести адрес клиента
                 </button>
             </div>

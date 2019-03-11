@@ -1,19 +1,25 @@
 <template>
     <div class="container-fluid">
-        <div class="row mb-2" @click="switchDetailedCore()">
+        <div class="row mb-2">
             <!--col-md-2 offset-md-2 col-sm-3 offset-sm-0 -->
-            <div class="offset-md-2 col-2">
+            <div class="offset-md-2 col-2" @click="switchDetailedCore()">
                 {{core.name}}
             </div>
             <!--col-md-5 col-sm-7-->
-            <div class="col-md-4 col-0" align="right">
+            <div class="col-md-4 col-0" align="right" @click="switchDetailedCore()">
                 {{core.url}}
             </div>
             <!--col-md-1 col-sm-2 -->
             <div class="col-2" align="right">
                 <!--TODO onclick download/build?-->
-                <i class="fa fa-box-open" :style="{color: core.isBuilt ? 'green': 'red'}"></i>&nbsp;
-                <i class="fa fa-download" :style="{color: core.isCloned ? 'green': 'red'}"></i>
+                <i class="fa fa-box-open"
+                    :style="{color: core.isBuilt ? 'green': 'red'}"
+                    @click="buildModule(core.name)"
+                ></i>&nbsp;
+                <i class="fa fa-download"
+                   :style="{color: core.isCloned ? 'green': 'red'}"
+                   @click="cloneModule(core.name)"
+                ></i>
             </div>
         </div>
         <div v-if="core.detail" class="mb-2">
@@ -37,7 +43,7 @@
             </div>
             <div class="row">
                 <div class="offset-md-2 col-md-8" align="right">
-                    <button class="btn btn-success" @click="updateModule()">
+                    <button class="btn btn-success" @click="uploadModuleArchive(core.name)">
                         Обновить
                     </button>
                 </div>
@@ -45,17 +51,22 @@
         </div>
         <div v-if="modules.length > 0">
             <div v-for="(module_elem, index) of modules" v-bind:key="index">
-                <div class="row mb-2" v-on:click="switchDetailed(index)">
-                    <div class="col-md-3 offset-md-2">
+                <div class="row mb-2">
+                    <div class="col-md-3 offset-md-2" v-on:click="switchDetailed(index)">
                         {{module_elem.name}}
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4" v-on:click="switchDetailed(index)">
                         {{module_elem.url}}
                     </div>
                     <div class="col-md-1" align="right">
-                        <!--TODO onclick download/build?-->
-                        <i class="fa fa-box-open" :style="{color: module_elem.isBuilt ? 'green': 'red'}"></i>&nbsp;
-                        <i class="fa fa-download" :style="{color: module_elem.isCloned ? 'green': 'red'}"></i>
+                        <i class="fa fa-box-open"
+                            :style="{color: module_elem.isBuilt ? 'green': 'red'}"
+                            @click="buildModule(module_elem.name)"
+                        ></i>&nbsp;
+                        <i class="fa fa-download"
+                            :style="{color: module_elem.isCloned ? 'green': 'red'}"
+                            @click="cloneModule(module_elem.name)"
+                        ></i>
                     </div>
                 </div>
                 <div v-if="module_elem.detail" class="mb-2">
@@ -71,7 +82,7 @@
                     </div>
                     <div class="row">
                         <div class="offset-md-2 col-md-8" align="right">
-                            <button class="btn btn-success" @click="updateModule()">
+                            <button class="btn btn-success" @click="uploadModuleArchive(module_elem.name)">
                                 Обновить
                             </button>
                         </div>
@@ -121,18 +132,49 @@ export default {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
                 } else {
-                    this.$toaster.error('Internal server error');
+                    this.$toaster.error('Серверная ошибка');
                     Logger.error(err);
                 }
                 this.modules = [];
                 this.core = {}
             }
         },
-        async updateModule() {
+        async uploadModuleArchive(moduleName) {
             const formData = new FormData();
             formData.append('file', this.file);
             try {
-                await this.$store.state.requestService.uploadModuleArchive(formData);
+                await this.$store.state.requestService.uploadModuleArchive(formData, moduleName);
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Серверная ошибка');
+                    Logger.error(err);
+                }
+            }
+            delete this.file;
+        },
+        // TODO may be pass index\object to not loadData(), may be add status instead of is_built, is_cloned
+        //  to change color while build/clone in process
+        async cloneModule(moduleName) {
+            try {
+                await this.$store.state.requestService.cloneModule(moduleName);
+                await this.loadData();
+                this.$toaster.success(`Модуль ${moduleName} успешно склонирован`);
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Серверная ошибка');
+                    Logger.error(err);
+                }
+            }
+        },
+        async buildModule(moduleName) {
+            try {
+                await this.$store.state.requestService.buildModule(moduleName);
+                await this.loadData();
+                this.$toaster.success(`Модуль ${moduleName} успешно собран`);
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);

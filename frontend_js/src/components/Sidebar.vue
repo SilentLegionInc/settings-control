@@ -31,15 +31,15 @@
         </ul>
 
         <ul>
-            <li>
-                <router-link class="clickable" to="/connect_to_server" @click.native="close">
-                    Выбор сервера
+            <li v-if="$store.getters.isAuthenticated">
+                <router-link class="clickable" to="/settings" @click.native="close">
+                    Конфигурация ядра
                 </router-link>
             </li>
 
             <li v-if="$store.getters.isAuthenticated">
-                <router-link class="clickable" to="/settings" @click.native="close">
-                    Конфигурация ядра
+                <router-link class="clickable" to="/server_settings" @click.native="close">
+                    Конфигурация сервера
                 </router-link>
             </li>
 
@@ -54,39 +54,26 @@
                     Модули
                 </router-link>
             </li>
-
-            <li v-if="$store.getters.isAuthenticated">
-                <router-link class="clickable" to="/server_settings" @click.native="close">
-                    Конфигурация сервера
-                </router-link>
-            </li>
         </ul>
 
         <ul>
             <li v-if="!this.$store.getters.isAuthenticated">
-                <a href="#" class="clickable" @click="login()">
+                <router-link class="clickable" to="/login" @click.native="close">
                     Вход
-                </a>
+                </router-link>
             </li>
             <li v-if="this.$store.getters.isAuthenticated">
                 <a class="clickable" @click="logout()">
                     Выход
                 </a>
             </li>
-            <li v-if="this.$store.getters.isAuthenticated">
-                <router-link class="clickable" to="/change_password" @click.native="close">
-                    Смена пароля
-                </router-link>
-            </li>
         </ul>
-        <app-login-modal ref="modal_window" :open-on-mount="false"></app-login-modal>
     </div>
 </template>
 
 <script>
 import { ServerExceptionModel } from '../models/ServerExceptionModel';
 import Logger from '../logger';
-import LoginModal from './LoginModal';
 
 export default {
     name: 'Sidebar',
@@ -96,13 +83,10 @@ export default {
             monitorIsOpen: false
         }
     },
-    components: {
-        'app-login-modal': LoginModal
-    },
     computed: {
         currentStyle: function() {
             return {
-                'width': this.isOpen ? '20%' : '0',
+                'width': this.isOpen ? '30%' : '0',
                 'min-width': this.isOpen ? '300px' : '0'
             };
         }
@@ -123,11 +107,6 @@ export default {
             this.monitorIsOpen = !this.monitorIsOpen;
         },
 
-        login() {
-            this.close();
-            this.$refs.modal_window.showModal();
-        },
-
         async logout() {
             this.close();
             try {
@@ -137,7 +116,7 @@ export default {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
                 } else {
-                    this.$toaster.error('Internal server error');
+                    this.$toaster.error('Серверная ошибка');
                     Logger.error(err);
                 }
             }

@@ -39,7 +39,7 @@
 
 <script>
 export default {
-    name: 'LoginModal',
+    name: 'LogsModal',
     data: function() {
         return {
             logTime: null,
