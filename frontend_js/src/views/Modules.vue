@@ -37,7 +37,7 @@
             </div>
             <div class="row">
                 <div class="offset-md-2 col-md-8" align="right">
-                    <button class="btn btn-success" @click="updateModule()">
+                    <button class="btn btn-success" @click="updateModule(core.name)">
                         Обновить
                     </button>
                 </div>
@@ -71,7 +71,7 @@
                     </div>
                     <div class="row">
                         <div class="offset-md-2 col-md-8" align="right">
-                            <button class="btn btn-success" @click="updateModule()">
+                            <button class="btn btn-success" @click="updateModule(module_elem.name)">
                                 Обновить
                             </button>
                         </div>
@@ -128,11 +128,11 @@ export default {
                 this.core = {}
             }
         },
-        async updateModule() {
+        async updateModule(moduleName) {
             const formData = new FormData();
             formData.append('file', this.file);
             try {
-                await this.$store.state.requestService.uploadModuleArchive(formData);
+                await this.$store.state.requestService.uploadModuleArchive(formData, moduleName);
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
@@ -141,6 +141,7 @@ export default {
                     Logger.error(err);
                 }
             }
+            delete this.file;
         }
     }
 }
