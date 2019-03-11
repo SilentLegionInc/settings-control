@@ -1,0 +1,41 @@
+.btn:focus,.btn:active {
+  box-shadow: none;
+}
+
+.btn-primary {
+  background: #4a5fbf;
+  border: 1px solid #6275f5;
+}
+
+.btn-primary:hover {
+  background: #4252a2;
+  border: 1px solid #6275f5;
+}
+
+.btn-primary:active {
+  background: #4252a2 !important;
+  box-shadow: 2px 2px 0 #6275f5,
+              2px -2px 0 #6275f5,
+              -2px 2px 0 #6275f5,
+              -2px -2px 0 #6275f5
+              !important;
+}
+
+.btn-secondary {
+  background: #727d85;
+  border: 1px solid #acb1b5;
+}
+
+.btn-secondary:hover {
+  background: #5A6268;
+  border: 1px solid #acb1b5;
+}
+
+.btn-secondary:active {
+  background: #5A6268 !important;
+  box-shadow: 2px 2px 0 #acb1b5,
+              2px -2px 0 #acb1b5,
+              -2px 2px 0 #acb1b5,
+              -2px -2px 0 #acb1b5
+              !important;
+}
