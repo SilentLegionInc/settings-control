@@ -40,43 +40,45 @@
 
         <hr>
 
-        <table class="custom-table">
-            <thead class="custom-table-header">
-            <tr>
-                <th>№</th>
-                <th @click="changeSort('time')" class="clickable-header-elem">
-                    <span v-if="sort.time">
-                        <i v-if="sort.time === 1" key="1" class="fa fa-chevron-down" aria-hidden="true"></i>
-                        <i v-else key="2" class="fa fa-chevron-up" aria-hidden="true"></i>
-                    </span>
-                    Время
-                </th>
-                <th>
-                    Широта
-                </th>
-                <th>
-                    Долгота
-                </th>
-                <th v-for="(element, index) in dataStructure" :key="index" @click="changeSort(element.systemName)" class="clickable-header-elem">
-                    <span v-if="sort[element.systemName]">
-                        <i v-if="sort[element.systemName] === 1" key="1" class="fa fa-chevron-down" aria-hidden="true"></i>
-                        <i v-else key="2" class="fa fa-chevron-up" aria-hidden="true"></i>
-                    </span>
-                    {{element.name}}
-                </th>
-            </tr>
-            </thead>
+        <div style="overflow-x: auto;">
+            <table class="custom-table">
+                <thead class="custom-table-header">
+                <tr>
+                    <th>№</th>
+                    <th @click="changeSort('time')" class="clickable-header-elem">
+                        <span v-if="sort.time">
+                            <i v-if="sort.time === 1" key="1" class="fa fa-chevron-down" aria-hidden="true"></i>
+                            <i v-else key="2" class="fa fa-chevron-up" aria-hidden="true"></i>
+                        </span>
+                        Время
+                    </th>
+                    <th>
+                        Широта
+                    </th>
+                    <th>
+                        Долгота
+                    </th>
+                    <th v-for="(element, index) in dataStructure" :key="index" @click="changeSort(element.systemName)" class="clickable-header-elem">
+                        <span v-if="sort[element.systemName]">
+                            <i v-if="sort[element.systemName] === 1" key="1" class="fa fa-chevron-down" aria-hidden="true"></i>
+                            <i v-else key="2" class="fa fa-chevron-up" aria-hidden="true"></i>
+                        </span>
+                        {{element.name}}
+                    </th>
+                </tr>
+                </thead>
 
-            <tbody class="custom-table-body">
-            <tr v-for="(dataElement, dataElementIndex) in dataElements" :key="dataElementIndex" @click="selectElement(dataElementIndex)" class="selectable-table-row">
-                <td>{{ (_currentPage - 1) * elementsPerPage + dataElementIndex + 1 }}</td>
-                <td>{{ dataElement.time | moment("DD.MM.YYYY HH:mm:ss.SSS") }}</td>
-                <td>{{ dataElement.latitude }}</td>
-                <td>{{ dataElement.longitude }}</td>
-                <td v-for="(structElement, structElementIndex) in dataStructure" :key="structElementIndex">{{ dataElement.data[structElement.systemName] }}</td>
-            </tr>
-            </tbody>
-        </table>
+                <tbody class="custom-table-body">
+                <tr v-for="(dataElement, dataElementIndex) in dataElements" :key="dataElementIndex" @click="selectElement(dataElementIndex)" class="selectable-table-row">
+                    <td>{{ (_currentPage - 1) * elementsPerPage + dataElementIndex + 1 }}</td>
+                    <td>{{ dataElement.time | moment("DD.MM.YYYY HH:mm:ss.SSS") }}</td>
+                    <td>{{ dataElement.latitude }}</td>
+                    <td>{{ dataElement.longitude }}</td>
+                    <td v-for="(structElement, structElementIndex) in dataStructure" :key="structElementIndex">{{ dataElement.data[structElement.systemName] }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
         <div class="pagination-flexbox-container pt-2">
             <b-pagination class="paginator-flexbox-item pb-2"

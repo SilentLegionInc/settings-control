@@ -86,7 +86,7 @@ export default {
     computed: {
         currentStyle: function() {
             return {
-                'width': this.isOpen ? '30%' : '0',
+                'width': this.isOpen ? '22%' : '0',
                 'min-width': this.isOpen ? '300px' : '0'
             };
         }
@@ -137,7 +137,7 @@ export default {
     .sidebar {
         height: 100%;
         position: fixed;
-        z-index: 1;
+        z-index: 100;
         top: 0;
         left: 0;
         background-color: #7b88d3;
