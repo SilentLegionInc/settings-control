@@ -81,6 +81,8 @@ export default {
         }
     },
     async mounted() {
+        const loader = this.$loading.show();
+
         this.databaseName = this.$route.query.dbName;
         this.robotName = this.$store.state.robotName;
         const result = await this.$store.state.requestService.getStatisticsMapsData(this.robotName, this.databaseName);
@@ -102,6 +104,8 @@ export default {
 
             this.elements.push(elem);
         });
+
+        loader.hide();
     },
     methods: {
         redirectToTableStatistics() {

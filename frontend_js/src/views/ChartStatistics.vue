@@ -30,6 +30,8 @@ export default {
         }
     },
     async mounted() {
+        const loader = this.$loading.show();
+
         this.robotName = this.$store.state.robotName;
         this.databaseName = this.$route.query.dbName;
         if (this.databaseName == null) {
@@ -39,6 +41,8 @@ export default {
 
         this.dataStructure = await this.$store.state.requestService.getStatisticsDataStructure(this.robotName, this.databaseName);
         this.dataStructure = this.dataStructure.filter(elem => elem.type === 'number');
+
+        loader.hide();
     }
 }
 </script>

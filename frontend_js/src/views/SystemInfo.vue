@@ -99,6 +99,8 @@ export default {
     },
     methods: {
         async loadFullInfo() {
+            const loader = this.$loading.show();
+
             const response = await this.$store.state.requestService.getSystemInfo();
             this.diskInfo = response.diskInfo;
             this.memoryInfo = response.memoryInfo;
@@ -121,6 +123,8 @@ export default {
                     this.chartData.datasets.push(dataset);
                 }
             }
+
+            loader.hide();
         },
         async loadCpuInfo() {
             const response = await this.$store.state.requestService.getSystemInfo(false);

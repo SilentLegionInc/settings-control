@@ -151,6 +151,8 @@ export default {
         },
 
         loadData: async function(page) {
+            const loader = this.$loading.show();
+
             const offset = (page - 1) * this.elementsPerPage;
             const limit = this.elementsPerPage;
             const extended = this.dataStructure.length <= 0;
@@ -174,6 +176,8 @@ export default {
                 this.dataStructure = response.dataStructure;
                 this.numDataStructure = this.dataStructure.filter(elem => elem.type === 'number');
             }
+
+            loader.hide();
         },
 
         selectElement(index) {

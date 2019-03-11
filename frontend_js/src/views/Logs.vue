@@ -138,6 +138,8 @@ export default {
         },
 
         loadData: async function(page) {
+            const loader = this.$loading.show();
+
             const offset = (page - 1) * this.elementsPerPage;
             const limit = this.elementsPerPage;
             const filterStartTime = this.filterStartTime ? new Date(this.filterStartTime) : null;
@@ -147,6 +149,8 @@ export default {
             const response = await this.$store.state.requestService.getLogs('AMTS', limit, offset, filterStartTime, filterEndTime, filterType);
             this.dbElementsCount = response.count;
             this.logs = response.result;
+
+            loader.hide();
         },
 
         selectLog(index) {

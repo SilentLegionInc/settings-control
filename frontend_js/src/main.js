@@ -7,7 +7,10 @@ import Toaster from 'v-toaster';
 import VModal from 'vue-js-modal';
 import Datetime from 'vue-datetime';
 import VueScrollTo from 'vue-scrollto';
+import Loading from 'vue-loading-overlay';
+import Moment from 'vue-moment';
 
+import 'vue-loading-overlay/dist/vue-loading.css';
 import 'vue-datetime/dist/vue-datetime.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
@@ -17,14 +20,20 @@ import '@fortawesome/fontawesome-free/css/all.css';
 
 import { LogLevel } from './models/LogModel';
 
-const moment = require('vue-moment');
-
 Vue.config.productionTip = false;
 Vue.use(VModal);
 Vue.use(BootstrapVue);
-Vue.use(moment);
+Vue.use(Moment);
 Vue.use(Datetime);
 Vue.use(Toaster, { timeout: 5000 });
+Vue.use(Loading, {
+    color: '#93a2f5',
+    height: 100,
+    width: 100,
+    loader: 'bars',
+    backgroundColor: '#000000',
+    opacity: 0.8
+});
 Vue.use(VueScrollTo, {
     container: 'body',
     duration: 500,

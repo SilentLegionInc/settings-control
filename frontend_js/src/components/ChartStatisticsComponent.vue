@@ -153,6 +153,8 @@ export default {
         },
 
         async loadData(page) {
+            const loader = this.$loading.show();
+
             if (this.robotName == null || this.fieldName == null) {
                 const wrongField = this.robotName == null ? 'robot name' : 'field name';
                 Logger.warn(`Chart statistics: can't load data, ${wrongField} is empty`);
@@ -173,6 +175,8 @@ export default {
             this.maximumValue = response.maximum;
 
             this.data = response.result;
+
+            loader.hide();
         }
     },
     computed: {
