@@ -1,7 +1,7 @@
 <template>
     <div class="container-fluid">
         <div class="row" style="margin: auto">
-            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 margin-bottom-sm">
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mb-2">
                 <h4 align="center">Нагрузка процессора</h4>
                 <div style="max-width: 600px; margin-left: auto; margin-right: auto">
                     <line-chart v-if="chartData" :chart-data="chartData" :options="chartOptions"></line-chart>
@@ -10,7 +10,7 @@
             <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
                 <h4 align="center">Точки монтирования</h4>
                 <div class="row">
-                    <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 padding-bottom-md">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 pb-3">
                         <b-card v-if="memoryInfo">
                             <div class="row">
                                 <div class="col-2 col-sm-2 col-md-3 col-lg-3 col-xl-3">
@@ -31,7 +31,7 @@
                             </div>
                         </b-card>
                     </div>
-                    <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 padding-bottom-md">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 pb-3">
                         <b-card v-if="memoryInfo">
                             <div class="row">
                                 <div class="col-2 col-sm-2 col-md-3 col-lg-3 col-xl-3">
@@ -52,7 +52,7 @@
                             </div>
                         </b-card>
                     </div>
-                    <div v-for="(disk, index) of diskInfo" v-bind:key="index" class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 padding-bottom-md padding-top-md">
+                    <div v-for="(disk, index) of diskInfo" v-bind:key="index" class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6 pb-3 pt-3">
                         <b-card>
                             <div class="row">
                                 <div class="col-2 col-sm-2 col-md-3 col-lg-3 col-xl-3">

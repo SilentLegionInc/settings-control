@@ -16,7 +16,7 @@
                                 <input type="password" class="form-control" v-model="password" name="password" autocomplete="password"/>
                             </div>
                             <div align="right">
-                                <button class="btn btn-secondary margin-right-sm">Проверить адрес</button>
+                                <button class="btn btn-secondary mr-2">Проверить адрес</button>
                                 <button class="btn btn-primary">Войти</button>
                             </div>
                         </form>

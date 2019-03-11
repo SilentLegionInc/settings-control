@@ -2,7 +2,7 @@
     <div v-if="databaseName && robotName">
         <form>
             <div class="col-12 col-sm-11 col-md-9 col-lg-7 col-xl-6">
-                <div class="row margin-bottom-sm">
+                <div class="row mb-2">
                     <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
                         <span>Нач. время: </span>
                         <datetime v-model="filter.startTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
@@ -15,7 +15,7 @@
 
                 <div class="scrollable-filters">
                     <b-collapse id="filters-collapse">
-                        <div class="row margin-bottom-sm" v-for="(element, index) in numDataStructure" :key="index">
+                        <div class="row mb-2" v-for="(element, index) in numDataStructure" :key="index">
                             <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
                                 <span>Мин. {{element.name.toLowerCase()}}: </span>
                                 <input type="number" class="form-control" v-model="filter[`min__${element.systemName}`]">
@@ -30,9 +30,9 @@
 
                 <div class="row">
                     <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                        <button type="button" class="btn btn-primary margin-right-sm margin-bottom-sm" @click="loadData(1)">Применить</button>
-                        <button type="button" class="btn btn-secondary margin-right-sm margin-bottom-sm" @click="clearFilters()">Очистить</button>
-                        <button type="button" class="btn btn-secondary margin-right-sm margin-bottom-sm" v-b-toggle.filters-collapse>Доп. фильтры</button>
+                        <button type="button" class="btn btn-primary mr-2 mb-2" @click="loadData(1)">Применить</button>
+                        <button type="button" class="btn btn-secondary mr-2 mb-2" @click="clearFilters()">Очистить</button>
+                        <button type="button" class="btn btn-secondary mr-2 mb-2" v-b-toggle.filters-collapse>Доп. фильтры</button>
                     </div>
                 </div>
             </div>
@@ -78,8 +78,8 @@
             </tbody>
         </table>
 
-        <div class="pagination-flexbox-container padding-top-sm">
-            <b-pagination class="paginator-flexbox-item padding-bottom-sm"
+        <div class="pagination-flexbox-container pt-2">
+            <b-pagination class="paginator-flexbox-item pb-2"
                           size="md"
                           :total-rows="dbElementsCount"
                           v-model="currentPage"
@@ -87,8 +87,8 @@
                           align="center">
             </b-pagination>
 
-            <div class="per-page-flexbox-item per-page-flexbox-container padding-bottom-sm">
-                <div class="margin-right-xs" style="white-space: nowrap;">
+            <div class="per-page-flexbox-item per-page-flexbox-container pb-2">
+                <div class="mr-1" style="white-space: nowrap;">
                     На странице:
                 </div>
 

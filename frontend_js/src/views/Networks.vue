@@ -16,7 +16,7 @@
                         signal level: {{network.bars}} ({{network.bars.length}})
                     </div>
                 </div>
-                <div v-if="network.detail" class="margin-bottom-md">
+                <div v-if="network.detail" class="mb-3">
                     <div class="row">
                         <div class="offset-md-3 col-md-6">
                             <div class="row">
@@ -61,7 +61,7 @@
                         </div>
                     </div>
                 </div>
-                <div v-else class="margin-bottom-md">
+                <div v-else class="mb-3">
                 </div>
             </div>
         </div>

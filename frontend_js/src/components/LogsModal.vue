@@ -1,7 +1,7 @@
 <template>
     <b-modal ref="logsModal" size="lg" id="logs-modal" title="Детальная информация" scrollable centered ok-only>
         <div class="container-fluid">
-            <div class="row margin-bottom-sm">
+            <div class="row mb-2">
                 <div class="col-3 col-sm-3 col-md-3 col-lg-2 col-xl-2">
                     <b>Заголовок:</b>
                 </div>
@@ -9,7 +9,7 @@
                     {{this.logTitle}}
                 </div>
             </div>
-            <div class="row margin-bottom-sm">
+            <div class="row mb-2">
                 <div class="col-3 col-sm-3 col-md-3 col-lg-2 col-xl-2">
                     <b>Уровень:</b>
                 </div>
@@ -17,7 +17,7 @@
                     {{this.logType | logLevelToString}}
                 </div>
             </div>
-            <div class="row margin-bottom-sm">
+            <div class="row mb-2">
                 <div class="col-3 col-sm-3 col-md-3 col-lg-2 col-xl-2">
                     <b>Время:</b>
                 </div>

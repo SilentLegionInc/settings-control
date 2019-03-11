@@ -1,7 +1,7 @@
 <template>
     <div class="container-fluid">
         <div class="row" style="margin: auto; height: 100%;">
-            <div class="col-12 col-sm-12 col-md-6 col-lg-7 col-xl-8 margin-bottom-sm">
+            <div class="col-12 col-sm-12 col-md-6 col-lg-7 col-xl-8 mb-2">
                 <yandex-map
                     :coords="[centerLatitude, centerLongitude]"
                     zoom="10"
@@ -55,7 +55,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 margin-top-sm" style="padding-right: 0 !important;" align="right">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-2" style="padding-right: 0 !important;" align="right">
                         <button type="button" class="btn btn-primary" @click="redirectToTableStatistics">Подробнее</button>
                     </div>
                 </div>

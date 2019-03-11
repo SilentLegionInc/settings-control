@@ -2,20 +2,20 @@
     <div>
         <form>
             <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-xl-8 filter-flexbox-container">
-                <span class="filter-flexbox-item margin-left-xs margin-right-xs">
+                <span class="filter-flexbox-item ml-1 mr-1">
                     <span>Нач. время:</span>
                     <datetime v-model="filterStartTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                 </span>
 
-                <span class="filter-flexbox-item margin-left-xs margin-right-xs">
+                <span class="filter-flexbox-item ml-1 mr-1">
                     <span>Кон. время:</span>
                     <datetime v-model="filterEndTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                 </span>
 
-                <span class="filter-flexbox-item margin-left-xs margin-right-xs">
+                <span class="filter-flexbox-item ml-1 mr-1">
                     <div>&nbsp;</div>
-                    <button type="button" class="btn btn-primary margin-right-xs" @click="loadData(1)">Применить</button>
-                    <button type="button" class="btn btn-secondary margin-left-xs" @click="clearFilters()">Очистить</button>
+                    <button type="button" class="btn btn-primary mr-1" @click="loadData(1)">Применить</button>
+                    <button type="button" class="btn btn-secondary ml-1" @click="clearFilters()">Очистить</button>
                 </span>
             </div>
         </form>
@@ -50,8 +50,8 @@
             </tbody>
         </table>
 
-        <div class="pagination-flexbox-container padding-top-sm">
-            <b-pagination class="paginator-flexbox-item padding-bottom-sm"
+        <div class="pagination-flexbox-container pt-2">
+            <b-pagination class="paginator-flexbox-item pb-2"
                           size="md"
                           :total-rows="dbElementsCount"
                           v-model="currentPage"
@@ -59,8 +59,8 @@
                           align="center">
             </b-pagination>
 
-            <div class="per-page-flexbox-item per-page-flexbox-container padding-bottom-sm">
-                <div class="margin-right-xs" style="white-space: nowrap;">
+            <div class="per-page-flexbox-item per-page-flexbox-container pb-2">
+                <div class="mr-1" style="white-space: nowrap;">
                     На странице:
                 </div>
 

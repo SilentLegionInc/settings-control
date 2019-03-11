@@ -5,7 +5,7 @@
         </div>
         <div v-if="settings">
 
-            <div v-if="!rawMode" class="margin-bottom-sm">
+            <div v-if="!rawMode" class="mb-2">
                 <div class="row form-group" v-for="(_, settingKey) in settings" v-bind:key="settingKey">
                     <label class="offset-md-2 col-md-3 col-form-label" :for="settingKey">{{settingKey}}</label>
                     <div class="col-md-5">
@@ -14,7 +14,7 @@
                     </div>
                 </div>
             </div>
-            <div v-else class="margin-bottom-sm">
+            <div v-else class="mb-2">
                 <div class="row">
                     <vue-json-editor class="offset-md-2 col-md-8" v-model="settings" :show-btns="false"></vue-json-editor>
                 </div>

@@ -1,6 +1,6 @@
 <template>
     <div class="container-fluid">
-        <div class="row margin-bottom-sm" @click="switchDetailedCore()">
+        <div class="row mb-2" @click="switchDetailedCore()">
             <!--col-md-2 offset-md-2 col-sm-3 offset-sm-0 -->
             <div class="offset-md-2 col-2">
                 {{core.name}}
@@ -16,8 +16,8 @@
                 <i class="fa fa-download" :style="{color: core.isCloned ? 'green': 'red'}"></i>
             </div>
         </div>
-        <div v-if="core.detail" class="margin-bottom-sm">
-            <div class="row margin-bottom-sm">
+        <div v-if="core.detail" class="mb-2">
+            <div class="row mb-2">
                 <div class="col-6 offset-md-2 col-md-4">
                     Имя файла конфигурации:
                 </div>
@@ -25,7 +25,7 @@
                     {{core.configPath}}
                 </div>
             </div>
-            <div class="row margin-bottom-sm">
+            <div class="row mb-2">
                 <div class="col-md-8 offset-md-2">
                     <b-form-file
                         v-model="file"
@@ -45,7 +45,7 @@
         </div>
         <div v-if="modules.length > 0">
             <div v-for="(module_elem, index) of modules" v-bind:key="index">
-                <div class="row margin-bottom-sm" v-on:click="switchDetailed(index)">
+                <div class="row mb-2" v-on:click="switchDetailed(index)">
                     <div class="col-md-3 offset-md-2">
                         {{module_elem.name}}
                     </div>
@@ -58,8 +58,8 @@
                         <i class="fa fa-download" :style="{color: module_elem.isCloned ? 'green': 'red'}"></i>
                     </div>
                 </div>
-                <div v-if="module_elem.detail" class="margin-bottom-sm">
-                    <div class="row margin-bottom-sm">
+                <div v-if="module_elem.detail" class="mb-2">
+                    <div class="row mb-2">
                         <div class="col-md-8 offset-md-2">
                             <b-form-file
                                 v-model="file"
