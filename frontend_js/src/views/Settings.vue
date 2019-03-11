@@ -70,7 +70,7 @@ export default {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message)
                 } else {
-                    this.$toaster.error('Internal server error')
+                    this.$toaster.error('Серверная ошибка')
                     Logger.error(err)
                 }
                 this.settings = {}
@@ -89,7 +89,7 @@ export default {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message)
                 } else {
-                    this.$toaster.error('Internal server error')
+                    this.$toaster.error('Серверная ошибка')
                     Logger.error(err)
                 }
             }

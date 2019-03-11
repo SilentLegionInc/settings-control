@@ -93,7 +93,8 @@ export default {
             memoryInfo: null,
             chartData: null,
             chartOptions: options,
-            elementsPerChart: 30
+            elementsPerChart: 30,
+            _intervalFunction: null
         }
     },
     methods: {
@@ -157,7 +158,12 @@ export default {
     },
     mounted: async function() {
         await this.loadFullInfo();
-        setInterval(this.loadCpuInfo, 1000);
+        this._intervalFunction = setInterval(this.loadCpuInfo, 1000);
+    },
+
+    destroyed: function () {
+        clearInterval(this._intervalFunction);
+        delete this._intervalFunction;
     }
 }
 
