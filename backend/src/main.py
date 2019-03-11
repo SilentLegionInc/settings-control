@@ -28,6 +28,7 @@ import zipfile
 import shutil
 from configuration.authoriztaion_service import AuthorizationService
 from collections import OrderedDict
+from configuration.core_service import ProcessStatus
 
 # Init flask application
 app = Flask(__name__)
@@ -441,6 +442,41 @@ def api_update_ssh():
 @handle_errors
 def api_get_server_health():
     return jsonify({'code': 0}), status.HTTP_200_OK
+
+
+@app.route('/api/clone_module/<string:module_name>', methods=['GET'])
+@handle_errors
+@api_authorization
+def api_clone_module(module_name):
+    if module_name in SettingsService().libraries['dependencies']:
+        UpdateService().update_lib_sync(module_name)
+    elif module_name in SettingsService().libraries['cores']:
+        CoreService().update_core_sync()
+
+    return jsonify({'code': 0}), status.HTTP_200_OK
+
+
+@app.route('/api/build_module/<string:module_name>', methods=['GET'])
+@handle_errors
+@api_authorization
+def api_build_module(module_name):
+    (compile_status, compile_output) = (ProcessStatus.DEFAULT, None)
+    if module_name in SettingsService().libraries['dependencies']:
+        (is_cloned, _) = UpdateService().cloned_info(module_name)
+        if not is_cloned:
+            UpdateService().update_lib_sync(module_name)
+        (compile_status, compile_output) = UpdateService().upgrade_lib_sync(module_name)
+    elif module_name in SettingsService().libraries['cores']:
+        (is_cloned, _) = CoreService().cloned_info()
+        if not is_cloned:
+            CoreService().update_core_sync()
+        (compile_status, compile_output) = CoreService().compile_core()
+
+    if compile_status is ProcessStatus.SUCCESS:
+        return jsonify({'code': 0}), status.HTTP_200_OK
+    else:
+        raise ServerException('Ошибка сборки. Статус компиляции: {}. Информация о сборке: {}'
+                              .format(compile_status, compile_output), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @app.route('/api/update_module/<string:module_name>', methods=['POST'])

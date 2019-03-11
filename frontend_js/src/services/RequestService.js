@@ -310,6 +310,26 @@ export class RequestService {
         }
     }
 
+    async cloneModule(moduleName) {
+        const path = this._constructPath(`api/clone_module/${moduleName}`);
+        const result = await axios.get(path);
+        if (result.status === 200) {
+            return true;
+        } else {
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+        }
+    }
+
+    async buildModule(moduleName) {
+        const path = this._constructPath(`api/build_module/${moduleName}`);
+        const result = await axios.get(path);
+        if (result.status === 200) {
+            return true;
+        } else {
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+        }
+    }
+
     async uploadSSHArchive(formData) {
         const path = this._constructPath(`api/update_ssh`);
         const result = await axios.post(path, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
