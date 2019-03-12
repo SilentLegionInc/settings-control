@@ -85,6 +85,7 @@ export default {
     methods: {
         loadData: async function() {
             try {
+                this._loader = this.$loading.show();
                 this.networks = await this.$store.state.requestService.getNetworks();
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
@@ -95,19 +96,17 @@ export default {
                 }
                 this.networks = [];
             }
+            this._loader.hide();
         },
         switchDetailed: function (index) {
             this.networks[index].detail = !this.networks[index].detail;
-        },
-        disconnect: function (network) {
-            // TODO warning modal window + request to disconnect, i think we don't need this
-            Logger.info(`disconnecting from ${network.name}`)
         },
         connect: async function (index) {
             const newNetwork = this.networks[index];
             // TODO warning modal window + request to connect
             Logger.info(`connecting to ${newNetwork.name} with password ${this.password}`)
             try {
+                this._loader = this.$loading.show();
                 const res = await this.$store.state.requestService.changeNetwork(newNetwork.name, this.password);
                 if (res) {
                     this.$toaster.success(`Current network is ${newNetwork.name}`);
@@ -126,13 +125,15 @@ export default {
                     Logger.error(err);
                 }
             }
+            this._loader.hide();
         }
     },
     data: () => {
         return {
             networks: [],
             raw_networks: [],
-            password: ''
+            password: '',
+            _loader: null
         }
     }
 }

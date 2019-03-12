@@ -103,7 +103,8 @@ export default {
         return {
             core: {},
             modules: [],
-            file: null
+            file: null,
+            _loader: null
         }
     },
     async mounted() {
@@ -117,6 +118,7 @@ export default {
             this.modules[index].detail = !this.modules[index].detail;
         },
         async loadData() {
+            const loader = this.$loading.show();
             try {
                 const answer = await this.$store.state.requestService.getModules();
                 this.modules = answer.dependencies;
@@ -138,11 +140,13 @@ export default {
                 this.modules = [];
                 this.core = {}
             }
+            loader.hide();
         },
         async uploadModuleArchive(moduleName) {
             const formData = new FormData();
             formData.append('file', this.file);
             try {
+                this._loader = this.$loading.show();
                 await this.$store.state.requestService.uploadModuleArchive(formData, moduleName);
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
@@ -152,12 +156,14 @@ export default {
                     Logger.error(err);
                 }
             }
+            this._loader.hide();
             delete this.file;
         },
         // TODO may be pass index\object to not loadData(), may be add status instead of is_built, is_cloned
         //  to change color while build/clone in process
         async cloneModule(moduleName) {
             try {
+                this._loader = this.$loading.show();
                 await this.$store.state.requestService.cloneModule(moduleName);
                 await this.loadData();
                 this.$toaster.success(`Модуль ${moduleName} успешно склонирован`);
@@ -169,9 +175,11 @@ export default {
                     Logger.error(err);
                 }
             }
+            this._loader.hide();
         },
         async buildModule(moduleName) {
             try {
+                this._loader = this.$loading.show();
                 await this.$store.state.requestService.buildModule(moduleName);
                 await this.loadData();
                 this.$toaster.success(`Модуль ${moduleName} успешно собран`);
@@ -183,6 +191,7 @@ export default {
                     Logger.error(err);
                 }
             }
+            this._loader.hide();
         }
     }
 }
