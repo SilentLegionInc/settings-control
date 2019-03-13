@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import config from './config'
+import Config from './config'
 import { RequestService } from './services/RequestService'
 
 Vue.use(Vuex);
@@ -8,8 +8,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         authToken: null,
-        url: config.get('backendUrl'),
-        requestService: new RequestService(config.get('backendUrl')),
+        url: Config.backendUrl,
+        requestService: new RequestService(Config.backendUrl),
         robotName: 'AMTS'
     },
     getters: {
