@@ -1,90 +1,174 @@
 <template>
     <div class="container-fluid">
-        <div class="row mb-2">
-            <!--col-md-2 offset-md-2 col-sm-3 offset-sm-0 -->
-            <div class="offset-md-2 col-2" @click="switchDetailedCore()">
-                {{core.name}}
-            </div>
-            <!--col-md-5 col-sm-7-->
-            <div class="col-md-4 col-0" align="right" @click="switchDetailedCore()">
-                {{core.url}}
-            </div>
-            <!--col-md-1 col-sm-2 -->
-            <div class="col-2" align="right">
-                <!--TODO onclick download/build?-->
-                <i class="fa fa-box-open"
-                    :style="{color: core.isBuilt ? 'green': 'red'}"
-                    @click="buildModule(core.name)"
-                ></i>&nbsp;
-                <i class="fa fa-download"
-                   :style="{color: core.isCloned ? 'green': 'red'}"
-                   @click="cloneModule(core.name)"
-                ></i>
-            </div>
-        </div>
-        <div v-if="core.detail" class="mb-2">
-            <div class="row mb-2">
-                <div class="col-6 offset-md-2 col-md-4">
-                    Имя файла конфигурации:
-                </div>
-                <div class="col-6 col-md-4" align="right">
-                    {{core.configPath}}
-                </div>
-            </div>
-            <div class="row mb-2">
-                <div class="col-md-8 offset-md-2">
-                    <b-form-file
-                        v-model="file"
-                        placeholder="Архив с исходниками для обновления"
-                        accept=".zip"
-                        drop-placeholder="Перетащите архив сюда"
-                    />
-                </div>
-            </div>
+
+        <div role="tablist">
             <div class="row">
-                <div class="offset-md-2 col-md-8" align="right">
-                    <button class="btn btn-success" @click="uploadModuleArchive(core.name)">
-                        Обновить
-                    </button>
+                <div class="col-xl-8 offset-xl-2 offset-0 col-12">
+                    <b-card no-body class="mb-1">
+                        <b-card-header header-tag="header" class="p-1" role="tab">
+                            <!--<div v-b-toggle.accordion_core><p class="card-text">{{core.name}}</p></div>-->
+                            <b-button block href="#" v-b-toggle="'accordion_core'" variant="info">{{core.name}}</b-button>
+                        </b-card-header>
+                        <b-collapse id="accordion_core" visible accordion="my-accordion" role="tabpanel">
+                            <b-card-body>
+                                <div class="row mb-1">
+                                    <div class="col-xl-3 col-4">
+                                        Имя конфига:
+                                    </div>
+                                    <div class="col-xl-9 col-8">
+                                        {{core.configPath || '-'}}
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-xl-3 col-4">
+                                        Имя исполняемого:
+                                    </div>
+                                    <div class="col-xl-9 col-8">
+                                        {{core.executeName || '-'}}
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-xl-3 col-4">
+                                        Адрес git:
+                                    </div>
+                                    <div class="col-xl-9 col-8">
+                                        {{core.url || '-'}}
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-xl-3 col-4">
+                                        Время последней сборки:
+                                    </div>
+                                    <div class="col-xl-9 col-8">
+                                        <span v-if="core.isBuilt">{{core.buildModifyTime | moment("DD.MM.YYYY HH:mm:ss")}}</span>
+                                        <span v-else>-</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-xl-3 col-4">
+                                        Время последнего пула:
+                                    </div>
+                                    <div class="col-xl-9 col-8">
+                                        <span v-if="core.isCloned">{{core.srcModifyTime | moment("DD.MM.YYYY HH:mm:ss")}}</span>
+                                        <span v-else>-</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-xl-3 col-12 mb-1">
+                                        <button class="btn btn-block btn-primary" @click="switchDetailedCore()">
+                                            Ручное обновление&nbsp;<i class="fa" :class="{'fa-angle-down': !core.detail, 'fa-angle-up': core.detail}"></i>
+                                        </button>
+                                    </div>
+                                    <div class="col-xl-3 col-12 mb-1">
+                                        <button class="btn btn-block btn-primary" @click="cloneModule(core.name)">
+                                            Обновить
+                                        </button>
+                                    </div>
+                                    <div class="col-xl-3 col-12 mb-1">
+                                        <button class="btn btn-block btn-primary" @click="buildModule(core.name)">
+                                            Собрать
+                                        </button>
+                                    </div>
+                                    <div class="col-xl-3 col-12 mb-1">
+                                        <!--TODO change to normal check-->
+                                        <button v-if="core.isBuilt" class="btn btn-block btn-success" @click="runCore()">
+                                            Запустить
+                                        </button>
+                                        <button v-else class="btn btn-block btn-danger" @click="stopCore()">
+                                            Остановить
+                                        </button>
+                                    </div>
+
+                                </div>
+                                <div class="row mb-2" v-if="core.detail">
+                                    <label class="col-xl-3 col-form-label mb-1" for="core_update">Архив с исходниками для обновления:</label>
+                                    <div class="col-xl-9 col-12 mb-1">
+                                        <b-form-file
+                                            v-model="file"
+                                            placeholder="..."
+                                            accept=".zip"
+                                            drop-placeholder="Перетащите архив сюда"
+                                            id="core_update"
+                                        />
+                                        <p class="card-text" style="font-size: 0.75rem; color: rgba(16,8,13,0.54)">Внутри архива должна быть папка, с именем модуля, например, fomodel</p>
+                                    </div>
+                                </div>
+                            </b-card-body>
+                        </b-collapse>
+                    </b-card>
                 </div>
             </div>
-        </div>
-        <div v-if="modules.length > 0">
-            <div v-for="(module_elem, index) of modules" v-bind:key="index">
-                <div class="row mb-2">
-                    <div class="col-md-3 offset-md-2" v-on:click="switchDetailed(index)">
-                        {{module_elem.name}}
-                    </div>
-                    <div class="col-md-4" v-on:click="switchDetailed(index)">
-                        {{module_elem.url}}
-                    </div>
-                    <div class="col-md-1" align="right">
-                        <i class="fa fa-box-open"
-                            :style="{color: module_elem.isBuilt ? 'green': 'red'}"
-                            @click="buildModule(module_elem.name)"
-                        ></i>&nbsp;
-                        <i class="fa fa-download"
-                            :style="{color: module_elem.isCloned ? 'green': 'red'}"
-                            @click="cloneModule(module_elem.name)"
-                        ></i>
-                    </div>
-                </div>
-                <div v-if="module_elem.detail" class="mb-2">
-                    <div class="row mb-2">
-                        <div class="col-md-8 offset-md-2">
-                            <b-form-file
-                                v-model="file"
-                                placeholder="Архив с исходниками для обновления"
-                                accept=".zip"
-                                drop-placeholder="Перетащите архив сюда"
-                            />
-                        </div>
-                    </div>
+
+            <div v-if="modules.length > 0">
+                <div v-for="(module_elem, index) of modules" v-bind:key="index">
                     <div class="row">
-                        <div class="offset-md-2 col-md-8" align="right">
-                            <button class="btn btn-success" @click="uploadModuleArchive(module_elem.name)">
-                                Обновить
-                            </button>
+                        <div class="col-xl-8 offset-xl-2 offset-0 col-12">
+                            <b-card no-body class="mb-1">
+                                <b-card-header header-tag="header" class="p-1" role="tab">
+                                    <b-button block href="#" v-b-toggle="'module' + index" variant="info">{{module_elem.name}}</b-button>
+                                </b-card-header>
+                                <b-collapse :id="'module' + index" accordion="my-accordion" role="tabpanel">
+                                    <b-card-body>
+                                        <div class="row mb-2">
+                                            <div class="col-xl-3 col-4">
+                                                Адрес git:
+                                            </div>
+                                            <div class="col-xl-9 col-8">
+                                                {{module_elem.url || '-'}}
+                                            </div>
+                                        </div>
+                                        <!--<vs-divider>Обновление</vs-divider>-->
+                                        <div class="row mb-2">
+                                            <div class="col-xl-3 col-4">
+                                                Время последней сборки:
+                                            </div>
+                                            <div class="col-xl-9 col-8">
+                                                <span v-if="module_elem.isBuilt">{{module_elem.buildModifyTime | moment("DD.MM.YYYY HH:mm:ss")}}</span>
+                                                <span v-else>-</span>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-xl-3 col-4">
+                                                Время последнего пула:
+                                            </div>
+                                            <div class="col-xl-9 col-8">
+                                                <span v-if="module_elem.isCloned">{{module_elem.srcModifyTime | moment("DD.MM.YYYY HH:mm:ss")}}</span>
+                                                <span v-else>-</span>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="offset-xl-3 offset-0 col-xl-3 col-4">
+                                                <button class="btn btn-block btn-primary" @click="switchDetailed(index)">
+                                                    Ручное обновление&nbsp;<i class="fa" :class="{'fa-angle-down': !module_elem.detail, 'fa-angle-up': module_elem.detail}"></i>
+                                                </button>
+                                            </div>
+                                            <div class="col-xl-3 col-4">
+                                                <button class="btn btn-block btn-primary" @click="cloneModule(module_elem.name)">
+                                                    Обновить
+                                                </button>
+                                            </div>
+                                            <div class="col-xl-3 col-4">
+                                                <button class="btn btn-block btn-primary" @click="buildModule(module_elem.name)">
+                                                    Собрать
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2" v-if="module_elem.detail">
+                                            <label class="col-xl-3 col-form-label mb-1" :for="'module'+0+'update'">Архив с исходниками для обновления:</label>
+                                            <div class="col-xl-9 col-12 mb-1">
+                                                <b-form-file
+                                                    v-model="file"
+                                                    placeholder="..."
+                                                    accept=".zip"
+                                                    drop-placeholder="Перетащите архив сюда"
+                                                    :id="'module'+index+'update'"
+                                                />
+                                                <p class="card-text" style="font-size: 0.75rem; color: rgba(16,8,13,0.54)">Внутри архива должна быть папка, с именем модуля, например, fomodel</p>
+                                            </div>
+                                        </div>
+                                    </b-card-body>
+                                </b-collapse>
+                            </b-card>
                         </div>
                     </div>
                 </div>
@@ -103,7 +187,8 @@ export default {
         return {
             core: {},
             modules: [],
-            file: null
+            file: null,
+            _loader: null
         }
     },
     async mounted() {
@@ -117,6 +202,7 @@ export default {
             this.modules[index].detail = !this.modules[index].detail;
         },
         async loadData() {
+            const loader = this.$loading.show();
             try {
                 const answer = await this.$store.state.requestService.getModules();
                 this.modules = answer.dependencies;
@@ -138,11 +224,13 @@ export default {
                 this.modules = [];
                 this.core = {}
             }
+            loader.hide();
         },
         async uploadModuleArchive(moduleName) {
             const formData = new FormData();
             formData.append('file', this.file);
             try {
+                this._loader = this.$loading.show();
                 await this.$store.state.requestService.uploadModuleArchive(formData, moduleName);
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
@@ -152,15 +240,17 @@ export default {
                     Logger.error(err);
                 }
             }
+            this._loader.hide();
             delete this.file;
         },
         // TODO may be pass index\object to not loadData(), may be add status instead of is_built, is_cloned
         //  to change color while build/clone in process
         async cloneModule(moduleName) {
             try {
+                this._loader = this.$loading.show();
                 await this.$store.state.requestService.cloneModule(moduleName);
                 await this.loadData();
-                this.$toaster.success(`Модуль ${moduleName} успешно склонирован`);
+                this.$toaster.success(`Модуль ${moduleName} успешно обновлен`);
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
@@ -169,9 +259,11 @@ export default {
                     Logger.error(err);
                 }
             }
+            this._loader.hide();
         },
         async buildModule(moduleName) {
             try {
+                this._loader = this.$loading.show();
                 await this.$store.state.requestService.buildModule(moduleName);
                 await this.loadData();
                 this.$toaster.success(`Модуль ${moduleName} успешно собран`);
@@ -183,7 +275,14 @@ export default {
                     Logger.error(err);
                 }
             }
+            this._loader.hide();
         }
+    },
+    async runCore() {
+        // TODO implement + checking status
+    },
+    async stopCore() {
+        // TODO implement
     }
 }
 </script>

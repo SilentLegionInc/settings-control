@@ -4,7 +4,6 @@ import router from './router';
 import store from './store';
 import BootstrapVue from 'bootstrap-vue';
 import Toaster from 'v-toaster';
-import VModal from 'vue-js-modal';
 import Datetime from 'vue-datetime';
 import VueScrollTo from 'vue-scrollto';
 import Loading from 'vue-loading-overlay';
@@ -17,11 +16,11 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 import './global_css/styles.scss';
 import 'v-toaster/dist/v-toaster.css'
 import '@fortawesome/fontawesome-free/css/all.css';
-
+// import { vsDivider } from 'vuesax'
+// import 'vuesax/dist/vuesax.css'
 import { LogLevel } from './models/LogModel';
 
-Vue.config.productionTip = false;
-Vue.use(VModal);
+Vue.config.productionTip = true;
 Vue.use(BootstrapVue);
 Vue.use(Moment);
 Vue.use(Datetime);
@@ -34,6 +33,7 @@ Vue.use(Loading, {
     backgroundColor: '#000000',
     opacity: 0.8
 });
+// Vue.use(vsDivider);
 Vue.use(VueScrollTo, {
     container: 'body',
     duration: 500,

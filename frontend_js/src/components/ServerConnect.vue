@@ -38,12 +38,14 @@ export default {
     },
     methods: {
         async checkConnectionStatus() {
+            const loader = this.$loading.show();
             const connectionStatus = await this.$store.state.requestService.getHealth(this.url);
             if (connectionStatus) {
                 this.$toaster.info(`Сервер ${this.url} доступен`);
             } else {
                 this.$toaster.error(`Сервер ${this.url} недоступен`);
             }
+            loader.hide();
         },
 
         async changeHostAddress() {

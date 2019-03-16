@@ -35,6 +35,7 @@ export default {
     },
     methods: {
         async updatePassword() {
+            const loader = this.$loading.show();
             try {
                 await this.$store.state.requestService.changePassword(this.oldPassword, this.newPassword);
                 this.$toaster.success('Password changed');
@@ -47,6 +48,7 @@ export default {
                     Logger.error(err);
                 }
             }
+            loader.hide();
         }
     }
 

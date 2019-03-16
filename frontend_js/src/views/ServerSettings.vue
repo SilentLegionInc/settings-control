@@ -112,7 +112,8 @@ export default {
             oldPassword: '',
             newPassword: '',
             newPasswordAgain: '',
-            file: null
+            file: null,
+            _loader: null
         }
     },
     methods: {
@@ -136,6 +137,7 @@ export default {
                 return;
             }
             try {
+                this._loader = this.$loading.show();
                 await this.$store.dispatch('changePassword', this.oldPassword, this.newPassword);
                 this.$toaster.success('Пароль успешно обновлен');
             } catch (err) {
@@ -145,12 +147,14 @@ export default {
                     this.$toaster.error('Ошибка сервера');
                     Logger.error(err);
                 }
+                this._loader.hide();
             }
         },
         async updateSSH() {
             const formData = new FormData();
             formData.append('file', this.file);
             try {
+                this._loader = this.$loading.show();
                 await this.$store.state.requestService.uploadSSHArchive(formData);
                 this.$toaster.success('Ключи успешно обновлены');
             } catch (err) {
@@ -162,6 +166,7 @@ export default {
                     Logger.error(err);
                 }
             }
+            this._loader.hide();
         },
         handleFileUpload(event) {
             this.file = event.target.files[0];

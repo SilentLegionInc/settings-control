@@ -11,7 +11,7 @@ const levels = {
     OFF: Logger.OFF
 };
 
-const logLevel = Config.get('loggingLevel');
+const logLevel = Config.loggingLevel || levels.DEBUG;
 Logger.useDefaults();
 const logger = Logger.get('GlobalLogger');
 logger.setLevel(levels[logLevel]);

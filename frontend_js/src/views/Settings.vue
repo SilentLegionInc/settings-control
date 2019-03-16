@@ -55,6 +55,7 @@ export default {
         // TODO Add machine type to response. Create basic DTO?
         loadData: async function () {
             try {
+                this._loader = this.$loading.show();
                 this.settings = await this.$store.state.requestService.getCoreConfig()
                 for (const key in this.settings) {
                     if (this.settings.hasOwnProperty(key)) {
@@ -75,10 +76,12 @@ export default {
                 }
                 this.settings = {}
             }
+            this._loader.hide();
         },
 
         UpdateConfig: async function () {
             try {
+                this._loader = this.$loading.show();
                 const result = await this.$store.state.requestService.setCoreConfig(this.settings)
                 if (result) {
                     this.$toaster.success('Config successfully updated')
@@ -93,6 +96,7 @@ export default {
                     Logger.error(err)
                 }
             }
+            this._loader.hide();
         },
 
         ResetConfig: async function () {
@@ -105,7 +109,8 @@ export default {
     data: () => {
         return {
             settings: {},
-            rawMode: true
+            rawMode: true,
+            _loader: null
         }
     }
 }

@@ -54,9 +54,11 @@ export default {
     },
     methods: {
         async login() {
+            const loader = this.$loading.show();
             try {
                 await this.$store.dispatch('authorize', this.password);
                 this.$toaster.success('Успешно авторизован');
+                loader.hide();
                 this.$emit('logged');
                 this.$router.push('/');
             } catch (err) {
@@ -67,6 +69,7 @@ export default {
                     Logger.error(err);
                 }
             }
+            loader.hide();
         }
     }
 };
