@@ -12,6 +12,7 @@ from dateutil import parser
 
 class ValueTypes(Enum):
     NUMBER = 'number'
+    STRING = 'string'
 
 
 class MonitoringDataService(metaclass=Singleton):

@@ -9,7 +9,7 @@
             "test_data_1": {
                 "name": "Sensors data 1",
                 "file_path": "C:\\Workspace\\settings-control\\backend\\test_data_db.db",
-                "collection_name": "amts_data",
+                "collection_name": "amts_data_1",
                 "id_column": "id",
                 "time_column": "time",
                 "latitude_field": "latitude",
@@ -35,7 +35,7 @@
             "test_data_2": {
                 "name": "Sensors data 2",
                 "file_path": "C:\\Workspace\\settings-control\\backend\\test_data_db.db",
-                "collection_name": "amts_data",
+                "collection_name": "amts_data_2",
                 "id_column": "id",
                 "time_column": "time",
                 "latitude_field": "latitude",
