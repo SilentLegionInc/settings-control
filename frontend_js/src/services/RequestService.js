@@ -116,8 +116,31 @@ export class RequestService {
         }
     }
 
+    async getServerConfig() {
+        const path = this._constructPath('api/server_config');
+        const res = await axios.get(path);
+        if (res.status === 200) {
+            return MapperService.mapServerSettingsResponse(res.data);
+        } else {
+            Logger.error(res.data.errorInfo);
+            throw new ServerExceptionModel(res.data.errorInfo, res.status);
+        }
+    }
+
+    async setServerConfig(newConfig) {
+        const path = this._constructPath('api/server_config');
+        const res = await axios.post(path, newConfig);
+        if (res.status === 200) {
+            // TODO change answer format in backend
+            return true;
+        } else {
+            Logger.error(res.data.errorInfo);
+            throw new ServerExceptionModel(res.data.errorInfo, res.status);
+        }
+    }
+
     async getCoreConfig() {
-        const path = this._constructPath('api/config');
+        const path = this._constructPath('api/core_config');
         const res = await axios.get(path);
         if (res.status === 200) {
             return res.data;

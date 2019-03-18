@@ -18,6 +18,7 @@
                 <h3>Конфигурация сервера</h3>
             </div>
         </div>
+        <app-server-config></app-server-config>
         <div class="row mb-3">
             <div class="col-12" align="center">
                 <h3>Конфигурация ssh ключей</h3>
@@ -101,11 +102,13 @@
 import Logger from '../logger';
 import { ServerExceptionModel } from '../models/ServerExceptionModel'
 import ServerConnect from '../components/ServerConnect'
+import ServerConfig from '../components/ServerConfig'
 
 export default {
     name: 'ServerSettings',
     components: {
-        'app-server-connection': ServerConnect
+        'app-server-connection': ServerConnect,
+        'app-server-config': ServerConfig
     },
     data() {
         return {
