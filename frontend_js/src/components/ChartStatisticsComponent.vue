@@ -34,7 +34,7 @@
                     </div>
                 </div>
                 <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
-                    <div class="table-container">
+                    <div id="table-container">
                         <table class="custom-table">
                             <thead class="custom-table-header">
                             <tr>
@@ -79,6 +79,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </div>
 </template>
@@ -136,7 +137,7 @@ export default {
             if (neededId !== null && neededId !== undefined) {
                 console.log(`Scroll to elem${neededId}`);
                 this.$scrollTo(`#${this.fieldName}_elem${neededId}`, 500, {
-                    container: 'body',
+                    container: '#table-container',
                     easing: 'ease',
                     offset: 0,
                     force: true,
@@ -445,10 +446,10 @@ const datasetOptions = {
             only screen and (min-resolution: 134dpi) and (max-resolution: 144dpi),
             only screen and (min-resolution: 120dpi) and (max-resolution: 130dpi),
             only screen and (max-resolution: 116dpi) {
-        .table-container {
+        #table-container {
             overflow-y: auto;
             overflow-x: hidden;
-            height: 400px;
+            max-height: 400px;
         }
     }
 </style>

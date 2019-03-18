@@ -1,5 +1,5 @@
 <template>
-    <div class="sidebar" v-bind:style="currentStyle">
+    <div class="sidebar" v-bind:class="{'sidebar-opened': isOpen, 'sidebar-closed': !isOpen}">
         <a href="#" class="closebtn clickable" @click="close">
             <i class="fa fa-times" aria-hidden="true"></i>
         </a>
@@ -83,14 +83,6 @@ export default {
             monitorIsOpen: false
         }
     },
-    computed: {
-        currentStyle: function() {
-            return {
-                'width': this.isOpen ? '22%' : '0',
-                'min-width': this.isOpen ? '300px' : '0'
-            };
-        }
-    },
 
     methods: {
         onClick: function(event) {
@@ -165,5 +157,30 @@ export default {
         right: 0;
         font-size: 30px;
         padding: 0 10px 0 0;
+    }
+
+    .sidebar-opened {
+        @media  only screen and (min-resolution: 165dpi) and (max-resolution: 168dpi),
+        only screen and (min-resolution: 155dpi) and (max-resolution: 160dpi),
+        only screen and (min-resolution: 134dpi) and (max-resolution: 144dpi),
+        only screen and (min-resolution: 120dpi) and (max-resolution: 130dpi),
+        only screen and (max-resolution: 116dpi) {
+            min-width: 300px;
+            width: 22%;
+        }
+
+        @media  only screen and (min-resolution: 117dpi) and (max-resolution: 119dpi),
+                only screen and (min-resolution: 131dpi) and (max-resolution: 133dpi),
+                only screen and (min-resolution: 145dpi) and (max-resolution: 154dpi),
+                only screen and (min-resolution: 162dpi) and (max-resolution: 164dpi),
+                only screen and (min-resolution: 169dpi) {
+            min-width: 100%;
+            width: 100%;
+        }
+    }
+
+    .sidebar-closed {
+        min-width: 0;
+        width: 0;
     }
 </style>
