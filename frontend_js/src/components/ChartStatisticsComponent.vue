@@ -1,71 +1,82 @@
 <template>
     <div>
         <form>
-            <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-xl-8 filter-flexbox-container">
-                <span class="filter-flexbox-item ml-1 mr-1">
-                    <span>Нач. время:</span>
-                    <datetime v-model="filterStartTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
-                </span>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-xl-8 filter-flexbox-container">
+                        <span class="filter-flexbox-item ml-1 mr-1">
+                            <span>Нач. время:</span>
+                            <datetime v-model="filterStartTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
+                        </span>
 
-                <span class="filter-flexbox-item ml-1 mr-1">
-                    <span>Кон. время:</span>
-                    <datetime v-model="filterEndTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
-                </span>
+                        <span class="filter-flexbox-item ml-1 mr-1">
+                            <span>Кон. время:</span>
+                            <datetime v-model="filterEndTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
+                        </span>
 
-                <span class="filter-flexbox-item ml-1 mr-1">
-                    <div>&nbsp;</div>
-                    <button type="button" class="btn btn-primary mr-1" @click="loadData(1)">Применить</button>
-                    <button type="button" class="btn btn-secondary ml-1" @click="clearFilters()">Очистить</button>
-                </span>
+                        <span class="filter-flexbox-item ml-1 mr-1">
+                            <div>&nbsp;</div>
+                            <button type="button" class="btn btn-primary mr-1" @click="loadData(1)">Применить</button>
+                            <button type="button" class="btn btn-secondary ml-1" @click="clearFilters()">Очистить</button>
+                        </span>
+                    </div>
+                </div>
             </div>
         </form>
 
         <hr>
 
-        <div style="max-width: 700px; margin-left: auto; margin-right: auto">
-            <line-chart v-if="chartData" :chart-data="chartData" :options="chartOptions"></line-chart>
-        </div>
-
-        <hr>
-
-        <table class="custom-table">
-            <thead class="custom-table-header">
-            <tr>
-                <th>№</th>
-                <th>Время</th>
-                <th>Значение</th>
-                <th>Широта</th>
-                <th>Долгота</th>
-            </tr>
-            </thead>
-
-            <tbody class="custom-table-body">
-            <tr v-for="(dataElem, index) in data" :id="`${fieldName}_elem${dataElem.id}`" :key="index">
-                <td>{{ (_currentPage - 1) * elementsPerPage + index + 1 }}</td>
-                <td>{{ dataElem.time | moment("DD.MM.YYYY HH:mm:ss.SSS") }}</td>
-                <td>{{ dataElem.value }}</td>
-                <td>{{ dataElem.latitude }}</td>
-                <td>{{ dataElem.longitude }}</td>
-            </tr>
-            </tbody>
-        </table>
-
-        <div class="pagination-flexbox-container pt-2">
-            <b-pagination class="paginator-flexbox-item pb-2"
-                          size="md"
-                          :total-rows="dbElementsCount"
-                          v-model="currentPage"
-                          :per-page="elementsPerPage"
-                          align="center">
-            </b-pagination>
-
-            <div class="per-page-flexbox-item per-page-flexbox-container pb-2">
-                <div class="mr-1" style="white-space: nowrap;">
-                    На странице:
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+                    <div>
+                        <line-chart v-if="chartData" :chart-data="chartData" :options="chartOptions"></line-chart>
+                    </div>
                 </div>
+                <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+                    <div class="table-container">
+                        <table class="custom-table">
+                            <thead class="custom-table-header">
+                            <tr>
+                                <th>№</th>
+                                <th>Время</th>
+                                <th>Значение</th>
+                                <th>Широта</th>
+                                <th>Долгота</th>
+                            </tr>
+                            </thead>
 
-                <div>
-                    <input :value="elementsPerPage" @change="changeElementsPerPage" type="number" class="form-control" style="max-width: 80px">
+                            <tbody class="custom-table-body">
+                            <tr v-for="(dataElem, index) in data" :id="`${fieldName}_elem${dataElem.id}`" :key="index">
+                                <td>{{ (_currentPage - 1) * elementsPerPage + index + 1 }}</td>
+                                <td>{{ dataElem.time | moment("DD.MM.YYYY HH:mm:ss.SSS") }}</td>
+                                <td>{{ dataElem.value | toFixedPrecision }}</td>
+                                <td>{{ dataElem.latitude | toFixedPrecision }}</td>
+                                <td>{{ dataElem.longitude | toFixedPrecision }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination-flexbox-container pt-2">
+                        <b-pagination class="paginator-flexbox-item pb-2"
+                                      size="md"
+                                      :total-rows="dbElementsCount"
+                                      v-model="currentPage"
+                                      :per-page="elementsPerPage"
+                                      align="center">
+                        </b-pagination>
+
+                        <div class="per-page-flexbox-item per-page-flexbox-container pb-2">
+                            <div class="mr-1" style="white-space: nowrap;">
+                                На странице:
+                            </div>
+
+                            <div>
+                                <input :value="elementsPerPage" @change="changeElementsPerPage" type="number" class="form-control" style="max-width: 80px">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -427,5 +438,17 @@ const datasetOptions = {
         animation-name: highlight;
         animation-iteration-count: 1;
         animation-direction: alternate;
+    }
+
+    @media  only screen and (min-resolution: 165dpi) and (max-resolution: 168dpi),
+            only screen and (min-resolution: 155dpi) and (max-resolution: 160dpi),
+            only screen and (min-resolution: 134dpi) and (max-resolution: 144dpi),
+            only screen and (min-resolution: 120dpi) and (max-resolution: 130dpi),
+            only screen and (max-resolution: 116dpi) {
+        .table-container {
+            overflow-y: auto;
+            overflow-x: hidden;
+            height: 400px;
+        }
     }
 </style>
