@@ -19,6 +19,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 // import { vsDivider } from 'vuesax'
 // import 'vuesax/dist/vuesax.css'
 import { LogLevel } from './models/LogModel';
+import Config from './config';
 
 Vue.config.productionTip = true;
 Vue.use(BootstrapVue);
@@ -61,6 +62,10 @@ Vue.filter('logLevelToString', level => {
         default:
             return 'Unknown';
     }
+});
+
+Vue.filter('toFixedPrecision', value => {
+    return value.toFixed(Config.floatPrecision);
 });
 
 new Vue({
