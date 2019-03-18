@@ -60,15 +60,19 @@ def handle_errors(func):
                 Logger().error_message('Got an exception')
                 Logger().error_message('Message: {}. Code: {}'.format(ex.message, ex.status_code))
                 Logger().error_message(traceback.format_exc())
-                return jsonify({'errorInfo': ex.message,
-                                'errorStatus': HTTP_STATUS_CODES[ex.status_code]}), \
-                       ex.status_code
+                return jsonify({
+                    'ok': False,
+                    'errorInfo': ex.message,
+                    'errorStatus': HTTP_STATUS_CODES[ex.status_code]
+                }), ex.status_code
             else:
                 Logger().error_message('Got an unknown exception')
                 Logger().error_message(traceback.format_exc())
-                return jsonify({'errorInfo': 'Серверная ошибка',
-                                'errorStatus': HTTP_STATUS_CODES[status.HTTP_500_INTERNAL_SERVER_ERROR]}), \
-                       status.HTTP_500_INTERNAL_SERVER_ERROR
+                return jsonify({
+                    'ok': False,
+                    'errorInfo': 'Серверная ошибка',
+                    'errorStatus': HTTP_STATUS_CODES[status.HTTP_500_INTERNAL_SERVER_ERROR]
+                }), status.HTTP_500_INTERNAL_SERVER_ERROR
     return wrapper
 
 
@@ -153,7 +157,7 @@ def config():
         return render_template('config.html', config=SettingsService().get_core_config(reload_from_disk=True))
 
 
-@app.route('/api/config', methods=['GET', 'POST'])
+@app.route('/api/core_config', methods=['GET', 'POST'])
 @handle_errors
 @api_authorization
 def api_config():
@@ -442,6 +446,38 @@ def api_update_ssh():
 @handle_errors
 def api_get_server_health():
     return jsonify({'code': 0}), status.HTTP_200_OK
+
+
+@app.route('/api/utils/machine_types', methods=['GET'])
+def api_get_machine_types():
+    types = list(SettingsService().machines_configs.keys())
+    return jsonify({'ok': True, 'result': types}), status.HTTP_200_OK
+
+
+@app.route('/api/server_config', methods=['GET'])
+@handle_errors
+@api_authorization
+def api_get_server_config():
+    import copy
+    server_config = copy.copy(SettingsService().server_config)
+    del server_config['need_to_auth']
+    del server_config['password']
+    server_config['possible_machines_types'] = list(SettingsService().machines_configs.keys())
+    return jsonify(server_config), status.HTTP_200_OK
+
+
+@app.route('/api/server_config', methods=['POST'])
+@handle_errors
+@api_authorization
+def api_update_server_config():
+    new_server_config = request.get_json()
+    machine_type = new_server_config.get('type')
+    if machine_type:
+        if machine_type not in SettingsService().machines_configs.keys():
+            raise ServerException('Недопустимый тип робота {}'.format(machine_type), status.HTTP_400_BAD_REQUEST)
+    SettingsService().server_config.update(new_server_config)
+    SettingsService().save_server_config()
+    return jsonify({'ok': True}), status.HTTP_200_OK
 
 
 @app.route('/api/clone_module/<string:module_name>', methods=['GET'])

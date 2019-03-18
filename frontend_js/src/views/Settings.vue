@@ -4,11 +4,10 @@
             <h2 align="center">Конфигурация ядра</h2>
         </div>
         <div v-if="settings">
-
             <div v-if="!rawMode" class="mb-2">
                 <div class="row form-group" v-for="(_, settingKey) in settings" v-bind:key="settingKey">
-                    <label class="offset-md-2 col-md-3 col-form-label" :for="settingKey">{{settingKey}}</label>
-                    <div class="col-md-5">
+                    <label class="offset-xl-2 col-xl-3 col-form-label col-12" :for="settingKey">{{settingKey}}</label>
+                    <div class="col-xl-5 col-12">
                         <input class="form-control" type="text" :id="settingKey" v-model="settings[settingKey]"
                                :placeholder="settingKey"/>
                     </div>
@@ -16,19 +15,21 @@
             </div>
             <div v-else class="mb-2">
                 <div class="row">
-                    <vue-json-editor class="offset-md-2 col-md-8" v-model="settings" :show-btns="false"></vue-json-editor>
+                    <vue-json-editor class="offset-xl-2 col-xl-8 offset-0 col-12" v-model="settings" :show-btns="false"></vue-json-editor>
                 </div>
             </div>
-            <div class="row form-group">
-                <div class="col-md-6 offset-md-4" align="right">
+            <div class="row">
+                <div class="col-xl-3 offset-xl-4 col-sm-6 offset-0 col-12 mb-2">
                     <!--<button class="btn btn-default" @click="rawMode = !rawMode">-->
                         <!--Change mode-->
                     <!--</button>-->
-                    <button class="btn btn-danger" @click="ResetConfig()">
-                        Reset
+                    <button class="btn btn-danger btn-block" @click="ResetConfig()">
+                        Сбросить
                     </button>
-                    <button class="ml-3 btn btn-success" @click="UpdateConfig()">
-                        Update
+                </div>
+                <div class="col-xl-3 col-12 col-sm-6">
+                    <button class="btn btn-success btn-block" @click="UpdateConfig()">
+                        Обновить
                     </button>
                 </div>
             </div>
@@ -82,18 +83,18 @@ export default {
         UpdateConfig: async function () {
             try {
                 this._loader = this.$loading.show();
-                const result = await this.$store.state.requestService.setCoreConfig(this.settings)
+                const result = await this.$store.state.requestService.setCoreConfig(this.settings);
                 if (result) {
-                    this.$toaster.success('Config successfully updated')
+                    this.$toaster.success('Успешно обновлено');
                 } else {
-                    this.$toaster.warn('Deprecated. Check backend code')
+                    this.$toaster.warn('Deprecated. Check backend code');
                 }
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
-                    this.$toaster.error(err.message)
+                    this.$toaster.error(err.message);
                 } else {
-                    this.$toaster.error('Серверная ошибка')
-                    Logger.error(err)
+                    this.$toaster.error('Серверная ошибка');
+                    Logger.error(err);
                 }
             }
             this._loader.hide();

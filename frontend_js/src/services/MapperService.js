@@ -1,4 +1,5 @@
 import { LogsResponse } from '../models/LogsResponse';
+import { ServerSettingsModel } from '../models/ServerSettingsModel';
 import { NetworkModel } from '../models/NetworkModel';
 import { LogModel } from '../models/LogModel';
 import { ChartDataResponse } from '../models/ChartDataResponse';
@@ -45,6 +46,13 @@ export class MapperService {
             res.dataStructure = this.mapDataStructureResponse(responseBody['data_structure'])
         }
         return res;
+    }
+
+    static mapServerSettingsResponse(responseBody) {
+        return new ServerSettingsModel(responseBody['type'], responseBody['sources_path'],
+            responseBody['builds_path'], responseBody['upload_path'], responseBody['qmake_path'],
+            responseBody['ssh_key_name'], responseBody['repositories_platform'],
+            responseBody['possible_machines_types']);
     }
 
     static mapChartDataResponse(responseBody) {

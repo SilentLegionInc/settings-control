@@ -26,6 +26,10 @@ class SettingsService(metaclass=Singleton):
         return self._server_config.get('machines', {}).get(self.server_config.get('type'))
 
     @property
+    def machines_configs(self):
+        return self._server_config.get('machines', {})
+
+    @property
     def libraries(self):
         return self._server_config.get('libraries', {})
 
