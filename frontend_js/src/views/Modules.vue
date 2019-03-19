@@ -71,7 +71,7 @@
                                     </div>
                                     <div class="col-xl-3 col-12 mb-1">
                                         <!--TODO change to normal check-->
-                                        <button v-if="core.isBuilt" class="btn btn-block btn-success" @click="runCore()">
+                                        <button v-if="!core.isActive" :disabled="!core.isBuilt" class="btn btn-block btn-success" @click="runCore()">
                                             Запустить
                                         </button>
                                         <button v-else class="btn btn-block btn-danger" @click="stopCore()">
@@ -226,6 +226,7 @@ export default {
             }
             loader.hide();
         },
+
         async uploadModuleArchive(moduleName) {
             const formData = new FormData();
             formData.append('file', this.file);
@@ -261,6 +262,7 @@ export default {
             }
             this._loader.hide();
         },
+
         async buildModule(moduleName) {
             try {
                 this._loader = this.$loading.show();
@@ -276,13 +278,53 @@ export default {
                 }
             }
             this._loader.hide();
+        },
+
+        async runCore() {
+            try {
+                if (!this.core.isBuilt) {
+                    this.$toaster.warning('Необходимо собрать ядро для его запуска');
+                    return;
+                }
+                this._loader = this.$loading.show();
+                const res = await this.$store.state.requestService.runCore();
+                await this.loadData();
+                if (res) {
+                    this.$toaster.success('Ядро запущено');
+                } else {
+                    this.$toaster.error('Не удалось запустить ядро');
+                }
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Серверная ошибка');
+                    Logger.error(err);
+                }
+            }
+            this._loader.hide();
+        },
+
+        async stopCore() {
+            try {
+                this._loader = this.$loading.show();
+                const res = await this.$store.state.requestService.stopCore()
+                await this.loadData();
+                if (res) {
+                    this.$toaster.success('Ядро остановлено');
+                } else {
+                    this.$toaster.error('Не удалось остановить ядро');
+                }
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Серверная ошибка');
+                    Logger.error(err);
+                }
+            }
+            this._loader.hide();
         }
-    },
-    async runCore() {
-        // TODO implement + checking status
-    },
-    async stopCore() {
-        // TODO implement
     }
 }
 </script>

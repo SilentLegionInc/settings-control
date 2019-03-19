@@ -1,6 +1,6 @@
 export class ModuleModel {
     constructor(name, url, buildModifyTime, srcModifyTime, isBuilt, isCloned,
-                index = undefined, configPath = undefined, executeName = undefined, detail = false) {
+        index = undefined, configPath = undefined, executeName = undefined, active = false, detail = false) {
         this.name = name;
         this.url = url;
         this.buildModifyTime = new Date(buildModifyTime);
@@ -11,6 +11,7 @@ export class ModuleModel {
         this.configPath = configPath;
         this.executeName = executeName;
         this.detail = detail;
+        this.isActive = active;
     }
 }
 

@@ -127,6 +127,38 @@ export class RequestService {
         }
     }
 
+    async runCore() {
+        const path = this._constructPath('api/core/run');
+        const res = await axios.post(path);
+        if (res.status === 200) {
+            return res.data.core_status;
+        } else {
+            Logger.error(res.data.errorInfo);
+            throw new ServerExceptionModel(res.data.errorInfo, res.status);
+        }
+    }
+    async stopCore() {
+        const path = this._constructPath('api/core/stop');
+        const res = await axios.post(path);
+        if (res.status === 200) {
+            return !res.data.core_status;
+        } else {
+            Logger.error(res.data.errorInfo);
+            throw new ServerExceptionModel(res.data.errorInfo, res.status);
+        }
+    }
+
+    async getCoreIsActive() {
+        const path = this._constructPath('api/core/status');
+        const res = await axios.get(path);
+        if (res.status === 200) {
+            return res.data.core_status;
+        } else {
+            Logger.error(res.data.errorInfo);
+            throw new ServerExceptionModel(res.data.errorInfo, res.status);
+        }
+    }
+
     async setServerConfig(newConfig) {
         const path = this._constructPath('api/server_config');
         const res = await axios.post(path, newConfig);

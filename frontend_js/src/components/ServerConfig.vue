@@ -1,49 +1,49 @@
 <template>
     <div class="container-fluid">
         <div class="row mb-2">
-            <label class="col-xl-3 col-form-label" for="sourcesPath">Путь до папки исходников</label>
+            <label class="col-xl-3 col-form-label" for="sourcesPath">Путь до папки исходников:</label>
             <div class="col-xl-9 col-12">
                 <input class="form-control" type="text" id="sourcesPath" v-model="data.sourcesPath"
                        :placeholder="'...'"/>
             </div>
         </div>
         <div class="row mb-2">
-            <label class="col-xl-3 col-form-label" for="buildsPath">Путь до папки сборки</label>
+            <label class="col-xl-3 col-form-label" for="buildsPath">Путь до папки сборки:</label>
             <div class="col-xl-9 col-12">
                 <input class="form-control" type="text" id="buildsPath" v-model="data.buildsPath"
                        :placeholder="'...'"/>
             </div>
         </div>
         <div class="row mb-2">
-            <label class="col-xl-3 col-form-label" for="uploadPath">Путь до папки загрузки</label>
+            <label class="col-xl-3 col-form-label" for="uploadPath">Путь до папки загрузки:</label>
             <div class="col-xl-9 col-12">
                 <input class="form-control" type="text" id="uploadPath" v-model="data.uploadPath"
                        :placeholder="'...'"/>
             </div>
         </div>
         <div class="row mb-2">
-            <label class="col-xl-3 col-form-label" for="qmakePath">Путь до qmake</label>
+            <label class="col-xl-3 col-form-label" for="qmakePath">Путь до qmake:</label>
             <div class="col-xl-9 col-12">
                 <input class="form-control" type="text" id="qmakePath" v-model="data.qmakePath"
                        :placeholder="'...'"/>
             </div>
         </div>
         <div class="row mb-2">
-            <label class="col-xl-3 col-form-label" for="sshName">Имя файла ssh ключа</label>
+            <label class="col-xl-3 col-form-label" for="sshName">Имя файла ssh ключа:</label>
             <div class="col-xl-9 col-12">
                 <input class="form-control" type="text" id="sshName" v-model="data.sshName"
                        :placeholder="'...'"/>
             </div>
         </div>
         <div class="row mb-2">
-            <label class="col-xl-3 col-form-label" for="repositoriesPlatform">Платформа git</label>
+            <label class="col-xl-3 col-form-label" for="repositoriesPlatform">Платформа git:</label>
             <div class="col-xl-9 col-12">
                 <input class="form-control" type="text" id="repositoriesPlatform" v-model="data.repositoriesPlatform"
                        :placeholder="'...'"/>
             </div>
         </div>
         <div class="row mb-2">
-            <label class="col-xl-3 col-form-label" for="machineType">Тип машинки</label>
+            <label class="col-xl-3 col-form-label" for="machineType">Тип машинки:</label>
             <div class="col-xl-9 col-12">
                 <b-form-select id="machineType" v-model="data.machineType" :options="data.possibleMachinesTypes">
                 </b-form-select>

@@ -203,7 +203,7 @@ def api_compile_core():
     while CoreService().compile_status is None:
         time.sleep(1)
 
-    return jsonify({'code': 0, 'compile_status': CoreService().compile_status.value})
+    return jsonify({'code': 0, 'compile_status': CoreService().compile_status.value}), status.HTTP_200_OK
 
 
 @app.route('/api/core/run', methods=['POST'])
@@ -213,9 +213,9 @@ def api_run_core():
     CoreService().run_core()
     is_active = CoreService().core_is_active()
     if is_active:
-        return jsonify({'code': 0, 'core_status': is_active})
+        return jsonify({'ok': True, 'core_status': is_active}), status.HTTP_200_OK
     else:
-        return jsonify({'code': 1})
+        raise ServerException('Не удалось запустить ядро', status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @app.route('/api/core/status', methods=['GET'])
@@ -223,10 +223,7 @@ def api_run_core():
 @api_authorization
 def api_core_status():
     is_active = CoreService().core_is_active()
-    if is_active:
-        return jsonify({'code': 0, 'core_status': is_active})
-    else:
-        return jsonify({'code': 1, 'core_status': is_active})
+    return jsonify({'ok': True, 'core_status': is_active}), status.HTTP_200_OK
 
 
 @app.route('/api/core/stop', methods=['POST'])
@@ -234,12 +231,13 @@ def api_core_status():
 @api_authorization
 def api_stop_core():
     CoreService().stop_core()
-    return jsonify({'code': 0}), status.HTTP_200_OK
+    is_active = CoreService().core_is_active()
+    return jsonify({'ok': True, 'core_status': is_active}), status.HTTP_200_OK
 
 
 @app.route('/api/logs', methods=['GET'])
 def api_logs():
-    return jsonify(LogsService().get_logs(request.args.get('limit', 1), request.args.get('offset', 0)))
+    return jsonify(LogsService().get_logs(request.args.get('limit', 1), request.args.get('offset', 0))), status.HTTP_200_OK
 
 
 @app.route('/api/login', methods=['POST'])
@@ -362,7 +360,6 @@ def api_build_current_machine():
 @handle_errors
 @api_authorization
 def api_get_modules():
-    # TODO get all modules?
     machine_config = SettingsService().current_machine_config
     if not machine_config:
         raise ServerException('Не удалось найти конфигурацию для комплекса: {}'.format(SettingsService().server_config['type']),
@@ -390,7 +387,8 @@ def api_get_modules():
         'name': machine_config['core']['repo_name'],
         'execute': machine_config['core']['executable_name'],
         'config_path': machine_config['core']['config_path'],
-        'url': SettingsService().libraries['cores'].get(machine_config['core']['repo_name'])
+        'url': SettingsService().libraries['cores'].get(machine_config['core']['repo_name']),
+        'is_active': CoreService().core_is_active()
     }
 
     core_build_info = CoreService().built_info()

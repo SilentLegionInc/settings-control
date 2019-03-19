@@ -35,15 +35,6 @@
                         accept=".zip"
                         drop-placeholder="Перетащите архив сюда"
                     />
-
-                    <!--<div class="custom-file" id="customFile">-->
-                        <!--<input type="file" class="custom-file-input" accept=".zip" id="ssh"-->
-                               <!--@change="handleFileUpload($event)">-->
-                        <!--<label class="custom-file-label" for="ssh">-->
-                            <!--Архив с ssh ключами для обновления-->
-                        <!--</label>-->
-                    <!--</div>-->
-
                 </div>
             </div>
             <div class="row mb-2">
