@@ -25,7 +25,7 @@ export class MapperService {
         const dependencies = responseBody.dependencies;
         return {
             core: new ModuleModel(coreInfo.name, coreInfo.url, coreInfo.build_modify_time, coreInfo.src_modify_time,
-                coreInfo.is_built, coreInfo.is_cloned, null, coreInfo.config_path, coreInfo.execute),
+                coreInfo.is_built, coreInfo.is_cloned, null, coreInfo.config_path, coreInfo.execute, coreInfo.is_active),
             dependencies: dependencies.map(x => new ModuleModel(x.name, x.url, x.build_modify_time, x.src_modify_time,
                 x.is_built, x.is_cloned, x.index, null, null))
         }
