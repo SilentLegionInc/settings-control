@@ -26,7 +26,7 @@
                             Широта:
                         </div>
                         <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
-                            {{elements[selectedIndex].latitude}}
+                            {{elements[selectedIndex].latitude | toFixedPrecision}}
                         </div>
                     </div>
                     <div class="row">
@@ -34,7 +34,7 @@
                             Долгота:
                         </div>
                         <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
-                            {{elements[selectedIndex].longitude}}
+                            {{elements[selectedIndex].longitude | toFixedPrecision}}
                         </div>
                     </div>
                     <div class="row">
@@ -50,7 +50,7 @@
                             Средн. {{elem.name.toLowerCase()}}:
                         </div>
                         <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
-                            {{elem.value}}
+                            {{elem.value | toFixedPrecision}}
                         </div>
                     </div>
                 </div>
@@ -77,37 +77,46 @@ export default {
             centerLatitude: 0,
             centerLongitude: 0,
             robotName: null,
-            databaseName: null
+            databaseName: null,
+            filterStartTime: null,
+            filterEndTime: null
         }
     },
     async mounted() {
-        const loader = this.$loading.show();
-
-        this.databaseName = this.$route.query.dbName;
-        this.robotName = this.$store.state.robotName;
-        const result = await this.$store.state.requestService.getStatisticsMapsData(this.robotName, this.databaseName);
-        this.centerLatitude = result.centerLatitude;
-        this.centerLongitude = result.centerLongitude;
-        result.points.forEach((elem, index) => {
-            const placemark = JSON.parse(JSON.stringify(placemarkConfig));
-            placemark.markerId = `${index}`;
-            placemark.coords = [elem.latitude, elem.longitude];
-            placemark.callbacks = { click: (event) => { this.placemarkClicked(event, index) } };
-            // TODO
-            // placemark.icon = {
-            //     color: 'green',
-            //     content: `${elem.count}`,
-            //     glyph: 'cinema'
-            // };
-            placemark.balloonTemplate = this.getBalloon(elem.latitude, elem.longitude, elem.count);
-            this.placemarks.push(placemark);
-
-            this.elements.push(elem);
-        });
-
-        loader.hide();
+        this.loadData();
     },
     methods: {
+        async loadData() {
+            const loader = this.$loading.show();
+
+            this.databaseName = this.$route.query.dbName;
+            this.robotName = this.$store.state.robotName;
+            const result = await this.$store.state.requestService.getStatisticsMapsData(this.robotName, this.databaseName);
+            this.centerLatitude = result.centerLatitude;
+            this.centerLongitude = result.centerLongitude;
+            result.points.forEach((elem, index) => {
+                const placemark = JSON.parse(JSON.stringify(placemarkConfig));
+                placemark.markerId = `${index}`;
+                placemark.coords = [elem.latitude, elem.longitude];
+                placemark.callbacks = { click: (event) => { this.placemarkClicked(event, index) } };
+                // TODO
+                // placemark.icon = {
+                //     color: 'green',
+                //     content: `${elem.count}`,
+                //     glyph: 'cinema'
+                // };
+                placemark.balloonTemplate = this.getBalloon(elem.latitude, elem.longitude, elem.count);
+                this.placemarks.push(placemark);
+
+                this.elements.push(elem);
+            });
+
+            loader.hide();
+        },
+        clearFilters() {
+            this.filterStartTime = null;
+            this.filterEndTime = null;
+        },
         redirectToTableStatistics() {
             const latitude = this.elements[this.selectedIndex].latitude;
             const longitude = this.elements[this.selectedIndex].longitude;

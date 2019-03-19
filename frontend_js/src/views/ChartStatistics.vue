@@ -1,26 +1,24 @@
 <template>
     <div v-if="databaseName && robotName">
-        <vue-tabs>
-            <v-tab v-for="elem in dataStructure" :key="elem.systemName" :title="elem.name">
+        <b-tabs lazy="true">
+            <b-tab v-for="elem in dataStructure" :key="elem.systemName" :title="elem.name">
                 <chart-statistics-component
                     :robot-name="robotName"
                     :db-name="databaseName"
                     :field-name="elem.systemName"
                 ></chart-statistics-component>
-            </v-tab>
-        </vue-tabs>
+            </b-tab>
+        </b-tabs>
     </div>
 </template>
 
 <script>
 import ChartStatisticsComponent from '../components/ChartStatisticsComponent';
-import { VueTabs, VTab } from 'vue-nav-tabs';
-import 'vue-nav-tabs/themes/vue-tabs.css';
 import Logger from '../logger';
 
 export default {
     name: 'ChartStatistics',
-    components: { ChartStatisticsComponent, VueTabs, VTab },
+    components: { ChartStatisticsComponent },
     data: function() {
         return {
             currentField: 'atmospheric_sensor',
@@ -48,4 +46,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    .custom-tab:active {
+        box-shadow: 0 0 0 0 !important;
+        background: #000000 !important;
+    }
 </style>

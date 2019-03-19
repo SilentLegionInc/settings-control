@@ -21,6 +21,28 @@
                         </span>
                     </div>
                 </div>
+
+                <div class="row pt-2">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-6 pagination-flexbox-container">
+                        <b-pagination class="paginator-flexbox-item pb-2"
+                                      size="md"
+                                      :total-rows="dbElementsCount"
+                                      v-model="currentPage"
+                                      :per-page="elementsPerPage"
+                                      align="center">
+                        </b-pagination>
+
+                        <div class="per-page-flexbox-item per-page-flexbox-container pb-2">
+                            <div class="mr-1" style="white-space: nowrap;">
+                                На странице:
+                            </div>
+
+                            <div>
+                                <input :value="elementsPerPage" @change="changeElementsPerPage" type="number" class="form-control" style="max-width: 80px">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </form>
 
@@ -29,12 +51,10 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
-                    <div>
-                        <line-chart v-if="chartData" :chart-data="chartData" :options="chartOptions"></line-chart>
-                    </div>
+                    <line-chart :id="`${fieldName}_chart`" v-if="chartData" :chart-data="chartData" :options="chartOptions"></line-chart>
                 </div>
                 <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
-                    <div id="table-container">
+                    <div :id="`${fieldName}-table-container`" class="table-container">
                         <table class="custom-table">
                             <thead class="custom-table-header">
                             <tr>
@@ -57,29 +77,8 @@
                             </tbody>
                         </table>
                     </div>
-
-                    <div class="pagination-flexbox-container pt-2">
-                        <b-pagination class="paginator-flexbox-item pb-2"
-                                      size="md"
-                                      :total-rows="dbElementsCount"
-                                      v-model="currentPage"
-                                      :per-page="elementsPerPage"
-                                      align="center">
-                        </b-pagination>
-
-                        <div class="per-page-flexbox-item per-page-flexbox-container pb-2">
-                            <div class="mr-1" style="white-space: nowrap;">
-                                На странице:
-                            </div>
-
-                            <div>
-                                <input :value="elementsPerPage" @change="changeElementsPerPage" type="number" class="form-control" style="max-width: 80px">
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
-        </div>
         </div>
     </div>
 </template>
@@ -135,9 +134,8 @@ export default {
         scrollToTableRow(datasetIndex, index) {
             const neededId = this.chartData.datasets[datasetIndex].data[index].id;
             if (neededId !== null && neededId !== undefined) {
-                console.log(`Scroll to elem${neededId}`);
                 this.$scrollTo(`#${this.fieldName}_elem${neededId}`, 500, {
-                    container: '#table-container',
+                    container: `#${this.fieldName}-table-container`,
                     easing: 'ease',
                     offset: 0,
                     force: true,
@@ -222,36 +220,39 @@ export default {
                 const minDataset = JSON.parse(JSON.stringify(datasetOptions));
                 minDataset.borderColor = '#a9a400';
                 minDataset.backgroundColor = '#a9a400';
+                minDataset.spanGaps = true;
                 minDataset.label = 'Минимальное значение';
                 minDataset.supported = 1;
-                minDataset.data = newData.map(elem => {
+                minDataset.data = newData.map((elem, index) => {
                     return {
                         x: elem.time,
-                        y: this.minimumValue
+                        y: (index === 0 || index === newData.length - 1) ? this.minimumValue : null
                     }
                 });
 
                 const avgDataset = JSON.parse(JSON.stringify(datasetOptions));
                 avgDataset.borderColor = '#a9003a';
                 avgDataset.backgroundColor = '#a9003a';
+                avgDataset.spanGaps = true;
                 avgDataset.label = 'Среднее значение';
                 avgDataset.supported = 2;
-                avgDataset.data = newData.map(elem => {
+                avgDataset.data = newData.map((elem, index) => {
                     return {
                         x: elem.time,
-                        y: this.averageValue
+                        y: (index === 0 || index === newData.length - 1) ? this.averageValue : null
                     }
                 });
 
                 const maxDataset = JSON.parse(JSON.stringify(datasetOptions));
                 maxDataset.borderColor = '#00a96f';
                 maxDataset.backgroundColor = '#00a96f';
+                maxDataset.spanGaps = true;
                 maxDataset.label = 'Максимальное значение';
                 maxDataset.supported = 3;
-                maxDataset.data = newData.map(elem => {
+                maxDataset.data = newData.map((elem, index) => {
                     return {
                         x: elem.time,
-                        y: this.maximumValue
+                        y: (index === 0 || index === newData.length - 1) ? this.maximumValue : null
                     }
                 });
 
@@ -266,6 +267,7 @@ export default {
 
 function getChartOptions(moment, scrollToFunc) {
     return {
+        maintainAspectRatio: false,
         scales: {
             xAxes: [{
                 type: 'time',
@@ -277,7 +279,7 @@ function getChartOptions(moment, scrollToFunc) {
                     unit: 'second',
                     round: 'millisecond',
                     displayFormats: {
-                        second: 'DD.MM.YY HH:mm:ss'
+                        second: 'HH:mm:ss'
                     }
                 }
             }],
@@ -446,7 +448,7 @@ const datasetOptions = {
             only screen and (min-resolution: 134dpi) and (max-resolution: 144dpi),
             only screen and (min-resolution: 120dpi) and (max-resolution: 130dpi),
             only screen and (max-resolution: 116dpi) {
-        #table-container {
+        .table-container {
             overflow-y: auto;
             overflow-x: hidden;
             max-height: 400px;
