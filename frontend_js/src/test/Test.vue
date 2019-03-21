@@ -5,6 +5,9 @@
         <test-chart></test-chart>
         <hr>
         <test-select></test-select>
+        <div class="my_container">
+            <span style="flex-grow: 2"><hr></span><span style="flex-basis: auto" class="ml-2 mr-2">ОПРЛДЫОВАТЫОЛВИОЛЫВИТЛОЫВАТЫВЛОИТЛОЫВТАЛОЫВТМЛОЫВТМЛОЫВТМЛОДЫВМТЫЛДОВМТЫЛВО</span><span style="flex-grow: 2"><hr></span>
+        </div>
     </div>
 </template>
 <script>
@@ -23,4 +26,12 @@ export default {
 </script>
 
 <style scoped>
+    .my_container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: center;
+        align-items: center;
+    }
+
 </style>

@@ -55,7 +55,6 @@
                 </router-link>
             </li>
         </ul>
-
         <ul>
             <li v-if="!this.$store.getters.isAuthenticated">
                 <router-link class="clickable" to="/login" @click.native="close">
@@ -83,7 +82,6 @@ export default {
             monitorIsOpen: false
         }
     },
-
     methods: {
         onClick: function(event) {
             if (!this.$el.contains(event.target) && this.isOpen) {
@@ -160,23 +158,32 @@ export default {
     }
 
     .sidebar-opened {
-        @media  only screen and (min-resolution: 165dpi) and (max-resolution: 168dpi),
-        only screen and (min-resolution: 155dpi) and (max-resolution: 160dpi),
-        only screen and (min-resolution: 134dpi) and (max-resolution: 144dpi),
-        only screen and (min-resolution: 120dpi) and (max-resolution: 130dpi),
-        only screen and (max-resolution: 116dpi) {
+        @media only screen and (min-width: 501px) {
             min-width: 300px;
-            width: 22%;
+            width: 25%;
         }
 
-        @media  only screen and (min-resolution: 117dpi) and (max-resolution: 119dpi),
-                only screen and (min-resolution: 131dpi) and (max-resolution: 133dpi),
-                only screen and (min-resolution: 145dpi) and (max-resolution: 154dpi),
-                only screen and (min-resolution: 162dpi) and (max-resolution: 164dpi),
-                only screen and (min-resolution: 169dpi) {
+        @media only screen and (min-width: 200px) and (max-width: 500px) {
             min-width: 100%;
             width: 100%;
         }
+        /*@media  only screen and (min-resolution: 165dpi) and (max-resolution: 168dpi),*/
+        /*only screen and (min-resolution: 155dpi) and (max-resolution: 160dpi),*/
+        /*only screen and (min-resolution: 134dpi) and (max-resolution: 144dpi),*/
+        /*only screen and (min-resolution: 120dpi) and (max-resolution: 130dpi),*/
+        /*only screen and (max-resolution: 116dpi) {*/
+            /*min-width: 300px;*/
+            /*width: 22%;*/
+        /*}*/
+
+        /*@media  only screen and (min-resolution: 117dpi) and (max-resolution: 119dpi),*/
+                /*only screen and (min-resolution: 131dpi) and (max-resolution: 133dpi),*/
+                /*only screen and (min-resolution: 145dpi) and (max-resolution: 154dpi),*/
+                /*only screen and (min-resolution: 162dpi) and (max-resolution: 164dpi),*/
+                /*only screen and (min-resolution: 169dpi) {*/
+            /*min-width: 100%;*/
+            /*width: 100%;*/
+        /*}*/
     }
 
     .sidebar-closed {
