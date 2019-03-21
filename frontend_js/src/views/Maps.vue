@@ -26,12 +26,13 @@
 
         <hr>
 
-        <div class="row" style="margin: auto; height: 85%;">
-            <div class="col-12 col-sm-12 col-md-6 col-lg-7 col-xl-8" style="height: 100%">
+        <div class="row" style="margin: auto;">
+            <div class="col-12 col-sm-12 col-md-6 col-lg-7 col-xl-8">
                 <yandex-map
                     :coords="[centerLatitude, centerLongitude]"
                     zoom="3"
                     style="width: 100%; height: 100%;"
+                    class="mb-2"
                     :cluster-options="{openBalloonOnClick: false}"
                     :behaviors="['drag', 'multiTouch', 'scrollZoom', 'dblClickZoom', 'rightMouseButtonMagnifier']"
                     :controls="['fullscreenControl', 'zoomControl', 'typeSelector', 'rulerControl']"
@@ -40,7 +41,7 @@
                 </yandex-map>
             </div>
 
-            <div class="col-12 col-sm-12 col-md-6 col-lg-5 col-xl-4" style="height: 100%">
+            <div class="col-12 col-sm-12 col-md-6 col-lg-5 col-xl-4">
                 <div class="scrollable-info">
                     <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                         <div class="row custom-list-header">
@@ -59,7 +60,7 @@
                             </span>
                                 </div>
                             </div>
-                            <div class="row" v-for="i in 10">
+                            <div class="row" v-for="i in 30">
                                 <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
                                     Долгота:
                                 </div>
@@ -167,8 +168,8 @@ export default {
             loader.hide();
         },
         clearFilters() {
-            this.filterStartTime = null;
-            this.filterEndTime = null;
+            this.filter.startTime = null;
+            this.filter.endTime = null;
         },
         redirectToTableStatistics() {
             const latitude = this.elements[this.selectedIndex].latitude;
@@ -219,7 +220,7 @@ const placemarkConfig = {
 
 <style scoped>
     .scrollable-info {
-        max-height: 100%;
+        max-height: 500px;
         overflow-y: auto;
     }
 
