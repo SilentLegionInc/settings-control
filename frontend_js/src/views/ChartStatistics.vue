@@ -1,6 +1,6 @@
 <template>
     <div v-if="databaseName && robotName">
-        <b-tabs lazy="true">
+        <b-tabs :lazy="true">
             <b-tab v-for="elem in dataStructure" :key="elem.systemName" :title="elem.name">
                 <chart-statistics-component
                     :robot-name="robotName"
@@ -46,8 +46,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    .custom-tab:active {
-        box-shadow: 0 0 0 0 !important;
-        background: #000000 !important;
+    .tab-pane {
+        outline: none !important;
     }
 </style>

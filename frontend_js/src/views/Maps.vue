@@ -31,8 +31,7 @@
                 <yandex-map
                     :coords="[centerLatitude, centerLongitude]"
                     zoom="3"
-                    style="width: 100%; height: 100%;"
-                    class="mb-2"
+                    class="maps-size mb-2"
                     :cluster-options="{openBalloonOnClick: false}"
                     :behaviors="['drag', 'multiTouch', 'scrollZoom', 'dblClickZoom', 'rightMouseButtonMagnifier']"
                     :controls="['fullscreenControl', 'zoomControl', 'typeSelector', 'rulerControl']"
@@ -60,7 +59,7 @@
                             </span>
                                 </div>
                             </div>
-                            <div class="row" v-for="i in 30">
+                            <div class="row">
                                 <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
                                     Долгота:
                                 </div>
@@ -219,9 +218,15 @@ const placemarkConfig = {
 </script>
 
 <style scoped>
-    .scrollable-info {
-        max-height: 500px;
-        overflow-y: auto;
+    @media only screen and (min-width: 501px) {
+        .scrollable-info {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+    }
+
+    .maps-size {
+        width: 100%; height: 100%; min-height: 500px;
     }
 
     .inverse-color div.row {
