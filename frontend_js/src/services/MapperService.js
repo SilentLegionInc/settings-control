@@ -80,27 +80,36 @@ export class MapperService {
     }
 
     static mapMapsDataResponse(responseBody) {
-        return new MapsDataModel(
-            responseBody['points'].map(elem => {
-                const result = {
-                    latitude: elem.latitude,
-                    longitude: elem.longitude,
-                    count: elem.count,
-                    average: {}
-                };
-                for (let key in elem.average) {
-                    if (elem.average.hasOwnProperty(key)) {
-                        result.average[key] = {
-                            name: elem.average[key].name,
-                            value: elem.average[key].value
-                        };
-                    }
+        if (Array.isArray(responseBody)) {
+            return responseBody.map(elem => {
+                return {
+                    name: elem['name'],
+                    systemName: elem['system_name']
                 }
-                return result;
-            }),
-            responseBody['center_latitude'],
-            responseBody['center_longitude']
-        );
+            });
+        } else {
+            return new MapsDataModel(
+                responseBody['points'].map(elem => {
+                    const result = {
+                        latitude: elem.latitude,
+                        longitude: elem.longitude,
+                        count: elem.count,
+                        average: {}
+                    };
+                    for (let key in elem.average) {
+                        if (elem.average.hasOwnProperty(key)) {
+                            result.average[key] = {
+                                name: elem.average[key].name,
+                                value: elem.average[key].value
+                            };
+                        }
+                    }
+                    return result;
+                }),
+                responseBody['center_latitude'],
+                responseBody['center_longitude']
+            );
+        }
     }
 
     static mapSystemInfoResponse(responseBody) {

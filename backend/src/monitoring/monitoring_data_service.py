@@ -367,6 +367,11 @@ class MonitoringDataService(metaclass=Singleton):
             connection.close()
             raise ServerException('Error while preparing and executing query', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
 
+    def get_numeric_fields(self, robot_name, db_name):
+        sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
+        numeric_fields = list(filter(lambda elem: elem[1]['type'] == 'number', sensors_config['fields_to_retrieve'].items()))
+        return list(map(lambda elem: {'name': elem[1]['name'], 'system_name': elem[0]}, numeric_fields))
+
     def get_table_data(self, robot_name, db_name, filter_params=None, sort_params=None, additional_params=None):
         if filter_params:
             filter_params = copy.deepcopy(filter_params)

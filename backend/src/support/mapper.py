@@ -198,3 +198,9 @@ class Mapper:
             'center_latitude': body['center_latitude'],
             'center_longitude': body['center_longitude']
         }
+
+    @staticmethod
+    def map_get_numeric_fields_response(body):
+        return list(
+            map(lambda elem: {'name': elem['name'], 'system_name': elem['system_name']}, body)
+        )

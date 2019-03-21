@@ -301,8 +301,12 @@ def api_get_monitoring_table_data(robot_name, db_name):
 @app.route('/api/monitoring/maps_data/<string:robot_name>/<string:db_name>', methods=['GET'])
 @handle_errors
 def api_get_monitoring_maps_data(robot_name, db_name):
-    result = MonitoringDataService().get_maps_data(robot_name, db_name)
-    return jsonify(Mapper.map_get_monitoring_maps_data_response(result)), status.HTTP_200_OK
+    if request.args.get('only_fields') == 'true':
+        result = MonitoringDataService().get_numeric_fields(robot_name, db_name)
+        return jsonify(Mapper.map_get_numeric_fields_response(result)), status.HTTP_200_OK
+    else:
+        result = MonitoringDataService().get_maps_data(robot_name, db_name)
+        return jsonify(Mapper.map_get_monitoring_maps_data_response(result)), status.HTTP_200_OK
 
 
 @app.route('/api/monitoring/logs/<string:robot_name>', methods=['POST'])

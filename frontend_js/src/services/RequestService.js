@@ -340,13 +340,15 @@ export class RequestService {
         return MapperService.mapSystemInfoResponse(result.data);
     }
 
-    async getStatisticsMapsData(robotName, dbName) {
-        const path = this._constructPath(`api/monitoring/maps_data/${robotName}/${dbName}`);
+    async getStatisticsMapsData(robotName, dbName, onlyFields, filter = {}) {
+        const path = this._constructPath(`api/monitoring/maps_data/${robotName}/${dbName}?only_fields=${onlyFields}`);
 
         Logger.debug('GET request: get statistics maps data');
         Logger.debug(`Path: ${path}`);
 
+        console.log('b');
         const result = await axios.get(path);
+        console.log('a');
         return MapperService.mapMapsDataResponse(result.data);
     }
 
