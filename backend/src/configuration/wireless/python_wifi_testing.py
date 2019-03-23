@@ -6,10 +6,10 @@ interface_name = 'wlp3s0'
 password = '+78312171590'
 wire = LegacyWireless(interface_name)
 
-print(cmd(cmd='nmcli con show'))
+print(cmd('nmcli con show'))
 wire.connect(ssid='Silencium', password='KSpeoq')
 old_connection = wire.current()
-print(cmd(cmd='nmcli con show'))
+print(cmd('nmcli con show'))
 time.sleep(4)
 
 if not wire.connect(ssid='STM', password=password + '2'):
@@ -17,6 +17,6 @@ if not wire.connect(ssid='STM', password=password + '2'):
     # wire.power(power=False)
     # wire.power(power=True)
 
-print(cmd(cmd='nmcli con show'))
-print(cmd(cmd='nmcli con up {}'.format(old_connection)))
+print(cmd('nmcli con show'))
+print(cmd('nmcli con up {}'.format(old_connection)))
 print(wire.current())

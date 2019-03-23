@@ -145,7 +145,7 @@ class NewNmcli0990(NetworkDriver):
     # this is needed to prevent the following error after extended use:
     # 'maximum number of pending replies per connection has been reached'
     @staticmethod
-    def _clean(self, partial):
+    def _clean(partial):
         # list matching connections
         response = cmd('nmcli --fields UUID,NAME con show | grep {}'.format(partial))
 
@@ -158,7 +158,7 @@ class NewNmcli0990(NetworkDriver):
     # ignore warnings in nmcli output
     # sometimes there are warnings but we connected just fine
     @staticmethod
-    def _error_in_response(self, response):
+    def _error_in_response(response):
         # no error if no response
         if len(response) == 0:
             return False
@@ -174,11 +174,46 @@ class NewNmcli0990(NetworkDriver):
 
     def get_wifi_list(self):
         # TODO add mapping to uuid if possible and set active now
-        pass
+        ans = cmd('nmcli -t -f SSID,MODE,CHAN,FREQ,RATE,SIGNAL,SECURITY,DEVICE,ACTIVE dev wifi list')
+        if self._error_in_response(ans):
+            raise ServerException('Не удалось получить список беспроводных соеденений. Ответ команды: {}'.format(ans))
+        connections = ans.splitlines()
+        mapped = []
+        for connection in connections:
+            splitted_array = connection.split(':')
+            mapped.append({
+                'name': splitted_array[0],
+                'id': self.ssid_to_connection_map.get(splitted_array[0]),
+                'type': 'wifi',
+                'mode': splitted_array[1],
+                'channel': splitted_array[2],
+                'frequency': splitted_array[3],
+                'speed_rate': splitted_array[4],
+                'signal_level': splitted_array[5],
+                'security_type': splitted_array[6],
+                'device': splitted_array[7],
+                'active': splitted_array[8] == 'yes',
+                # TODO may be add in map by ssid 'autoconnect': splitted_array[5] == 'yes'
+            })
+        return mapped
 
     def get_eth_list(self):
-        # TODO not forget to add active connection
-        pass
+        ans = cmd('nmcli -t -f NAME,UUID,TYPE,DEVICE,ACTIVE,AUTOCONNECT con show | grep ethernet')
+        if self._error_in_response(ans):
+            raise ServerException('Не удалось получить список проводных соеденений. Ответ команды: {}'.format(ans))
+        connections = ans.splitlines()
+        mapped = []
+        for connection in connections:
+            splitted_array = connection.split(':')
+            mapped.append({
+                'name': splitted_array[0],
+                'id': splitted_array[1],
+                'type': 'eth',
+                'device': splitted_array[3],
+                'active': splitted_array[4] == 'yes',
+                'autoconnect': splitted_array[5] == 'yes'
+            })
+        return mapped
 
     # returned the ssid of the current network
     # TODO refactor because i want to persist used connections
@@ -198,7 +233,7 @@ class NewNmcli0990(NetworkDriver):
         # clean up previous connection TODO check for need of it
         # self._clean(ssid)
         # turn off current connection
-        cmd(command='nmcli con down {}'.format(self.current()))
+        cmd('nmcli con down {}'.format(self.current()))
         # trying to connect
         # TODO check response??
         # TODO add connection_params like static ip and etc
