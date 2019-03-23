@@ -1,4 +1,6 @@
 from enum import Enum
+
+import support.helper as helper
 from support.singleton import Singleton
 from support.logger import Logger
 from monitoring.monitoring_config_service import MonitoringConfigService
@@ -7,7 +9,7 @@ import sqlite3
 import datetime
 from flask_api import status
 from support.server_exception import ServerException
-from dateutil import parser
+from dateutil import parser, tz
 
 
 class ValueTypes(Enum):
@@ -104,11 +106,16 @@ class MonitoringDataService(metaclass=Singleton):
             average_value = support_result[3]
             maximum_value = support_result[4]
 
-            min_time_object = parser.parse(min_time) + datetime.timedelta(0, interval_size * 60)
-            interval_start_time = min_time
-            interval_end_time = min_time_object.strftime("%Y-%m-%d %H:%M:%S")
+            min_time_object = helper.floor_datetime_up_to_minutes(parser.parse(min_time))
+            max_time_object = helper.ceil_datetime_up_to_minutes(parser.parse(max_time))
 
-            query = 'SELECT {},{},{},{},{} FROM {} WHERE datetime({}) >= datetime("{}") AND datetime({}) <= datetime("{}")'.format(
+            interval_start_time_object = min_time_object
+            interval_start_time = min_time_object.strftime("%Y-%m-%d %H:%M:%S")
+            interval_end_time_object = min_time_object + datetime.timedelta(0, interval_size * 60)
+            interval_end_time_object = interval_end_time_object if interval_end_time_object <= max_time_object else max_time_object
+            interval_end_time = interval_end_time_object.strftime("%Y-%m-%d %H:%M:%S")
+
+            query = 'SELECT {},{},{},{},{} FROM {} WHERE datetime({}) >= datetime("{}") AND datetime({}) < datetime("{}")'.format(
                 id_column_name,
                 time_column_name,
                 needed_column_name,
@@ -137,10 +144,10 @@ class MonitoringDataService(metaclass=Singleton):
 
             return {
                 'result': result,
-                'min_time': min_time,
-                'max_time': max_time,
-                'interval_start_time': interval_start_time,
-                'interval_end_time': interval_end_time,
+                'min_time': min_time_object.replace(tzinfo=tz.tzutc()),
+                'max_time': max_time_object.replace(tzinfo=tz.tzutc()),
+                'interval_start_time': interval_start_time_object.replace(tzinfo=tz.tzutc()),
+                'interval_end_time': interval_end_time_object.replace(tzinfo=tz.tzutc()),
                 'minimum': minimum_value,
                 'average': average_value,
                 'maximum': maximum_value
@@ -170,13 +177,19 @@ class MonitoringDataService(metaclass=Singleton):
             latitude_column_name = sensors_config['latitude_field']
             longitude_column_name = sensors_config['longitude_field']
 
-            if isinstance(min_time, datetime.datetime):
-                min_time = min_time.strftime("%Y-%m-%d %H:%M:%S")
+            if not isinstance(min_time, datetime.datetime):
+                min_time = parser.parse(min_time)
 
-            if isinstance(max_time, datetime.datetime):
-                max_time = max_time.strftime("%Y-%m-%d %H:%M:%S")
+            if not isinstance(max_time, datetime.datetime):
+                max_time = parser.parse(max_time)
 
-            query = 'SELECT MIN({}), AVG({}), MAX({}) FROM {} WHERE datetime({}) >= datetime("{}") AND datetime({}) <= datetime("{}")'.format(
+            min_time_object = helper.floor_datetime_up_to_minutes(min_time)
+            max_time_object = helper.ceil_datetime_up_to_minutes(max_time)
+
+            min_time = min_time_object.strftime("%Y-%m-%d %H:%M:%S")
+            max_time = max_time_object.strftime("%Y-%m-%d %H:%M:%S")
+
+            query = 'SELECT MIN({}), AVG({}), MAX({}) FROM {} WHERE datetime({}) >= datetime("{}") AND datetime({}) < datetime("{}")'.format(
                 needed_column_name, needed_column_name, needed_column_name, collection_name,
                 time_column_name, min_time, time_column_name, max_time
             )
@@ -188,11 +201,13 @@ class MonitoringDataService(metaclass=Singleton):
             average_value = support_result[1]
             maximum_value = support_result[2]
 
-            min_time_object = parser.parse(min_time) + datetime.timedelta(0, interval_size * 60)
-            interval_start_time = min_time
-            interval_end_time = min_time_object.strftime("%Y-%m-%d %H:%M:%S")
+            interval_start_time_object = min_time_object
+            interval_start_time = min_time_object.strftime("%Y-%m-%d %H:%M:%S")
+            interval_end_time_object = min_time_object + datetime.timedelta(0, interval_size * 60)
+            interval_end_time_object = interval_end_time_object if interval_end_time_object <= max_time_object else max_time_object
+            interval_end_time = interval_end_time_object.strftime("%Y-%m-%d %H:%M:%S")
 
-            query = 'SELECT {},{},{},{},{} FROM {} WHERE datetime({}) >= datetime("{}") AND datetime({}) <= datetime("{}")'.format(
+            query = 'SELECT {},{},{},{},{} FROM {} WHERE datetime({}) >= datetime("{}") AND datetime({}) < datetime("{}")'.format(
                 id_column_name,
                 time_column_name,
                 needed_column_name,
@@ -221,8 +236,8 @@ class MonitoringDataService(metaclass=Singleton):
 
             return {
                 'result': result,
-                'interval_start_time': interval_start_time,
-                'interval_end_time': interval_end_time,
+                'interval_start_time': interval_start_time_object.replace(tzinfo=tz.tzutc()),
+                'interval_end_time': interval_end_time_object.replace(tzinfo=tz.tzutc()),
                 'minimum': minimum_value,
                 'average': average_value,
                 'maximum': maximum_value
@@ -258,7 +273,7 @@ class MonitoringDataService(metaclass=Singleton):
             if isinstance(interval_end_time, datetime.datetime):
                 interval_end_time = interval_end_time.strftime("%Y-%m-%d %H:%M:%S")
 
-            query = 'SELECT {},{},{},{},{} FROM {} WHERE datetime({}) >= datetime("{}") AND datetime({}) <= datetime("{}")'.format(
+            query = 'SELECT {},{},{},{},{} FROM {} WHERE datetime({}) >= datetime("{}") AND datetime({}) < datetime("{}")'.format(
                 id_column_name,
                 time_column_name,
                 needed_column_name,

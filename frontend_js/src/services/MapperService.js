@@ -59,10 +59,10 @@ export class MapperService {
     static mapInitChartDataResponse(responseBody) {
         const res = new InitChartDataResponse();
         res.result = responseBody.result.map(elem => new ChartDataModel(elem.id, elem.latitude, elem.longitude, new Date(elem.time), elem.value));
-        res.minTime = responseBody['min_time'];
-        res.maxTime = responseBody['max_time'];
-        res.intervalStartTime = responseBody['interval_start_time'];
-        res.intervalEndTime = responseBody['interval_end_time'];
+        res.minTime = new Date(responseBody['min_time']);
+        res.maxTime = new Date(responseBody['max_time']);
+        res.intervalStartTime = new Date(responseBody['interval_start_time']);
+        res.intervalEndTime = new Date(responseBody['interval_end_time']);
         res.minimum = responseBody.minimum;
         res.average = responseBody.average;
         res.maximum = responseBody.maximum;
@@ -72,8 +72,8 @@ export class MapperService {
     static mapFilterChartDataResponse(responseBody) {
         const res = new FilterChartDataResponse();
         res.result = responseBody.result.map(elem => new ChartDataModel(elem.id, elem.latitude, elem.longitude, new Date(elem.time), elem.value));
-        res.intervalStartTime = responseBody['interval_start_time'];
-        res.intervalEndTime = responseBody['interval_end_time'];
+        res.intervalStartTime = new Date(responseBody['interval_start_time']);
+        res.intervalEndTime = new Date(responseBody['interval_end_time']);
         res.minimum = responseBody.minimum;
         res.average = responseBody.average;
         res.maximum = responseBody.maximum;

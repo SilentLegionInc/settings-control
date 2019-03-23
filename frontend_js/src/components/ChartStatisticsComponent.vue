@@ -6,28 +6,27 @@
                     <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-xl-8 filter-flexbox-container">
                         <span class="filter-flexbox-item ml-1 mr-1">
                             <span>Нач. время:</span>
-                            <datetime v-model="filterStartTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
+                            <datetime v-model="filterStartTime" type="datetime" zone="UTC" value-zone="UTC" input-class="form-control"></datetime>
                         </span>
 
                         <span class="filter-flexbox-item ml-1 mr-1">
                             <span>Кон. время:</span>
-                            <datetime v-model="filterEndTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
+                            <datetime v-model="filterEndTime" type="datetime" zone="UTC" value-zone="UTC" input-class="form-control"></datetime>
                         </span>
 
                         <span class="filter-flexbox-item ml-1 mr-1">
                             <div>&nbsp;</div>
-                            <button type="button" class="btn btn-primary mr-1" @click="loadData(1)">Применить</button>
+                            <button type="button" class="btn btn-primary mr-1" @click="loadFilterData()">Применить</button>
                             <button type="button" class="btn btn-secondary ml-1" @click="clearFilters()">Очистить</button>
                         </span>
                     </div>
                 </div>
 
                 <div class="row pt-2">
-                    <div class="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-6">
-                        <span>
-                            <button type="button" class="btn btn-primary mr-1">left</button>
-                            <button type="button" class="btn btn-primary ml-1">right</button>
-                        </span>
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                        <button type="button" class="btn btn-primary mr-1" @click="loadLeftPageData()" :disabled="!leftPageActive">&#10094;</button>
+                        <button type="button" class="btn btn-primary ml-1 mr-1" @click="loadRightPageData()" :disabled="!rightPageActive">&#10095;</button>
+                        <button type="button" class="btn btn-secondary ml-1" @click="showModal()">Изменить интервал</button>
                     </div>
                 </div>
             </div>
@@ -55,7 +54,7 @@
 
                             <tbody class="custom-table-body">
                             <tr v-for="(dataElem, index) in data" :id="`${fieldName}_elem${dataElem.id}`" :key="index">
-                                <td>{{ (_currentPage - 1) * elementsPerPage + index + 1 }}</td>
+                                <td>{{ index + 1 }}</td>
                                 <td>{{ dataElem.time | moment("DD.MM.YYYY HH:mm:ss.SSS") }}</td>
                                 <td>{{ dataElem.value | toFixedPrecision }}</td>
                                 <td>{{ dataElem.latitude | toFixedPrecision }}</td>
@@ -67,6 +66,30 @@
                 </div>
             </div>
         </div>
+
+        <b-modal :ref="`${fieldName}_modal`"
+                 :id="`${fieldName}_modal`"
+                 size="md"
+                 title="Изменение интервала"
+                 centered
+                 @ok="onModalOk()"
+        >
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <b>Внимание!</b> Большой интервал может замедлить работу приложения. Рекомендуемый размер - 3 минуты.
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-8 col-sm-7 col-md-7 col-lg-6 col-xl-5">
+                        <b>Интервал в минутах:</b>
+                    </div>
+                    <div class="col-4 col-sm-5 col-md-5 col-lg-6 col-xl-7" align="left">
+                        <input v-model="tempIntervalSize" type="number" class="form-control">
+                    </div>
+                </div>
+            </div>
+        </b-modal>
     </div>
 </template>
 
@@ -79,45 +102,39 @@ export default {
     components: {
         LineChart
     },
-    props: ['robotName', 'fieldName', 'dbName'],
+    props: {
+        robotName: {
+            type: String,
+            required: true
+        },
+        dbName: {
+            type: String,
+            required: true
+        },
+        fieldName: {
+            type: String,
+            required: true
+        }
+    },
     data: function() {
         return {
             chartData: null,
             chartOptions: getChartOptions(this.$moment, this.scrollToTableRow),
             tableData: [],
-            elementsPerPage: 20,
-            _currentPage: 1,
-            dbElementsCount: 0,
+            minTime: null,
+            maxTime: null,
             filterStartTime: null,
             filterEndTime: null,
+            intervalStartTime: null,
+            intervalEndTime: null,
+            tempIntervalSize: '3',
+            intervalSize: 3,
             minimumValue: null,
             averageValue: null,
             maximumValue: null
         }
     },
     methods: {
-        mockedLoadData() {
-            const data = [];
-            for (let i = 10; i < 60; i++) {
-                data.push({ x: new Date(`2008-09-10T15:53:${i}`), y: Math.floor(Math.random() * 500) })
-            }
-
-            this.chartData = {
-                datasets: [
-                    {
-                        label: 'Data One',
-                        backgroundColor: '#0a00a9',
-                        borderColor: '#0a00a9',
-                        data: data,
-                        fill: false,
-                        lineTension: 0,
-                        borderCapStyle: 'round',
-                        borderJoinStyle: 'round'
-                    }
-                ]
-            }
-        },
-
         scrollToTableRow(datasetIndex, index) {
             const neededId = this.chartData.datasets[datasetIndex].data[index].id;
             if (neededId !== null && neededId !== undefined) {
@@ -138,53 +155,113 @@ export default {
                 setTimeout(() => { htmlElement.classList.remove('highlighted') }, 2000);
             }
         },
-
         clearFilters() {
             this.filterStartTime = null;
             this.filterEndTime = null;
         },
-
-        changeElementsPerPage(event) {
-            this.elementsPerPage = event.target.valueAsNumber;
-            this.loadData(this.currentPage);
+        showModal() {
+            this.$refs[`${this.fieldName}_modal`].show();
         },
-
-        async loadData(page) {
-            const loader = this.$loading.show();
-
-            if (this.robotName == null || this.fieldName == null) {
-                const wrongField = this.robotName == null ? 'robot name' : 'field name';
-                Logger.warn(`Chart statistics: can't load data, ${wrongField} is empty`);
+        onModalOk() {
+            this.intervalSize = Number.parseInt(this.tempIntervalSize);
+            this.loadFilterData();
+        },
+        async loadInitData() {
+            if (!this.robotName || !this.dbName || !this.fieldName) {
+                Logger.error(`Chart statistics: can't load data, one of required params is empty`);
                 return;
             }
 
-            const offset = (page - 1) * this.elementsPerPage;
-            const limit = this.elementsPerPage;
-            const filterStartTime = this.filterStartTime ? new Date(this.filterStartTime) : null;
-            const filterEndTime = this.filterEndTime ? new Date(this.filterEndTime) : null;
+            const loader = this.$loading.show();
 
-            const response = await this.$store.state.requestService.getStatisticsChartData(
-                this.robotName, this.dbName, this.fieldName, limit, offset, filterStartTime, filterEndTime
+            const response = await this.$store.state.requestService.getStatisticsInitChartData(
+                this.robotName, this.dbName, this.fieldName, this.intervalSize
             );
-            this.dbElementsCount = response.count;
+
+            console.log(response.minTime);
+            console.log(response.maxTime);
+            this.minTime = response.minTime;
+            this.maxTime = response.maxTime;
+            this.filterStartTime = response.minTime.toISOString();
+            this.filterEndTime = response.maxTime.toISOString();
+            this.intervalStartTime = response.intervalStartTime;
+            this.intervalEndTime = response.intervalEndTime;
             this.minimumValue = response.minimum;
             this.averageValue = response.average;
             this.maximumValue = response.maximum;
-
             this.data = response.result;
+
+            loader.hide();
+        },
+        async loadFilterData() {
+            if (!this.robotName || !this.dbName || !this.fieldName) {
+                Logger.error(`Chart statistics: can't load data, one of required params is empty`);
+                return;
+            }
+
+            const loader = this.$loading.show();
+
+            const filterStartTime = new Date(this.filterStartTime);
+            const filterEndTime = new Date(this.filterEndTime);
+
+            const response = await this.$store.state.requestService.getStatisticsFilterChartData(
+                this.robotName, this.dbName, this.fieldName, filterStartTime, filterEndTime, this.intervalSize
+            );
+
+            this.minTime = filterStartTime;
+            this.maxTime = filterEndTime;
+            this.intervalStartTime = response.intervalStartTime;
+            this.intervalEndTime = response.intervalEndTime;
+            this.minimumValue = response.minimum;
+            this.averageValue = response.average;
+            this.maximumValue = response.maximum;
+            this.data = response.result;
+
+            loader.hide();
+        },
+        async loadLeftPageData() {
+            if (!this.robotName || !this.dbName || !this.fieldName) {
+                Logger.error(`Chart statistics: can't load data, one of required params is empty`);
+                return;
+            }
+
+            const loader = this.$loading.show();
+
+            this.intervalEndTime = this.intervalStartTime;
+            this.intervalStartTime = this.$moment(this.intervalStartTime).subtract(this.intervalSize, 'm').toDate();
+            this.intervalStartTime = this.intervalStartTime > this.minTime ? this.intervalStartTime : this.minTime;
+
+            this.data = await this.$store.state.requestService.getStatisticsPageChartData(
+                this.robotName, this.dbName, this.fieldName, this.intervalStartTime, this.intervalEndTime
+            );
+
+            loader.hide();
+        },
+        async loadRightPageData() {
+            if (!this.robotName || !this.dbName || !this.fieldName) {
+                Logger.error(`Chart statistics: can't load data, one of required params is empty`);
+                return;
+            }
+
+            const loader = this.$loading.show();
+
+            this.intervalStartTime = this.intervalEndTime;
+            this.intervalEndTime = this.$moment(this.intervalEndTime).add(this.intervalSize, 'm').toDate();
+            this.intervalEndTime = this.intervalEndTime < this.maxTime ? this.intervalEndTime : this.maxTime;
+
+            this.data = await this.$store.state.requestService.getStatisticsPageChartData(
+                this.robotName, this.dbName, this.fieldName, this.intervalStartTime, this.intervalEndTime
+            );
 
             loader.hide();
         }
     },
     computed: {
-        currentPage: {
-            get() {
-                return this._currentPage;
-            },
-            set(newPage) {
-                this._currentPage = newPage;
-                this.loadData(this._currentPage);
-            }
+        leftPageActive: function() {
+            return this.intervalStartTime > this.minTime;
+        },
+        rightPageActive: function() {
+            return this.intervalEndTime < this.maxTime;
         },
         data: {
             get() {
@@ -248,7 +325,7 @@ export default {
         }
     },
     mounted() {
-        this.currentPage = 1;
+        this.loadInitData();
     }
 }
 

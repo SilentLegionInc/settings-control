@@ -28,10 +28,23 @@ class Mapper:
         }, result))
 
     @staticmethod
+    def map_get_monitoring_init_chart_data_response(body):
+        return {
+            'result': Mapper().map_monitoring_chart_data_result(body['result']),
+            'min_time': body['min_time'].isoformat(),
+            'max_time': body['max_time'].isoformat(),
+            'interval_start_time': body['interval_start_time'].isoformat(),
+            'interval_end_time': body['interval_end_time'].isoformat(),
+            'minimum': body['minimum'],
+            'average': body['average'],
+            'maximum': body['maximum']
+        }
+
+    @staticmethod
     def map_get_monitoring_filter_chart_data_request(body):
         return {
-            'min_time': body['min_time'],
-            'max_time': body['max_time'],
+            'min_time': parser.parse(body['min_time']),
+            'max_time': parser.parse(body['max_time']),
             'interval_size': body['interval_size']
         }
 
@@ -39,21 +52,8 @@ class Mapper:
     def map_get_monitoring_filter_chart_data_response(body):
         return {
             'result': Mapper().map_monitoring_chart_data_result(body['result']),
-            'interval_start_time': body['interval_start_time'],
-            'interval_end_time': body['interval_end_time'],
-            'minimum': body['minimum'],
-            'average': body['average'],
-            'maximum': body['maximum']
-        }
-
-    @staticmethod
-    def map_get_monitoring_init_chart_data_response(body):
-        return {
-            'result': Mapper().map_monitoring_chart_data_result(body['result']),
-            'min_time': body['min_time'],
-            'max_time': body['max_time'],
-            'interval_start_time': body['interval_start_time'],
-            'interval_end_time': body['interval_end_time'],
+            'interval_start_time': body['interval_start_time'].isoformat(),
+            'interval_end_time': body['interval_end_time'].isoformat(),
             'minimum': body['minimum'],
             'average': body['average'],
             'maximum': body['maximum']
@@ -62,8 +62,8 @@ class Mapper:
     @staticmethod
     def map_get_monitoring_page_chart_data_request(body):
         return {
-            'interval_start_time': body['interval_start_time'],
-            'interval_end_time': body['interval_end_time']
+            'interval_start_time': parser.parse(body['interval_start_time']),
+            'interval_end_time': parser.parse(body['interval_end_time'])
         }
 
     @staticmethod
