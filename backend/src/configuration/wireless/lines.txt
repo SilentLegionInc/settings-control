@@ -1,0 +1,24 @@
+nmcli -f all con show:
+NAME             UUID                                  TYPE      TIMESTAMP   TIMESTAMP-REAL                   AUTOCONNECT  AUTOCONNECT-PRIORITY  READONLY  DBUS-PATH                                   ACTIVE  DEVICE           STATE      ACTIVE-PATH                                         SLAVE
+Auto Silence_2G  e6d4847b-ce3f-466b-9cd5-bd3f31d94891  wifi      1553369681  Sat 23 Mar 2019 07:34:41 PM GMT  yes          0                     no        /org/freedesktop/NetworkManager/Settings/2  yes     wlxc46e1f1c9df9  activated  /org/freedesktop/NetworkManager/ActiveConnection/2  --
+wired_clone      02c01213-90ef-422a-b4be-11e2f551c7d7  ethernet  1553369681  Sat 23 Mar 2019 07:34:41 PM GMT  yes          4294966297            no        /org/freedesktop/NetworkManager/Settings/1  yes     enp4s0           activated  /org/freedesktop/NetworkManager/ActiveConnection/1  --
+Silencium        3978092f-a915-4374-9bc4-e3bd7aedbd7f  wifi      1551622883  Sun 03 Mar 2019 02:21:23 PM GMT  yes          0                     no        /org/freedesktop/NetworkManager/Settings/3  no      --               --         --                                                  --
+wireless_clone   97f49ed5-e160-424e-9479-9ecacfd5e16d  wifi      1551624112  Sun 03 Mar 2019 02:41:52 PM GMT  yes          0                     no        /org/freedesktop/NetworkManager/Settings/4  no      --               --         --                                                  --
+(we use: NAME,UUID,TYPE,DEVICE,ACTIVE,AUTOCONNECT)
+
+nmcli -f all dev wifi list:
+NAME   SSID               SSID-HEX                            BSSID              MODE   CHAN  FREQ      RATE        SIGNAL  BARS  SECURITY   WPA-FLAGS                           RSN-FLAGS                           DEVICE           ACTIVE  IN-USE  DBUS-PATH
+AP[1]  Silence_2G         53696C656E63655F3247                D4:60:E3:DA:43:84  Infra  2     2417 MHz  270 Mbit/s  79      ▂▄▆_  WPA1 WPA2  pair_tkip group_tkip psk            pair_ccmp group_tkip psk            wlxc46e1f1c9df9  yes     *       /org/freedesktop/NetworkManager/AccessPoint/1
+AP[2]  Keenetic-3871      4B65656E657469632D33383731          E4:18:6B:7B:8C:40  Infra  5     2432 MHz  270 Mbit/s  72      ▂▄▆_  WPA2       (none)                              pair_ccmp group_ccmp psk            wlxc46e1f1c9df9  no              /org/freedesktop/NetworkManager/AccessPoint/17
+AP[3]  WiFi-DOM.ru-4566   576946692D444F4D2E72752D34353636    20:89:87:94:42:97  Infra  8     2447 MHz  270 Mbit/s  52      ▂▄__  WPA1 WPA2  pair_tkip pair_ccmp group_tkip psk  pair_tkip pair_ccmp group_tkip psk  wlxc46e1f1c9df9  no              /org/freedesktop/NetworkManager/AccessPoint/18
+AP[4]  Beeline_2G_F27544  4265656C696E655F32475F463237353434  D4:60:E3:DA:41:E4  Infra  11    2462 MHz  270 Mbit/s  52      ▂▄__  WPA1 WPA2  pair_tkip group_tkip psk            pair_ccmp group_tkip psk            wlxc46e1f1c9df9  no              /org/freedesktop/NetworkManager/AccessPoint/19
+AP[5]  akm                616B6D                              28:6C:07:0D:35:DD  Infra  1     2412 MHz  130 Mbit/s  49      ▂▄__  WPA1 WPA2  pair_tkip pair_ccmp group_tkip psk  pair_tkip pair_ccmp group_tkip psk  wlxc46e1f1c9df9  no              /org/freedesktop/NetworkManager/AccessPoint/20
+AP[6]  Anna               416E6E61                            80:26:89:5B:F8:35  Infra  13    2472 MHz  270 Mbit/s  39      ▂▄__  WPA2       (none)                              pair_ccmp group_ccmp psk            wlxc46e1f1c9df9  no              /org/freedesktop/NetworkManager/AccessPoint/21
+AP[7]  673                363733                              10:7B:EF:5C:C6:C0  Infra  2     2417 MHz  270 Mbit/s  29      ▂___  WPA1 WPA2  pair_tkip pair_ccmp group_tkip psk  pair_tkip pair_ccmp group_tkip psk  wlxc46e1f1c9df9  no              /org/freedesktop/NetworkManager/AccessPoint/23
+AP[8]  TP-LINK_wi-fi      54502D4C494E4B5F77692D6669          14:CC:20:5D:DE:4A  Infra  4     2427 MHz  270 Mbit/s  29      ▂___  WPA2       (none)                              pair_ccmp group_ccmp psk            wlxc46e1f1c9df9  no              /org/freedesktop/NetworkManager/AccessPoint/22
+AP[9]  ROSTELECOM_440D    524F5354454C45434F4D5F34343044      F0:82:61:6F:44:0E  Infra  11    2462 MHz  65 Mbit/s   25      ▂___  WPA2       (none)                              pair_ccmp group_ccmp psk            wlxc46e1f1c9df9  no              /org/freedesktop/NetworkManager/AccessPoint/24
+(we use: SSID, SSID-HEX(-?), MODE, CHAN, FREQ, RATE, SIGNAL, SECURITY, DEVICE, ACTIVE)
+
+nmcli dev wifi connect Silencium password KeepSilence:
+Device 'wlxc46e1f1c9df9' successfully activated with '1733a49e-0330-45fe-8951-a96fd8727c17'.
+Можно вытащить отсюда id он ссылается на nmcli con show

@@ -5,6 +5,8 @@ from packaging import version
 from support.singleton import Singleton
 from support.server_exception import ServerException
 from flask_api import status
+# set static ip:  nmcli con modify wireless_clone ipv4.addresses 192.168.1.100/24 ipv4.method manual
+# ipv4.gateway 192.168.1.1 ipv4.dns 8.8.4.4 && nmcli con down wireless_clone && nmcli con up wireless_clone
 
 
 # send a command to the shell and return the result
@@ -50,12 +52,7 @@ class NetworkService(metaclass=Singleton):
             else:
                 return 'nmcli'
 
-        # try nmcli (Ubuntu w/o network-manager)
-        response = cmd('which wpa_supplicant')
-        if len(response) > 0 and 'not found' not in response:
-            return 'wpa_supplicant'
-
-        raise Exception('Unable to find compatible wireless driver.')
+        raise Exception('Unable to find compatible nmcli driver.')
 
     def connection_up(self, uuid):
         pass
@@ -133,6 +130,135 @@ class NetworkDriver(metaclass=ABCMeta):
     # @abstractmethod
     # def detail_connection_info(self):
     #     pass
+
+
+class NewNmcli0990(NetworkDriver):
+    _interface = None
+
+    # init
+    def __init__(self, interface=None):
+        self.interface(interface)
+        # TODO persist
+        self.ssid_to_uuid = {}
+
+    # clean up connections where partial is part of the connection name
+    # this is needed to prevent the following error after extended use:
+    # 'maximum number of pending replies per connection has been reached'
+    @staticmethod
+    def _clean(partial):
+        # list matching connections
+        response = cmd('nmcli --fields UUID,NAME con show | grep {}'.format(partial))
+
+        # delete all of the matching connections
+        for line in response.splitlines():
+            if len(line) > 0:
+                uuid = line.split()[0]
+                cmd('nmcli con delete uuid {}'.format(uuid))
+
+    # ignore warnings in nmcli output
+    # sometimes there are warnings but we connected just fine
+    @staticmethod
+    def _error_in_response(response):
+        # no error if no response
+        if len(response) == 0:
+            return False
+
+        # loop through each line
+        for line in response.splitlines():
+            # all error lines start with 'Error'
+            if line.startswith('Error'):
+                return True
+
+        # if we didn't find an error then we are in the clear
+        return False
+
+    def _get_wifi_list(self):
+        response = cmd('nmcli -t -f SSID,MODE,CHAN,FREQ,RATE,SIGNAL,SECURITY,DEVICE,ACTIVE dev wifi list')
+        if self._error_in_response(response):
+            raise ServerException('Не удалось получить список беспроводных соеденений. Ответ команды: {}'
+                                  .format(response), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        connections = response.splitlines()
+        mapped = []
+        for connection in connections:
+            splitted_array = connection.split(':')
+            mapped.append({
+                'name': splitted_array[0],
+                'id': self.ssid_to_uuid.get(splitted_array[0]),
+                'type': 'wifi',
+                'mode': splitted_array[1],
+                'channel': splitted_array[2],
+                'frequency': splitted_array[3],
+                'speed_rate': splitted_array[4],
+                'signal_level': splitted_array[5],
+                'security_type': splitted_array[6],
+                'device': splitted_array[7],
+                'active': splitted_array[8] == 'yes',
+                # TODO may be add in map by ssid 'autoconnect': splitted_array[5] == 'yes'
+            })
+        return mapped
+
+    def _get_eth_list(self):
+        response = cmd('nmcli -t -f NAME,UUID,TYPE,DEVICE,ACTIVE,AUTOCONNECT con show | grep ethernet')
+        if self._error_in_response(response):
+            raise ServerException('Не удалось получить список проводных соеденений. Ответ команды: {}'.format(response))
+        connections = response.splitlines()
+        mapped = []
+        for connection in connections:
+            splitted_array = connection.split(':')
+            mapped.append({
+                'name': splitted_array[0],
+                'id': splitted_array[1],
+                'type': 'eth',
+                'device': splitted_array[3],
+                'active': splitted_array[4] == 'yes',
+                'autoconnect': splitted_array[5] == 'yes'
+            })
+        return mapped
+
+    # returned the ssid of the current network
+    # TODO refactor because i want to persist used connections
+    def current(self):
+        # list active connections for all interfaces
+        response = cmd('nmcli -t -f NAME,UUID,TYPE,DEVICE,ACTIVE,AUTOCONNECT con show --active')
+
+        # the current network is in the first column
+        for line in response.splitlines():
+            if len(line) > 0:
+                return line.split()[0]
+
+        # return none if there was not an active connection
+        return None
+
+    def create_wifi_connection(self, ssid, password):
+        # clean up previous connection TODO check for need of it
+        # self._clean(ssid)
+        # turn off current connection
+        cmd('nmcli con down {}'.format(self.current()))
+        # trying to connect
+        response = cmd('nmcli dev wifi connect {} password {} iface {}'.format(
+            ssid, password, self._interface))
+        # parse response
+        # TODO if error need to up old connection or autoconnect?
+        if self._error_in_response(response):
+            raise ServerException(response, status.HTTP_400_BAD_REQUEST)
+        else:
+            # trying to fetch uuid from response from nmcli
+            uuid = response.split(' ')[-1].replace("'", '').replace('.', '')
+            self.ssid_to_uuid[ssid] = uuid
+            return True
+
+    def list_of_connections(self, rescan=True):
+        if rescan:
+            res = ''
+            while 'immediately' not in res:
+                res = cmd('nmcli dev wifi rescan')
+                sleep(0.5)
+            sleep(1)
+
+        return {
+            'wired': self._get_eth_list(),
+            'wireless': self._get_wifi_list()
+        }
 
 
 # Linux nmcli Driver >= 0.9.9.0 (Actual driver)
