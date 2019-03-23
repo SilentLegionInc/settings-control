@@ -178,8 +178,6 @@ export default {
                 this.robotName, this.dbName, this.fieldName, this.intervalSize
             );
 
-            console.log(response.minTime);
-            console.log(response.maxTime);
             this.minTime = response.minTime;
             this.maxTime = response.maxTime;
             this.filterStartTime = response.minTime.toISOString();
