@@ -139,7 +139,7 @@ class NewNmcli0990(NetworkDriver):
     def __init__(self, interface=None):
         self.interface(interface)
         # TODO persist
-        self.ssid_to_connection_map = {}
+        self.ssid_to_uuid = {}
 
     # clean up connections where partial is part of the connection name
     # this is needed to prevent the following error after extended use:
@@ -172,18 +172,18 @@ class NewNmcli0990(NetworkDriver):
         # if we didn't find an error then we are in the clear
         return False
 
-    def get_wifi_list(self):
-        # TODO add mapping to uuid if possible and set active now
-        ans = cmd('nmcli -t -f SSID,MODE,CHAN,FREQ,RATE,SIGNAL,SECURITY,DEVICE,ACTIVE dev wifi list')
-        if self._error_in_response(ans):
-            raise ServerException('Не удалось получить список беспроводных соеденений. Ответ команды: {}'.format(ans))
-        connections = ans.splitlines()
+    def _get_wifi_list(self):
+        response = cmd('nmcli -t -f SSID,MODE,CHAN,FREQ,RATE,SIGNAL,SECURITY,DEVICE,ACTIVE dev wifi list')
+        if self._error_in_response(response):
+            raise ServerException('Не удалось получить список беспроводных соеденений. Ответ команды: {}'
+                                  .format(response), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        connections = response.splitlines()
         mapped = []
         for connection in connections:
             splitted_array = connection.split(':')
             mapped.append({
                 'name': splitted_array[0],
-                'id': self.ssid_to_connection_map.get(splitted_array[0]),
+                'id': self.ssid_to_uuid.get(splitted_array[0]),
                 'type': 'wifi',
                 'mode': splitted_array[1],
                 'channel': splitted_array[2],
@@ -197,11 +197,11 @@ class NewNmcli0990(NetworkDriver):
             })
         return mapped
 
-    def get_eth_list(self):
-        ans = cmd('nmcli -t -f NAME,UUID,TYPE,DEVICE,ACTIVE,AUTOCONNECT con show | grep ethernet')
-        if self._error_in_response(ans):
-            raise ServerException('Не удалось получить список проводных соеденений. Ответ команды: {}'.format(ans))
-        connections = ans.splitlines()
+    def _get_eth_list(self):
+        response = cmd('nmcli -t -f NAME,UUID,TYPE,DEVICE,ACTIVE,AUTOCONNECT con show | grep ethernet')
+        if self._error_in_response(response):
+            raise ServerException('Не удалось получить список проводных соеденений. Ответ команды: {}'.format(response))
+        connections = response.splitlines()
         mapped = []
         for connection in connections:
             splitted_array = connection.split(':')
@@ -219,7 +219,7 @@ class NewNmcli0990(NetworkDriver):
     # TODO refactor because i want to persist used connections
     def current(self):
         # list active connections for all interfaces
-        response = cmd('nmcli con | grep {}'.format(self.interface()))
+        response = cmd('nmcli -t -f NAME,UUID,TYPE,DEVICE,ACTIVE,AUTOCONNECT con show --active')
 
         # the current network is in the first column
         for line in response.splitlines():
@@ -235,22 +235,30 @@ class NewNmcli0990(NetworkDriver):
         # turn off current connection
         cmd('nmcli con down {}'.format(self.current()))
         # trying to connect
-        # TODO check response??
-        # TODO add connection_params like static ip and etc
         response = cmd('nmcli dev wifi connect {} password {} iface {}'.format(
             ssid, password, self._interface))
         # parse response
-        # TODO if error need to up old connection
-        # TODO add info about created uuid
+        # TODO if error need to up old connection or autoconnect?
         if self._error_in_response(response):
             raise ServerException(response, status.HTTP_400_BAD_REQUEST)
         else:
-            res = cmd('nmcli con show | grep {}'.format(ssid))
-            if res:
-                # self.ssid_to_connection_map[ssid] = res['uuid']
-                return True
-            else:
-                return False
+            # trying to fetch uuid from response from nmcli
+            uuid = response.split(' ')[-1].replace("'", '').replace('.', '')
+            self.ssid_to_uuid[ssid] = uuid
+            return True
+
+    def list_of_connections(self, rescan=True):
+        if rescan:
+            res = ''
+            while 'immediately' not in res:
+                res = cmd('nmcli dev wifi rescan')
+                sleep(0.5)
+            sleep(1)
+
+        return {
+            'wired': self._get_eth_list(),
+            'wireless': self._get_wifi_list()
+        }
 
 
 # Linux nmcli Driver >= 0.9.9.0 (Actual driver)
