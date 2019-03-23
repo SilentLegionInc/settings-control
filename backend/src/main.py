@@ -282,12 +282,26 @@ def api_get_monitoring_databases_info(robot_name):
     return jsonify(Mapper.map_get_monitoring_databases_info_response(result)), status.HTTP_200_OK
 
 
-@app.route('/api/monitoring/chart_data/<string:robot_name>/<string:db_name>', methods=['POST'])
+@app.route('/api/monitoring/chart_data/<string:robot_name>/<string:db_name>/<string:field_name>', methods=['GET', 'POST'])
 @handle_errors
-def api_get_monitoring_chart_data(robot_name, db_name):
-    body = request.get_json()
-    result = MonitoringDataService().get_chart_data(robot_name, db_name, **Mapper.map_get_monitoring_chart_data_request(body))
-    return jsonify(Mapper.map_get_monitoring_chart_data_response(result)), status.HTTP_200_OK
+def api_get_monitoring_chart_data(robot_name, db_name, field_name):
+    if request.method == 'POST':
+        if request.args.get('page') == 'true':
+            body = request.get_json()
+            result = MonitoringDataService().get_page_chart_data(
+                robot_name, db_name, field_name, **Mapper.map_get_monitoring_page_chart_data_request(body)
+            )
+            return jsonify(Mapper.map_monitoring_chart_data_result(result)), status.HTTP_200_OK
+        else:
+            body = request.get_json()
+            result = MonitoringDataService().get_filter_chart_data(
+                robot_name, db_name, field_name, **Mapper.map_get_monitoring_filter_chart_data_request(body)
+            )
+            return jsonify(Mapper.map_get_monitoring_filter_chart_data_response(result)), status.HTTP_200_OK
+    if request.method == 'GET':
+        interval_size = int(request.args.get('interval_size'))
+        result = MonitoringDataService().get_init_chart_data(robot_name, db_name, field_name, interval_size)
+        return jsonify(Mapper.map_get_monitoring_init_chart_data_response(result)), status.HTTP_200_OK
 
 
 @app.route('/api/monitoring/table_data/<string:robot_name>/<string:db_name>', methods=['POST'])

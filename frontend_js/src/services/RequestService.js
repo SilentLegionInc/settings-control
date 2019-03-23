@@ -256,38 +256,59 @@ export class RequestService {
         return MapperService.mapDatabasesInfoResponse(result.data);
     }
 
-    async getStatisticsChartData(robotName, dbName, fieldName, limit = 1, offset = 0, startTime = null, endTime = null) {
-        const path = this._constructPath(`api/monitoring/chart_data/${robotName}/${dbName}`);
+    async getStatisticsInitChartData(robotName, dbName, fieldName, intervalSize) {
+        const path = this._constructPath(`api/monitoring/chart_data/${robotName}/${dbName}/${fieldName}?interval_size=${intervalSize}`);
+
+        Logger.debug('GET request: get statistics init chart data');
+        Logger.debug(`Path: ${path}`);
+
+        const result = await axios.get(path);
+        return MapperService.mapInitChartDataResponse(result.data);
+    }
+
+    async getStatisticsFilterChartData(robotName, dbName, fieldName, minTime, maxTime, intervalSize) {
+        const path = this._constructPath(`api/monitoring/chart_data/${robotName}/${dbName}/${fieldName}`);
+
+        if (typeof minTime !== 'string') {
+            minTime = minTime.toISOString();
+        }
+        if (typeof maxTime !== 'string') {
+            maxTime = maxTime.toISOString();
+        }
 
         const body = {};
-        body['filter'] = {}
-        body['field_name'] = fieldName;
+        body['min_time'] = minTime;
+        body['max_time'] = maxTime;
+        body['interval_size'] = intervalSize;
 
-        if (startTime != null) {
-            body['filter']['start_time'] = startTime;
-            if (typeof body['filter']['start_time'] !== 'string') {
-                body['filter']['start_time'] = body['filter']['start_time'].toISOString();
-            }
-        }
-        if (endTime != null) {
-            body['filter']['end_time'] = endTime;
-            if (typeof body['filter']['end_time'] !== 'string') {
-                body['filter']['end_time'] = body['filter']['end_time'].toISOString();
-            }
-        }
-        if (limit != null) {
-            body['limit'] = limit;
-        }
-        if (offset != null) {
-            body['offset'] = offset;
-        }
-
-        Logger.debug('POST request: get statistics data');
+        Logger.debug('POST request: get statistics filter chart data');
         Logger.debug(`Path: ${path}`);
         Logger.debug(`Body: ${JSON.stringify(body)}`);
 
         const result = await axios.post(path, body);
-        return MapperService.mapChartDataResponse(result.data);
+        return MapperService.mapFilterChartDataResponse(result.data);
+    }
+
+    async getStatisticsPageChartData(robotName, dbName, fieldName, intervalStartTime, intervalEndTime) {
+        const path = this._constructPath(`api/monitoring/chart_data/${robotName}/${dbName}/${fieldName}?page=true`);
+
+        if (typeof intervalStartTime !== 'string') {
+            intervalStartTime = intervalStartTime.toISOString();
+        }
+        if (typeof intervalEndTime !== 'string') {
+            intervalEndTime = intervalEndTime.toISOString();
+        }
+
+        const body = {};
+        body['interval_start_time'] = intervalStartTime;
+        body['interval_end_time'] = intervalEndTime;
+
+        Logger.debug('POST request: get statistics page chart data');
+        Logger.debug(`Path: ${path}`);
+        Logger.debug(`Body: ${JSON.stringify(body)}`);
+
+        const result = await axios.post(path, body);
+        return MapperService.mapPageChartDataResponse(result.data);
     }
 
     async getStatisticsTableData(robotName, dbName, limit = 1, offset = 0, extended = false, filter = {}, sort = {}) {
@@ -346,9 +367,7 @@ export class RequestService {
         Logger.debug('GET request: get statistics maps data');
         Logger.debug(`Path: ${path}`);
 
-        console.log('b');
         const result = await axios.get(path);
-        console.log('a');
         return MapperService.mapMapsDataResponse(result.data);
     }
 

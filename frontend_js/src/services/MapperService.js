@@ -2,7 +2,6 @@ import { LogsResponse } from '../models/LogsResponse';
 import { ServerSettingsModel } from '../models/ServerSettingsModel';
 import { NetworkModel } from '../models/NetworkModel';
 import { LogModel } from '../models/LogModel';
-import { ChartDataResponse } from '../models/ChartDataResponse';
 import { ChartDataModel } from '../models/ChartDataModel';
 import { MapsDataModel } from '../models/MapsDataModel';
 import { TableDataResponse } from '../models/TableDataResponse'
@@ -13,6 +12,8 @@ import { ModuleModel } from '../models/ModuleModel'
 import { CapacityInfoModel } from '../models/CapacityInfoModel';
 import { MemoryInfoModel } from '../models/MemoryInfoModel';
 import { SystemInfoModel } from '../models/SystemInfoModel';
+import { InitChartDataResponse } from '../models/InitChartDataResponse';
+import { FilterChartDataResponse } from '../models/FilterChartDataResponse';
 
 export class MapperService {
     static mapNetworksResponse(responseBody) {
@@ -55,14 +56,32 @@ export class MapperService {
             responseBody['possible_machines_types']);
     }
 
-    static mapChartDataResponse(responseBody) {
-        const res = new ChartDataResponse();
-        res.count = responseBody.count;
+    static mapInitChartDataResponse(responseBody) {
+        const res = new InitChartDataResponse();
+        res.result = responseBody.result.map(elem => new ChartDataModel(elem.id, elem.latitude, elem.longitude, new Date(elem.time), elem.value));
+        res.minTime = responseBody['min_time'];
+        res.maxTime = responseBody['max_time'];
+        res.intervalStartTime = responseBody['interval_start_time'];
+        res.intervalEndTime = responseBody['interval_end_time'];
         res.minimum = responseBody.minimum;
         res.average = responseBody.average;
         res.maximum = responseBody.maximum;
-        res.result = responseBody.result.map(elem => new ChartDataModel(elem.id, elem.latitude, elem.longitude, new Date(elem.time), elem.value));
         return res;
+    }
+
+    static mapFilterChartDataResponse(responseBody) {
+        const res = new FilterChartDataResponse();
+        res.result = responseBody.result.map(elem => new ChartDataModel(elem.id, elem.latitude, elem.longitude, new Date(elem.time), elem.value));
+        res.intervalStartTime = responseBody['interval_start_time'];
+        res.intervalEndTime = responseBody['interval_end_time'];
+        res.minimum = responseBody.minimum;
+        res.average = responseBody.average;
+        res.maximum = responseBody.maximum;
+        return res;
+    }
+
+    static mapPageChartDataResponse(responseBody) {
+        return responseBody.map(elem => new ChartDataModel(elem.id, elem.latitude, elem.longitude, new Date(elem.time), elem.value));
     }
 
     static mapDataStructureResponse(responseBody) {

@@ -57,7 +57,10 @@
         "warn",
         4,
         {
-          "SwitchCase": 1
+          "SwitchCase": 1,
+          "FunctionDeclaration": {
+            "parameters": "first"
+          }
         }
       ],
       "space-before-function-paren": "off",

@@ -70,19 +70,7 @@ class MonitoringDataService(metaclass=Singleton):
             raise ServerException('Can\'t get information from config', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
         return result
 
-    # Запеканий нет, потому что их нет в sqlite3, а то, что есть, - фигня
-    def get_chart_data(self, robot_name, db_name, field_name, filter_params=None, additional_params=None):
-        if filter_params:
-            filter_params = copy.deepcopy(filter_params)
-            pass
-        else:
-            filter_params = {}
-
-        if additional_params:
-            additional_params = copy.deepcopy(additional_params)
-        else:
-            additional_params = {}
-
+    def get_init_chart_data(self, robot_name, db_name, field_name, interval_size):
         try:
             connection = sqlite3.connect(self.connections[robot_name]['sensors'][db_name]['file_path'])
             cursor = connection.cursor()
@@ -102,47 +90,36 @@ class MonitoringDataService(metaclass=Singleton):
             latitude_column_name = sensors_config['latitude_field']
             longitude_column_name = sensors_config['longitude_field']
 
-            main_query = 'SELECT {},{},{},{},{} FROM {}'.format(
+            query = 'SELECT MIN({}), MAX({}), MIN({}), AVG({}), MAX({}) FROM {}'.format(
+                time_column_name, time_column_name, needed_column_name,
+                needed_column_name, needed_column_name, collection_name
+            )
+
+            cursor.execute(query)
+            support_result = cursor.fetchone()
+
+            min_time = support_result[0]
+            max_time = support_result[1]
+            minimum_value = support_result[2]
+            average_value = support_result[3]
+            maximum_value = support_result[4]
+
+            min_time_object = parser.parse(min_time) + datetime.timedelta(0, interval_size * 60)
+            interval_start_time = min_time
+            interval_end_time = min_time_object.strftime("%Y-%m-%d %H:%M:%S")
+
+            query = 'SELECT {},{},{},{},{} FROM {} WHERE datetime({}) >= datetime("{}") AND datetime({}) <= datetime("{}")'.format(
                 id_column_name,
                 time_column_name,
                 needed_column_name,
                 latitude_column_name,
                 longitude_column_name,
-                collection_name
+                collection_name,
+                time_column_name,
+                interval_start_time,
+                time_column_name,
+                interval_end_time
             )
-
-            # handling filter conditions
-            filter_conditions = []
-            if filter_params.get('start_time') is not None:
-                if isinstance(filter_params['start_time'], datetime.datetime):
-                    filter_params['start_time'] = filter_params['start_time'].strftime("%Y-%m-%d %H:%M:%S")
-                filter_conditions.append('datetime({}) >= datetime("{}")'.format(time_column_name, filter_params['start_time']))
-            if filter_params.get('end_time') is not None:
-                if isinstance(filter_params['end_time'], datetime.datetime):
-                    filter_params['end_time'] = filter_params['end_time'].strftime("%Y-%m-%d %H:%M:%S")
-                filter_conditions.append('datetime({}) <= datetime("{}")'.format(time_column_name, filter_params['end_time']))
-
-            filter_query = ''
-            if filter_conditions:
-                filter_query = 'WHERE ' + ' AND '.join(filter_conditions)
-
-            # handling sort conditions
-            sort_query = 'ORDER BY datetime({}) ASC'.format(time_column_name)
-
-            # handling additional conditions
-            additional_conditions = []
-            if additional_params.get('limit') is not None:
-                additional_conditions.append('limit {}'.format(additional_params['limit']))
-            if additional_params.get('offset') is not None:
-                additional_conditions.append('offset {}'.format(additional_params['offset']))
-
-            additional_query = ''
-            if additional_conditions:
-                additional_query = ' '.join(additional_conditions)
-
-            query = ' '.join([main_query, filter_query, sort_query, additional_query])
-
-            Logger().debug_message(query, "get_charts_data :: Sensors database query: ")
 
             cursor.execute(query)
             result = []
@@ -155,25 +132,160 @@ class MonitoringDataService(metaclass=Singleton):
                     'longitude': row[4]
                 })
 
-            main_query = 'SELECT COUNT(*), MIN({}), AVG({}), MAX({}) FROM {}'.format(
-                needed_column_name, needed_column_name, needed_column_name, collection_name
-            )
-            query = ' '.join([main_query, filter_query])
+            cursor.close()
+            connection.close()
 
-            Logger().debug_message(query, "get_charts_data :: Sensors database query: ")
+            return {
+                'result': result,
+                'min_time': min_time,
+                'max_time': max_time,
+                'interval_start_time': interval_start_time,
+                'interval_end_time': interval_end_time,
+                'minimum': minimum_value,
+                'average': average_value,
+                'maximum': maximum_value
+            }
+        except Exception as ex:
+            cursor.close()
+            connection.close()
+            raise ServerException('Error while preparing and executing query', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
+
+    def get_filter_chart_data(self, robot_name, db_name, field_name, min_time, max_time, interval_size):
+        try:
+            connection = sqlite3.connect(self.connections[robot_name]['sensors'][db_name]['file_path'])
+            cursor = connection.cursor()
+        except Exception as ex:
+            raise ServerException(
+                'Can\'t connect to database with name {}'.format(self.connections[robot_name]['sensors'][db_name]['file_path']),
+                status.HTTP_500_INTERNAL_SERVER_ERROR, ex
+            )
+
+        collection_name = self.connections[robot_name]['sensors'][db_name]['collection_name']
+
+        try:
+            sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
+            needed_column_name = sensors_config['fields_to_retrieve'][field_name]["column_name"]
+            id_column_name = sensors_config['id_column']
+            time_column_name = sensors_config['time_column']
+            latitude_column_name = sensors_config['latitude_field']
+            longitude_column_name = sensors_config['longitude_field']
+
+            if isinstance(min_time, datetime.datetime):
+                min_time = min_time.strftime("%Y-%m-%d %H:%M:%S")
+
+            if isinstance(max_time, datetime.datetime):
+                max_time = max_time.strftime("%Y-%m-%d %H:%M:%S")
+
+            query = 'SELECT MIN({}), AVG({}), MAX({}) FROM {} WHERE datetime({}) >= datetime("{}") AND datetime({}) <= datetime("{}")'.format(
+                needed_column_name, needed_column_name, needed_column_name, collection_name,
+                time_column_name, min_time, time_column_name, max_time
+            )
 
             cursor.execute(query)
             support_result = cursor.fetchone()
 
-            count = support_result[0]
-            minimum = support_result[1]
-            average = support_result[2]
-            maximum = support_result[3]
+            minimum_value = support_result[0]
+            average_value = support_result[1]
+            maximum_value = support_result[2]
+
+            min_time_object = parser.parse(min_time) + datetime.timedelta(0, interval_size * 60)
+            interval_start_time = min_time
+            interval_end_time = min_time_object.strftime("%Y-%m-%d %H:%M:%S")
+
+            query = 'SELECT {},{},{},{},{} FROM {} WHERE datetime({}) >= datetime("{}") AND datetime({}) <= datetime("{}")'.format(
+                id_column_name,
+                time_column_name,
+                needed_column_name,
+                latitude_column_name,
+                longitude_column_name,
+                collection_name,
+                time_column_name,
+                interval_start_time,
+                time_column_name,
+                interval_end_time
+            )
+
+            cursor.execute(query)
+            result = []
+            for row in cursor:
+                result.append({
+                    'id': row[0],
+                    'time': parser.parse(row[1]),
+                    'value': row[2],
+                    'latitude': row[3],
+                    'longitude': row[4]
+                })
 
             cursor.close()
             connection.close()
 
-            return {'result': result, 'count': count, 'minimum': minimum, 'average': average, 'maximum': maximum}
+            return {
+                'result': result,
+                'interval_start_time': interval_start_time,
+                'interval_end_time': interval_end_time,
+                'minimum': minimum_value,
+                'average': average_value,
+                'maximum': maximum_value
+            }
+        except Exception as ex:
+            cursor.close()
+            connection.close()
+            raise ServerException('Error while preparing and executing query', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
+
+    def get_page_chart_data(self, robot_name, db_name, field_name, interval_start_time, interval_end_time):
+        try:
+            connection = sqlite3.connect(self.connections[robot_name]['sensors'][db_name]['file_path'])
+            cursor = connection.cursor()
+        except Exception as ex:
+            raise ServerException(
+                'Can\'t connect to database with name {}'.format(self.connections[robot_name]['sensors'][db_name]['file_path']),
+                status.HTTP_500_INTERNAL_SERVER_ERROR, ex
+            )
+
+        collection_name = self.connections[robot_name]['sensors'][db_name]['collection_name']
+
+        try:
+            sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
+            needed_column_name = sensors_config['fields_to_retrieve'][field_name]["column_name"]
+            id_column_name = sensors_config['id_column']
+            time_column_name = sensors_config['time_column']
+            latitude_column_name = sensors_config['latitude_field']
+            longitude_column_name = sensors_config['longitude_field']
+
+            if isinstance(interval_start_time, datetime.datetime):
+                interval_start_time = interval_start_time.strftime("%Y-%m-%d %H:%M:%S")
+
+            if isinstance(interval_end_time, datetime.datetime):
+                interval_end_time = interval_end_time.strftime("%Y-%m-%d %H:%M:%S")
+
+            query = 'SELECT {},{},{},{},{} FROM {} WHERE datetime({}) >= datetime("{}") AND datetime({}) <= datetime("{}")'.format(
+                id_column_name,
+                time_column_name,
+                needed_column_name,
+                latitude_column_name,
+                longitude_column_name,
+                collection_name,
+                time_column_name,
+                interval_start_time,
+                time_column_name,
+                interval_end_time
+            )
+
+            cursor.execute(query)
+            result = []
+            for row in cursor:
+                result.append({
+                    'id': row[0],
+                    'time': parser.parse(row[1]),
+                    'value': row[2],
+                    'latitude': row[3],
+                    'longitude': row[4]
+                })
+
+            cursor.close()
+            connection.close()
+
+            return result
         except Exception as ex:
             cursor.close()
             connection.close()
@@ -510,23 +622,4 @@ class MonitoringDataService(metaclass=Singleton):
             'data_structure': self.get_data_structure(robot_name, db_name),
             'extended': additional_params.get('extended')
         }
-
-
-if __name__ == '__main__':
-    structure = MonitoringDataService.get_data_structure('AMTS')
-    print(structure)
-
-    test_filter = {
-        'start_time': '2018-11-25 18:31:03',
-        'end_time': datetime.datetime.now()
-    }
-    data = MonitoringDataService().get_chart_data('AMTS', 'atmospheric_sensor', filter_params=test_filter)
-    print(data)
-
-    test_filter = {
-        'start_time': '2018-08-19T11:10:17.187',
-        'end_time': datetime.datetime.now()
-    }
-    logs = MonitoringDataService().get_logs('AMTS', filter_params=test_filter)
-    print(logs)
 

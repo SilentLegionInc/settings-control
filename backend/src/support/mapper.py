@@ -18,41 +18,59 @@ class Mapper:
         return result
 
     @staticmethod
-    def map_get_monitoring_chart_data_request(body):
-        def map_filter(obj):
-            return {
-                'start_time': parser.parse(obj['start_time']) if obj.get('start_time') else None,
-                'end_time': parser.parse(obj['end_time']) if obj.get('end_time') else None
-            }
+    def map_monitoring_chart_data_result(result):
+        return list(map(lambda elem: {
+            'id': elem['id'],
+            'value': elem['value'],
+            'time': elem['time'].isoformat(),
+            'latitude': elem['latitude'],
+            'longitude': elem['longitude']
+        }, result))
 
-        # TODO validate body
+    @staticmethod
+    def map_get_monitoring_filter_chart_data_request(body):
         return {
-            'field_name': body['field_name'],
-            'filter_params': map_filter(body.get('filter', {})),
-            'additional_params': {
-                'limit': body.get('limit'),
-                'offset': body.get('offset')
-            }
+            'min_time': body['min_time'],
+            'max_time': body['max_time'],
+            'interval_size': body['interval_size']
         }
 
     @staticmethod
-    def map_get_monitoring_chart_data_response(body):
-
-        def map_result(result):
-            return list(map(lambda elem: {
-                'id': elem['id'],
-                'value': elem['value'],
-                'time': elem['time'].isoformat(),
-                'latitude': elem['latitude'],
-                'longitude': elem['longitude']
-            }, result))
-
+    def map_get_monitoring_filter_chart_data_response(body):
         return {
-            'result': map_result(body['result']),
-            'count': body['count'],
+            'result': Mapper().map_monitoring_chart_data_result(body['result']),
+            'interval_start_time': body['interval_start_time'],
+            'interval_end_time': body['interval_end_time'],
             'minimum': body['minimum'],
             'average': body['average'],
             'maximum': body['maximum']
+        }
+
+    @staticmethod
+    def map_get_monitoring_init_chart_data_response(body):
+        return {
+            'result': Mapper().map_monitoring_chart_data_result(body['result']),
+            'min_time': body['min_time'],
+            'max_time': body['max_time'],
+            'interval_start_time': body['interval_start_time'],
+            'interval_end_time': body['interval_end_time'],
+            'minimum': body['minimum'],
+            'average': body['average'],
+            'maximum': body['maximum']
+        }
+
+    @staticmethod
+    def map_get_monitoring_page_chart_data_request(body):
+        return {
+            'interval_start_time': body['interval_start_time'],
+            'interval_end_time': body['interval_end_time']
+        }
+
+    @staticmethod
+    def map_get_monitoring_page_chart_data_response(body):
+        return {
+            'interval_start_time': body['interval_start_time'],
+            'interval_end_time': body['interval_end_time']
         }
 
     @staticmethod

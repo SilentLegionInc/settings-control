@@ -23,24 +23,11 @@
                 </div>
 
                 <div class="row pt-2">
-                    <div class="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-6 pagination-flexbox-container">
-                        <b-pagination class="paginator-flexbox-item pb-2"
-                                      size="md"
-                                      :total-rows="dbElementsCount"
-                                      v-model="currentPage"
-                                      :per-page="elementsPerPage"
-                                      align="center">
-                        </b-pagination>
-
-                        <div class="per-page-flexbox-item per-page-flexbox-container pb-2">
-                            <div class="mr-1" style="white-space: nowrap;">
-                                На странице:
-                            </div>
-
-                            <div>
-                                <input :value="elementsPerPage" @change="changeElementsPerPage" type="number" class="form-control" style="max-width: 80px">
-                            </div>
-                        </div>
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-6">
+                        <span>
+                            <button type="button" class="btn btn-primary mr-1">left</button>
+                            <button type="button" class="btn btn-primary ml-1">right</button>
+                        </span>
                     </div>
                 </div>
             </div>
