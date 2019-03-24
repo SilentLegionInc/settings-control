@@ -104,15 +104,15 @@ class NetworkService(metaclass=Singleton):
         return self._driver.interface_eth(interface)
 
     # return the current wireless adapter
-    def power(self, power=None):
-        return self._driver.power(power)
+    def power_wifi(self, power=None):
+        return self._driver.power_wifi(power)
 
     # return the driver name
     def driver(self):
         return self._driver_name
 
-    def list_of_connections(self, rescan=True):
-        return self._driver.list_of_connections(rescan)
+    def list_of_connections(self, rescan_wifi=True):
+        return self._driver.list_of_connections(rescan_wifi)
 
 
 # abstract class for all wifi drivers
@@ -147,11 +147,11 @@ class NetworkDriver(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def power(self, power=None):
+    def power_wifi(self, power=None):
         pass
 
     @abstractmethod
-    def list_of_connections(self, rescan=True):
+    def list_of_connections(self, rescan_wifi=True):
         pass
 
 
@@ -245,6 +245,21 @@ class NewNmcli0990(NetworkDriver):
             })
         return mapped
 
+    def connection_up(self, uuid):
+        response = cmd('nmcli con up {}'.format(uuid))
+        if self._error_in_response(response):
+            if 'unknown connection' in response:
+                raise ServerException('Неизвестный идентификатор соединения {}'.format(uuid), status.HTTP_400_BAD_REQUEST)
+            elif 'device could not be readied' in response:
+                raise ServerException('Не удалось активировать соединение. Девайс недоступен', status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                # TODO add logger
+                raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return True
+
+    def connection_down(self, uuid):
+        pass
+
     def current_wifi(self):
         # list active connections for all interfaces
         response = cmd('nmcli -t -f UUID,TYPE con show --active | grep wireless')
@@ -282,6 +297,7 @@ class NewNmcli0990(NetworkDriver):
         # parse response
         # TODO if error need to up old connection or autoconnect?
         if self._error_in_response(response):
+            # TODO check error type invalid password or smth another
             raise ServerException(response, status.HTTP_400_BAD_REQUEST)
         else:
             # trying to fetch uuid from response from nmcli
@@ -289,8 +305,8 @@ class NewNmcli0990(NetworkDriver):
             self.ssid_to_uuid[ssid] = uuid
             return True
 
-    def list_of_connections(self, rescan=True):
-        if rescan and self.interface_wifi() is not None:
+    def list_of_connections(self, rescan_wifi=True):
+        if rescan_wifi and self.interface_wifi() is not None:
             res = ''
             while 'immediately' not in res:
                 res = cmd('nmcli dev wifi rescan')
@@ -345,8 +361,18 @@ class NewNmcli0990(NetworkDriver):
     def connect(self, ssid, password):
         pass
 
-    def power(self, power=None):
-        pass
+    # TODO refactor to get\set
+    def power_wifi(self, power=None):
+        if power is True:
+            cmd('nmcli r wifi on')
+        elif power is False:
+            cmd('nmcli r wifi off')
+        else:
+            if self.interface_wifi() is not None:
+                response = cmd('nmcli r wifi')
+                return 'enabled' in response
+            else:
+                return False
 
 
 if __name__ == '__main__':
