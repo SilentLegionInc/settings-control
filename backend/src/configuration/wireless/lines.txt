@@ -6,6 +6,13 @@ Silencium        3978092f-a915-4374-9bc4-e3bd7aedbd7f  wifi      1551622883  Sun
 wireless_clone   97f49ed5-e160-424e-9479-9ecacfd5e16d  wifi      1551624112  Sun 03 Mar 2019 02:41:52 PM GMT  yes          0                     no        /org/freedesktop/NetworkManager/Settings/4  no      --               --         --                                                  --
 (we use: NAME,UUID,TYPE,DEVICE,ACTIVE,AUTOCONNECT)
 
+-||- with -t option
+wired_clone:02c01213-90ef-422a-b4be-11e2f551c7d7:802-3-ethernet:1553440044:Sun 24 Mar 2019 03\:07\:24 PM GMT:yes:4294966297:no:/org/freedesktop/NetworkManager/Settings/2:yes:enp4s0:activated:/org/freedesktop/NetworkManager/ActiveConnection/1:
+Auto Silence_2G:e6d4847b-ce3f-466b-9cd5-bd3f31d94891:802-11-wireless:1553439571:Sun 24 Mar 2019 02\:59\:31 PM GMT:yes:0:no:/org/freedesktop/NetworkManager/Settings/1:no::::
+wireless_clone:97f49ed5-e160-424e-9479-9ecacfd5e16d:802-11-wireless:1553439582:Sun 24 Mar 2019 02\:59\:42 PM GMT:yes:0:no:/org/freedesktop/NetworkManager/Settings/3:no::::
+
+
+
 nmcli -f all dev wifi list:
 NAME   SSID               SSID-HEX                            BSSID              MODE   CHAN  FREQ      RATE        SIGNAL  BARS  SECURITY   WPA-FLAGS                           RSN-FLAGS                           DEVICE           ACTIVE  IN-USE  DBUS-PATH
 AP[1]  Silence_2G         53696C656E63655F3247                D4:60:E3:DA:43:84  Infra  2     2417 MHz  270 Mbit/s  79      ▂▄▆_  WPA1 WPA2  pair_tkip group_tkip psk            pair_ccmp group_tkip psk            wlxc46e1f1c9df9  yes     *       /org/freedesktop/NetworkManager/AccessPoint/1
