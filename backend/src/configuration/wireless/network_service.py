@@ -23,21 +23,27 @@ class NetworkService(metaclass=Singleton):
     _driver = None
 
     # init
-    def __init__(self, interface=None):
+    def __init__(self, interface_wifi=None, interface_eth=None):
         # detect and init appropriate driver
         self._driver_name = self._detect_driver()
         if self._driver_name == 'nmcli0990':
-            self._driver = Nmcli0990(interface=interface)
+            self._driver = NewNmcli0990(interface_wifi=interface_wifi, interface_eth=interface_eth)
 
-        # attempt to auto detect the interface if none was provided
-        if self.interface() is None:
-            interfaces = self.interfaces()
-            if len(interfaces) > 0:
-                self.interface(interfaces[0])
+        # attempt to auto detect the wifi interface if none was provided
+        if self.interface_wifi() is None:
+            interfaces = self.interfaces_wifi()
+            if interfaces:
+                self.interface_wifi(interfaces[0])
+
+        # attempt to auto detect the ethernet interface if none was provided
+        if self.interface_eth() is None:
+            interfaces = self.interfaces_eth()
+            if interfaces:
+                self.interface_eth(interfaces[0])
 
         # raise an error if there is still no interface defined
-        if self.interface() is None:
-            raise Exception('Unable to auto-detect the network interface.')
+        if self.interface_wifi() is None and self.interface_eth() is None:
+            raise Exception('Не удалось найти ни одного сетевого интерфейса')
 
     @staticmethod
     def _detect_driver():
@@ -47,6 +53,7 @@ class NetworkService(metaclass=Singleton):
             response = cmd('nmcli --version')
             parts = response.split()
             ver = parts[-1]
+            print(ver)
             if version.parse(ver) > version.parse('0.9.9.0'):
                 return 'nmcli0990'
             else:
@@ -75,29 +82,37 @@ class NetworkService(metaclass=Singleton):
     # def connect(self, ssid, password):
     #     return self._driver.connect(ssid, password)
 
-    # return the ssid of the current network
-    def current(self):
-        return self._driver.current()
+    # uuid of current wi-fi connection
+    def current_wifi(self):
+        return self._driver.current_wifi()
 
-    # return a list of wireless adapters
-    def interfaces(self):
-        return self._driver.interfaces()
+    # uuid of current eth connection
+    def current_eth(self):
+        return self._driver.current_eth()
+
+    def interfaces_wifi(self):
+        return self._driver.interfaces_wifi()
+
+    def interfaces_eth(self):
+        return self._driver.interfaces_eth()
 
     # return the current wireless adapter
-    def interface(self, interface=None):
-        return self._driver.interface(interface)
+    def interface_wifi(self, interface=None):
+        return self._driver.interface_wifi(interface)
+
+    def interface_eth(self, interface=None):
+        return self._driver.interface_eth(interface)
 
     # return the current wireless adapter
-    def power(self, power=None):
-        return self._driver.power(power)
+    def power_wifi(self, power=None):
+        return self._driver.power_wifi(power)
 
     # return the driver name
     def driver(self):
         return self._driver_name
 
-    def list_of_connections(self, rescan=True):
-        # TODO scan eth, wifi (ssids) match uuid of connection with ssid if possible
-        return self._driver.list_of_connections(rescan)
+    def list_of_connections(self, rescan_wifi=True):
+        return self._driver.list_of_connections(rescan_wifi)
 
 
 # abstract class for all wifi drivers
@@ -108,36 +123,47 @@ class NetworkDriver(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def current(self):
+    def current_wifi(self):
         pass
 
     @abstractmethod
-    def interfaces(self):
+    def current_eth(self):
         pass
 
     @abstractmethod
-    def interface(self, interface=None):
+    def interfaces_wifi(self):
         pass
 
     @abstractmethod
-    def power(self, power=None):
+    def interfaces_eth(self):
         pass
 
     @abstractmethod
-    def list_of_connections(self, rescan=True):
+    def interface_wifi(self, interface=None):
         pass
 
-    # @abstractmethod
-    # def detail_connection_info(self):
-    #     pass
+    @abstractmethod
+    def interface_eth(self, interface=None):
+        pass
+
+    @abstractmethod
+    def power_wifi(self, power=None):
+        pass
+
+    @abstractmethod
+    def list_of_connections(self, rescan_wifi=True):
+        pass
 
 
+# Linux nmcli Driver >= 0.9.9.0 (Actual driver)
 class NewNmcli0990(NetworkDriver):
-    _interface = None
+    _interface_wifi = None
+    _interface_eth = None
 
     # init
-    def __init__(self, interface=None):
-        self.interface(interface)
+    def __init__(self, interface_wifi=None, interface_eth=None):
+        self.interface_wifi(interface_wifi)
+        self.interface_eth(interface_eth)
         # TODO persist
         self.ssid_to_uuid = {}
 
@@ -147,20 +173,24 @@ class NewNmcli0990(NetworkDriver):
     @staticmethod
     def _clean(partial):
         # list matching connections
-        response = cmd('nmcli --fields UUID,NAME con show | grep {}'.format(partial))
+        # TODO check what will be if we delete last wired connection?
+        command = 'nmcli -t -f UUID,NAME con show | grep wireless'
+        if partial:
+            command + ' | grep {}'.format(partial)
+        response = cmd(command)
 
         # delete all of the matching connections
         for line in response.splitlines():
-            if len(line) > 0:
-                uuid = line.split()[0]
-                cmd('nmcli con delete uuid {}'.format(uuid))
+            if line:
+                uuid = line.split(':')[0]
+                cmd('nmcli con delete {}'.format(uuid))
 
     # ignore warnings in nmcli output
     # sometimes there are warnings but we connected just fine
     @staticmethod
     def _error_in_response(response):
         # no error if no response
-        if len(response) == 0:
+        if not response:
             return False
 
         # loop through each line
@@ -215,16 +245,41 @@ class NewNmcli0990(NetworkDriver):
             })
         return mapped
 
-    # returned the ssid of the current network
-    # TODO refactor because i want to persist used connections
-    def current(self):
+    def connection_up(self, uuid):
+        response = cmd('nmcli con up {}'.format(uuid))
+        if self._error_in_response(response):
+            if 'unknown connection' in response:
+                raise ServerException('Неизвестный идентификатор соединения {}'.format(uuid), status.HTTP_400_BAD_REQUEST)
+            elif 'device could not be readied' in response:
+                raise ServerException('Не удалось активировать соединение. Девайс недоступен', status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                # TODO add logger
+                raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return True
+
+    def connection_down(self, uuid):
+        pass
+
+    def current_wifi(self):
         # list active connections for all interfaces
-        response = cmd('nmcli -t -f NAME,UUID,TYPE,DEVICE,ACTIVE,AUTOCONNECT con show --active')
+        response = cmd('nmcli -t -f UUID,TYPE con show --active | grep wireless')
 
         # the current network is in the first column
         for line in response.splitlines():
-            if len(line) > 0:
-                return line.split()[0]
+            if line:
+                return line.split(':')[0]
+
+        # return none if there was not an active connection
+        return None
+
+    def current_eth(self):
+        # list active connections for all interfaces
+        response = cmd('nmcli -t -f UUID,TYPE con show --active | grep ethernet')
+
+        # the current network is in the first column
+        for line in response.splitlines():
+            if line:
+                return line.split(':')[0]
 
         # return none if there was not an active connection
         return None
@@ -233,13 +288,16 @@ class NewNmcli0990(NetworkDriver):
         # clean up previous connection TODO check for need of it
         # self._clean(ssid)
         # turn off current connection
-        cmd('nmcli con down {}'.format(self.current()))
+        current_wifi_id = self.current_wifi()
+        if current_wifi_id:
+            cmd('nmcli con down {}'.format(current_wifi_id))
         # trying to connect
         response = cmd('nmcli dev wifi connect {} password {} iface {}'.format(
-            ssid, password, self._interface))
+            ssid, password, self._interface_wifi))
         # parse response
         # TODO if error need to up old connection or autoconnect?
         if self._error_in_response(response):
+            # TODO check error type invalid password or smth another
             raise ServerException(response, status.HTTP_400_BAD_REQUEST)
         else:
             # trying to fetch uuid from response from nmcli
@@ -247,8 +305,8 @@ class NewNmcli0990(NetworkDriver):
             self.ssid_to_uuid[ssid] = uuid
             return True
 
-    def list_of_connections(self, rescan=True):
-        if rescan:
+    def list_of_connections(self, rescan_wifi=True):
+        if rescan_wifi and self.interface_wifi() is not None:
             res = ''
             while 'immediately' not in res:
                 res = cmd('nmcli dev wifi rescan')
@@ -260,134 +318,62 @@ class NewNmcli0990(NetworkDriver):
             'wireless': self._get_wifi_list()
         }
 
-
-# Linux nmcli Driver >= 0.9.9.0 (Actual driver)
-# TODO make cleanup, add static ip (look at set_static_ip.bash)
-class Nmcli0990(NetworkDriver):
-    _interface = None
-
-    # init
-    def __init__(self, interface=None):
-        self.interface(interface)
-        # TODO persist
-        self.ssid_to_connection_map = {}
-
-    # clean up connections where partial is part of the connection name
-    # this is needed to prevent the following error after extended use:
-    # 'maximum number of pending replies per connection has been reached'
-    def _clean(self, partial):
-        # list matching connections
-        response = cmd('nmcli --fields UUID,NAME con show | grep {}'.format(partial))
-
-        # delete all of the matching connections
-        for line in response.splitlines():
-            if len(line) > 0:
-                uuid = line.split()[0]
-                cmd('nmcli con delete uuid {}'.format(uuid))
-
-    # ignore warnings in nmcli output
-    # sometimes there are warnings but we connected just fine
-    def _error_in_response(self, response):
-        # no error if no response
-        if len(response) == 0:
-            return False
-
-        # loop through each line
-        for line in response.splitlines():
-            # all error lines start with 'Error'
-            if line.startswith('Error'):
-                return True
-
-        # if we didn't find an error then we are in the clear
-        return False
-
-    # connect to a network
-    def connect(self, ssid, password):
-        # clean up previous connection TODO check for need of it
-        # self._clean(ssid)
-        # turn off current connection
-        cmd(command='nmcli con down {}'.format(self.current()))
-        # trying ti connect
-        response = cmd('nmcli dev wifi connect {} password {} iface {}'.format(
-            ssid, password, self._interface))
-        print(response)
-        # parse response
-        # TODO if error need to up old connection
-        if self._error_in_response(response):
-            raise ServerException(response, status.HTTP_400_BAD_REQUEST)
-        else:
-            return True
-
-    # returned the ssid of the current network
-    def current(self):
-        # list active connections for all interfaces
-        response = cmd('nmcli con | grep {}'.format(self.interface()))
-
-        # the current network is in the first column
-        for line in response.splitlines():
-            if len(line) > 0:
-                return line.split()[0]
-
-        # return none if there was not an active connection
-        return None
-
-    # return a list of wireless adapters
-    def interfaces(self):
+    def interfaces_wifi(self):
         # grab list of interfaces
-        response = cmd('nmcli dev')
+        response = cmd('nmcli -t dev | grep wifi')
 
         # parse response
         interfaces = []
         for line in response.splitlines():
-            if 'wifi' in line:
-                # this line has our interface name in the first column
-                interfaces.append(line.split()[0])
+            # this line has our interface name in the first column
+            interfaces.append(line.split(':')[0])
 
         # return list
         return interfaces
 
-    # return the current wireless adapter
-    def interface(self, interface=None):
-        if interface is not None:
-            self._interface = interface
-        else:
-            return self._interface
+    def interfaces_eth(self):
+        # grab list of interfaces
+        response = cmd('nmcli -t dev | grep ethernet')
 
-    # enable/disable wireless networking
-    def power(self, power=None):
+        # parse response
+        interfaces = []
+        for line in response.splitlines():
+            # this line has our interface name in the first column
+            interfaces.append(line.split(':')[0])
+
+        # return list
+        return interfaces
+
+    # TODO refactor to get\set
+    # return the current wireless adapter
+    def interface_wifi(self, interface=None):
+        if interface is not None:
+            self._interface_wifi = interface
+        else:
+            return self._interface_wifi
+
+    def interface_eth(self, interface=None):
+        if interface is not None:
+            self._interface_eth = interface
+        else:
+            return self._interface_eth
+
+    def connect(self, ssid, password):
+        pass
+
+    # TODO refactor to get\set
+    def power_wifi(self, power=None):
         if power is True:
             cmd('nmcli r wifi on')
         elif power is False:
             cmd('nmcli r wifi off')
         else:
-            response = cmd('nmcli r wifi')
-            return 'enabled' in response
-
-    @staticmethod
-    def _map_connections_list(raw_str):
-        def map_connection_line(connection_line):
-            # split line by two spaces because between two columns we have at least two spaces,
-            # after split we need to delete empty lines from array
-            splitted_array = list(filter(lambda x: x != '', connection_line.split('  ')))
-            if splitted_array[0] == '*':
-                splitted_array[0] = '+'
+            if self.interface_wifi() is not None:
+                response = cmd('nmcli r wifi')
+                return 'enabled' in response
             else:
-                splitted_array.insert(0, '-')
-            return {label.strip().lower(): splitted_array[i].strip() for i, label in enumerate(labels)}
+                return False
 
-        response_lines = raw_str.splitlines()
-        # getting header and map it to labels
-        labels = list(filter(lambda x: x != '', response_lines[0].split('  ')))
-        # and delete header line from answer
-        del response_lines[0]
-        return list(map(map_connection_line, response_lines))
 
-    def list_of_connections(self, rescan=True):
-        if rescan:
-            res = ''
-            while 'immediately' not in res:
-                res = cmd('nmcli device wifi rescan')
-                sleep(0.5)
-            sleep(1)
-
-        return self._map_connections_list(cmd('nmcli device wifi list'))
+if __name__ == '__main__':
+    print(NetworkService().list_of_connections())
