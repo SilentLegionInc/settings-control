@@ -62,25 +62,19 @@ class NetworkService(metaclass=Singleton):
         raise Exception('Unable to find compatible nmcli driver.')
 
     def connection_up(self, uuid):
-        pass
+        return self._driver.connection_up(uuid)
 
     def connection_down(self, uuid):
-        pass
+        return self._driver.connection_down(uuid)
 
-    def create_connection(self):
-        pass
+    def create_wifi_connection(self, ssid, password):
+        return self._driver.create_wifi_connection(ssid, password)
 
     def delete_connection(self, uuid):
-        pass
+        return self._driver.delete_connection(uuid)
 
-    def change_connection_dhcp_mode(self, uuid, dhcp):
-        pass
-
-    # def connect(self, uuid=None, ssid=None, password=None):
-
-    # connect to a network
-    # def connect(self, ssid, password):
-    #     return self._driver.connect(ssid, password)
+    def modify_connection_params(self, uuid, params_dict):
+        return self._driver.modify_connection_params(uuid, params_dict)
 
     # uuid of current wi-fi connection
     def current_wifi(self):
@@ -135,6 +129,26 @@ class NetworkDriver(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def modify_connection_params(self, uuid, params_dict):
+        pass
+
+    @abstractmethod
+    def create_wifi_connection(self, ssid, password):
+        pass
+
+    @abstractmethod
+    def connection_up(self, uuid):
+        pass
+
+    @abstractmethod
+    def connection_down(self, uuid):
+        pass
+
+    @abstractmethod
+    def delete_connection(self, uuid):
+        pass
+
+    @abstractmethod
     def interfaces_eth(self):
         pass
 
@@ -165,7 +179,21 @@ class NewNmcli0990(NetworkDriver):
         self.interface_wifi(interface_wifi)
         self.interface_eth(interface_eth)
         # TODO persist
-        self.ssid_to_uuid = {}
+        self.ssid_to_uuid = self._load_connection_map()
+
+    def _save_connection_map(self):
+        import json
+        with open('settings_tool_backend_connection_map', 'w') as f:
+            f.write(json.dumps(self.ssid_to_uuid))
+        return True
+
+    def _load_connection_map(self):
+        import json
+        with open('settings_tool_backend_connection_map', 'r') as f:
+            json_data = f.read()
+            if json_data:
+                return json.loads(json_data)
+        return {}
 
     # clean up connections where partial is part of the connection name
     # this is needed to prevent the following error after extended use:
@@ -258,7 +286,30 @@ class NewNmcli0990(NetworkDriver):
         return True
 
     def connection_down(self, uuid):
-        pass
+        response = cmd('nmcli con down {}'.format(uuid))
+        if self._error_in_response(response):
+            if 'unknown connection' in response:
+                raise ServerException('Неизвестный идентификатор соединения {}'.format(uuid),
+                                      status.HTTP_400_BAD_REQUEST)
+            elif 'device could not be readied' in response:
+                raise ServerException('Не удалось активировать соединение. Девайс недоступен',
+                                      status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                # TODO add logger
+                raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return True
+
+    def delete_connection(self, uuid):
+        # TODO test
+        response = cmd('nmcli con delete {}'.format(uuid))
+        if self._error_in_response(response):
+            if 'unknown connection' in response:
+                raise ServerException('Неизвестный идентификатор соединения {}'.format(uuid),
+                                      status.HTTP_400_BAD_REQUEST)
+            else:
+                # TODO add logger
+                raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return True
 
     def current_wifi(self):
         # list active connections for all interfaces
@@ -284,6 +335,19 @@ class NewNmcli0990(NetworkDriver):
         # return none if there was not an active connection
         return None
 
+    def modify_connection_params(self, uuid, params_dict):
+        params_string = ''
+        for key in params_dict:
+            params_string += '{} {}'.format(key, params_dict[key])
+        command = 'nmcli con modify {} {} && nmcli && nmcli con up {}'.format(uuid, params_string, uuid)
+        response = cmd(command)
+        if self._error_in_response(response):
+            # TODO check error type
+            raise ServerException(response, status.HTTP_400_BAD_REQUEST)
+        else:
+            # trying to fetch uuid from response from nmcli
+            return True
+
     def create_wifi_connection(self, ssid, password):
         # clean up previous connection TODO check for need of it
         # self._clean(ssid)
@@ -303,6 +367,7 @@ class NewNmcli0990(NetworkDriver):
             # trying to fetch uuid from response from nmcli
             uuid = response.split(' ')[-1].replace("'", '').replace('.', '')
             self.ssid_to_uuid[ssid] = uuid
+            self._save_connection_map()
             return True
 
     def list_of_connections(self, rescan_wifi=True):
@@ -376,4 +441,12 @@ class NewNmcli0990(NetworkDriver):
 
 
 if __name__ == '__main__':
+    uuid = 'aaaa'
+    params = {
+        'ipv4.addresses': '192.168.1.100/24',
+        'ipv4.method': 'manual',
+        'ipv4.gateway': '192.168.1.1',
+        'ipv4.dns': '8.8.4.4'
+    }
     print(NetworkService().list_of_connections())
+    print('Changed connection params result: {}'.format(NetworkService().modify_connection_params(uuid, params)))
