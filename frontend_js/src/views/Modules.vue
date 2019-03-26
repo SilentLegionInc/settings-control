@@ -154,7 +154,7 @@
                                             </div>
                                         </div>
                                         <div class="row mb-2" v-if="module_elem.detail">
-                                            <label class="col-xl-3 col-form-label mb-1" :for="'module'+0+'update'">Архив с исходниками для обновления:</label>
+                                            <label class="col-xl-3 col-form-label mb-1" :for="'module'+index+'update'">Архив с исходниками для обновления:</label>
                                             <div class="col-xl-9 col-12 mb-1">
                                                 <b-form-file
                                                     v-model="file"

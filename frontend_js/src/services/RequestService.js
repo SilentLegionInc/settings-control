@@ -84,7 +84,7 @@ export class RequestService {
     }
 
     async getNetworks() {
-        const path = this._constructPath('api/wifi');
+        const path = this._constructPath('api/network');
         const res = await axios.get(path);
         if (res.status === 200) {
             return MapperService.mapNetworksResponse(res.data);
@@ -105,9 +105,20 @@ export class RequestService {
         }
     }
 
-    async changeNetwork(name, password) {
-        const path = this._constructPath('api/wifi/connect');
+    async createWifiConnection(name, password) {
+        const path = this._constructPath('api/network/create_wifi_connection');
         const res = await axios.post(path, { name, password });
+        if (res.status === 200) {
+            return true
+        } else {
+            Logger.error(res.data.errorInfo);
+            throw new ServerExceptionModel(res.data.errorInfo, res.status);
+        }
+    }
+
+    async connectionUp(id) {
+        const path = this._constructPath(`api/network/connection/up/${id}`);
+        const res = await axios.get(path);
         if (res.status === 200) {
             return true
         } else {

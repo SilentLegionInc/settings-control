@@ -201,24 +201,18 @@ class NewNmcli0990(NetworkDriver):
     # clean up connections where partial is part of the connection name
     # this is needed to prevent the following error after extended use:
     # 'maximum number of pending replies per connection has been reached'
-    def _clean(self, partial):
+    def _delete_connection_by_name(self, name):
         # list matching connections
         # TODO check what will be if we delete last wired connection?
-        command = 'nmcli -t -f UUID,NAME con show | grep wireless'
-        if partial:
-            command + ' | grep {}'.format(partial)
-            if self.ssid_to_uuid.get(partial):
-                del self.ssid_to_uuid[partial]
+        command = 'nmcli -t -f UUID,NAME con show | grep wireless | grep -w {}'.format(name)
+        if self.ssid_to_uuid.get(name):
+            del self.ssid_to_uuid[name]
         response = cmd(command)
-
         # delete all of the matching connections
         for line in response.splitlines():
             if line:
                 connection_uuid = line.split(':')[0]
                 cmd('nmcli con delete {}'.format(connection_uuid))
-
-        if not partial:
-            self.ssid_to_uuid = {}
 
     # ignore warnings in nmcli output
     # sometimes there are warnings but we connected just fine
