@@ -1,16 +1,16 @@
 <template>
     <div v-if="databaseName && robotName">
-        <!--<b-tabs :lazy="true">-->
-            <!--<b-tab v-for="elem in dataStructure" :key="elem.systemName" :title="elem.name">-->
-                <!--<chart-statistics-component-->
-                    <!--:robot-name="robotName"-->
-                    <!--:db-name="databaseName"-->
-                    <!--:field-name="elem.systemName"-->
-                <!--&gt;</chart-statistics-component>-->
-            <!--</b-tab>-->
-        <!--</b-tabs>-->
+        <b-tabs v-if="isWideScreen()" :lazy="true">
+            <b-tab v-for="elem in dataStructure" :key="elem.systemName" :title="elem.name">
+                <chart-statistics-component
+                    :robot-name="robotName"
+                    :db-name="databaseName"
+                    :field-name="elem.systemName"
+                ></chart-statistics-component>
+            </b-tab>
+        </b-tabs>
 
-        <div class="row" v-for="elem in dataStructure" :key="elem.systemName">
+        <div v-else class="row" v-for="elem in dataStructure" :key="elem.systemName">
             <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-lg-12 m-0">
                 <b-card no-body class="mb-1">
                     <b-card-header header-tag="header" class="p-1" role="tab">
@@ -58,6 +58,9 @@ export default {
         },
         isMobileTabVisible(tabName) {
             return this.activeTab === tabName;
+        },
+        isWideScreen() {
+            return window.screen.width > 960;
         }
     },
     async mounted() {

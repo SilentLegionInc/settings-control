@@ -505,11 +505,7 @@ const datasetOptions = {
         animation-direction: alternate;
     }
 
-    @media  only screen and (min-resolution: 165dpi) and (max-resolution: 168dpi),
-            only screen and (min-resolution: 155dpi) and (max-resolution: 160dpi),
-            only screen and (min-resolution: 134dpi) and (max-resolution: 144dpi),
-            only screen and (min-resolution: 120dpi) and (max-resolution: 130dpi),
-            only screen and (max-resolution: 116dpi) {
+    @media  only screen and (min-width:960px) {
         .table-container {
             overflow-y: auto;
             overflow-x: hidden;

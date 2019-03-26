@@ -158,32 +158,36 @@ export default {
     }
 
     .sidebar-opened {
-        @media only screen and (min-width: 501px) {
-            min-width: 300px;
-            width: 25%;
-        }
-
-        @media only screen and (min-width: 200px) and (max-width: 500px) {
+        @media (min-width:320px)  {
+            /* smartphones, iPhone, portrait 480x320 phones */
             min-width: 100%;
             width: 100%;
         }
-        /*@media  only screen and (min-resolution: 165dpi) and (max-resolution: 168dpi),*/
-        /*only screen and (min-resolution: 155dpi) and (max-resolution: 160dpi),*/
-        /*only screen and (min-resolution: 134dpi) and (max-resolution: 144dpi),*/
-        /*only screen and (min-resolution: 120dpi) and (max-resolution: 130dpi),*/
-        /*only screen and (max-resolution: 116dpi) {*/
-            /*min-width: 300px;*/
-            /*width: 22%;*/
-        /*}*/
-
-        /*@media  only screen and (min-resolution: 117dpi) and (max-resolution: 119dpi),*/
-                /*only screen and (min-resolution: 131dpi) and (max-resolution: 133dpi),*/
-                /*only screen and (min-resolution: 145dpi) and (max-resolution: 154dpi),*/
-                /*only screen and (min-resolution: 162dpi) and (max-resolution: 164dpi),*/
-                /*only screen and (min-resolution: 169dpi) {*/
-            /*min-width: 100%;*/
-            /*width: 100%;*/
-        /*}*/
+        @media (min-width:481px)  {
+            /* portrait e-readers (Nook/Kindle), smaller tablets @ 600 or @ 640 wide. */
+            min-width: 340px;
+            width: 70%;
+        }
+        @media (min-width:641px)  {
+            /* portrait tablets, portrait iPad, landscape e-readers, landscape 800x480 or 854x480 phones */
+            min-width: 340px;
+            width: 50%;
+        }
+        @media (min-width:961px)  {
+            /* tablet, landscape iPad, lo-res laptops ands desktops */
+            min-width: 340px;
+            width: 35%;
+        }
+        @media (min-width:1025px) {
+            /* big landscape tablets, laptops, and desktops */
+            min-width: 340px;
+            width: 35%;
+        }
+        @media (min-width:1281px) {
+            /* hi-res laptops and desktops */
+            min-width: 340px;
+            width: 20%;
+        }
     }
 
     .sidebar-closed {
