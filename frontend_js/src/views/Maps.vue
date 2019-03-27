@@ -1,28 +1,31 @@
 <template>
     <div class="container-fluid">
-        <form>
-            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                <div class="row">
-                    <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-xl-8 filter-flexbox-container">
-                        <span class="filter-flexbox-item ml-1 mr-1">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-xl-8">
+                    <div class="row">
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 pl-1 pr-1">
                             <span>Нач. время:</span>
                             <datetime v-model="filter.startTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
-                        </span>
+                        </div>
 
-                        <span class="filter-flexbox-item ml-1 mr-1">
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 pl-1 pr-1">
                             <span>Кон. время:</span>
-                            <datetime v-model="filter.endTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
-                        </span>
+                            <datetime v-model="filter.endTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control" :class="{'mb-3': !$isWideScreen()}"></datetime>
+                        </div>
 
-                        <span class="filter-flexbox-item ml-1 mr-1">
-                            <div>&nbsp;</div>
-                            <button type="button" class="btn btn-primary mr-1" @click="loadData(1)">Применить</button>
-                            <button type="button" class="btn btn-secondary ml-1" @click="clearFilters()">Очистить</button>
-                        </span>
+                        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 pl-1 pr-1">
+                            <span v-if="$isWideScreen()">&nbsp;</span>
+                            <button type="button" class="btn btn-success btn-block" :class="{'mb-1': !$isWideScreen()}" @click="loadData()">Применить</button>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 pl-1 pr-1">
+                            <span v-if="$isWideScreen()">&nbsp;</span>
+                            <button type="button" class="btn btn-secondary btn-block" @click="clearFilters()">Очистить</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
 
         <hr>
 
@@ -217,8 +220,10 @@ const placemarkConfig = {
 }
 </script>
 
-<style scoped>
-    @media only screen and (min-width: 501px) {
+<style scoped lang="scss">
+    @import "../global_css/styles";
+
+    @media only screen and (min-width: $min-wide-width) {
         .scrollable-info {
             max-height: 500px;
             overflow-y: auto;

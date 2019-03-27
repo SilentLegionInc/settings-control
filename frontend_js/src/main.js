@@ -68,6 +68,8 @@ Vue.filter('toFixedPrecision', value => {
     return value.toFixed(Config.floatPrecision);
 });
 
+Vue.prototype.$isWideScreen = () => { return window.screen.width >= 768 };
+
 new Vue({
     router,
     store,

@@ -10,6 +10,9 @@
   src: url(../../src/assets/BookmanBold.ttf) format("truetype");
 }
 
+$min-wide-width: 768px;
+$max-narrow-width: 767px;
+
 .clickable {
   font-weight: bolder;
   text-decoration: none !important;

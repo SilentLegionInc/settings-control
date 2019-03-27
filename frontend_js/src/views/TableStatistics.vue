@@ -1,42 +1,44 @@
 <template>
     <div v-if="databaseName && robotName">
-        <form>
-            <div class="col-12 col-sm-11 col-md-9 col-lg-7 col-xl-6">
-                <div class="row mb-2">
-                    <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                        <span>Нач. время: </span>
-                        <datetime v-model="filter.startTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
-                    </div>
-                    <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                        <span>Кон. время: </span>
-                        <datetime v-model="filter.endTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
-                    </div>
+        <div class="col-12 col-sm-12 col-md-9 col-lg-7 col-xl-6">
+            <div class="row" style="margin:auto">
+                <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6 pl-1 pr-1">
+                    <span>Нач. время: </span>
+                    <datetime v-model="filter.startTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                 </div>
-
-                <div class="scrollable-filters">
-                    <b-collapse id="filters-collapse">
-                        <div class="row mb-2" v-for="(element, index) in numDataStructure" :key="index">
-                            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                                <span>Мин. {{element.name.toLowerCase()}}: </span>
-                                <input type="number" class="form-control" v-model="filter[`min__${element.systemName}`]">
-                            </div>
-                            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
-                                <span>Макс. {{element.name.toLowerCase()}}: </span>
-                                <input type="number" class="form-control" v-model="filter[`max__${element.systemName}`]">
-                            </div>
-                        </div>
-                    </b-collapse>
-                </div>
-
-                <div class="row">
-                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                        <button type="button" class="btn btn-primary mr-2 mb-2" @click="loadData(1)">Применить</button>
-                        <button type="button" class="btn btn-secondary mr-2 mb-2" @click="clearFilters()">Очистить</button>
-                        <button type="button" class="btn btn-secondary mr-2 mb-2" v-b-toggle.filters-collapse>Доп. фильтры</button>
-                    </div>
+                <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6 pl-1 pr-1">
+                    <span>Кон. время: </span>
+                    <datetime v-model="filter.endTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                 </div>
             </div>
-        </form>
+
+            <div class="scrollable-filters mb-3">
+                <b-collapse id="filters-collapse">
+                    <div class="row" style="margin:auto" v-for="(element, index) in numDataStructure" :key="index">
+                        <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6 pl-1 pr-1">
+                            <span>Мин. {{element.name.toLowerCase()}}: </span>
+                            <input type="number" class="form-control" v-model="filter[`min__${element.systemName}`]">
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6 pl-1 pr-1">
+                            <span>Макс. {{element.name.toLowerCase()}}: </span>
+                            <input type="number" class="form-control" v-model="filter[`max__${element.systemName}`]">
+                        </div>
+                    </div>
+                </b-collapse>
+            </div>
+
+            <div class="row" style="margin:auto">
+                <div class="col-12 col-sm-12 col-md-4 col-lg-3 col-xl-3 pb-1 pl-1 pr-1">
+                    <button type="button" class="btn btn-primary btn-block" @click="loadData(1)">Применить</button>
+                </div>
+                <div class="col-12 col-sm-12 col-md-4 col-lg-3 col-xl-3 pb-1 pl-1 pr-1">
+                    <button type="button" class="btn btn-secondary btn-block" @click="clearFilters()">Очистить</button>
+                </div>
+                <div class="col-12 col-sm-12 col-md-4 col-lg-3 col-xl-3 pl-1 pr-1">
+                    <button type="button" class="btn btn-secondary btn-block" v-b-toggle.filters-collapse>Доп. фильтры</button>
+                </div>
+            </div>
+        </div>
 
         <hr>
 
@@ -205,17 +207,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-    .filter-flexbox-container {
-        display: flex;
-        flex-direction: row;
-        justify-content: left;
-        align-items: flex-end;
-        flex-wrap: wrap;
-    }
-
-    .filter-flexbox-item {
-        flex-grow: 1;
-    }
+    @import "../global_css/styles";
 
     .per-page-flexbox-container {
         display: flex;
@@ -243,11 +235,13 @@ export default {
         flex-grow: 1;
     }
 
-    .scrollable-filters {
-        height: auto;
-        max-height: 300px;
-        overflow-y: auto;
-        overflow-x: hidden;
+    @media only screen and (min-width: $max-narrow-width) {
+        .scrollable-filters {
+            height: auto;
+            max-height: 300px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
     }
 
     th.clickable-header-elem {

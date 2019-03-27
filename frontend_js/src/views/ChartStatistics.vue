@@ -1,6 +1,6 @@
 <template>
     <div v-if="databaseName && robotName">
-        <b-tabs v-if="isWideScreen()" :lazy="true">
+        <b-tabs v-if="$isWideScreen()" :lazy="true">
             <b-tab v-for="elem in dataStructure" :key="elem.systemName" :title="elem.name">
                 <chart-statistics-component
                     :robot-name="robotName"
@@ -10,23 +10,25 @@
             </b-tab>
         </b-tabs>
 
-        <div v-else class="row" v-for="elem in dataStructure" :key="elem.systemName">
-            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-lg-12 m-0">
-                <b-card no-body class="mb-1">
-                    <b-card-header header-tag="header" class="p-1" role="tab">
-                        <button class="btn btn-primary" style="width: 100%" @click="selectMobileTab(elem.systemName)">{{elem.name}}</button>
-                    </b-card-header>
-                    <b-collapse :id="elem.systemName" :visible="isMobileTabVisible(elem.systemName)" accordion="charts-accordion" role="tabpanel">
-                        <b-card-body class="p-0">
-                            <chart-statistics-component
-                                v-if="isMobileTabVisible(elem.systemName)"
-                                :robot-name="robotName"
-                                :db-name="databaseName"
-                                :field-name="elem.systemName"
-                            ></chart-statistics-component>
-                        </b-card-body>
-                    </b-collapse>
-                </b-card>
+        <div v-else class="container-fluid pl-0 pr-0">
+            <div class="row" style="margin: auto;" v-for="elem in dataStructure" :key="elem.systemName">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-lg-12 p-0">
+                    <b-card no-body class="mb-1">
+                        <b-card-header header-tag="header" class="p-1" role="tab">
+                            <button class="btn btn-info" style="width: 100%" @click="selectMobileTab(elem.systemName)">{{elem.name}}</button>
+                        </b-card-header>
+                        <b-collapse :id="elem.systemName" :visible="isMobileTabVisible(elem.systemName)" accordion="charts-accordion" role="tabpanel">
+                            <b-card-body class="p-0">
+                                <chart-statistics-component
+                                    v-if="isMobileTabVisible(elem.systemName)"
+                                    :robot-name="robotName"
+                                    :db-name="databaseName"
+                                    :field-name="elem.systemName"
+                                ></chart-statistics-component>
+                            </b-card-body>
+                        </b-collapse>
+                    </b-card>
+                </div>
             </div>
         </div>
     </div>
@@ -58,9 +60,6 @@ export default {
         },
         isMobileTabVisible(tabName) {
             return this.activeTab === tabName;
-        },
-        isWideScreen() {
-            return window.screen.width > 960;
         }
     },
     async mounted() {

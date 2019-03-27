@@ -1,41 +1,51 @@
 <template>
     <div>
-        <form>
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-xl-8 filter-flexbox-container">
-                        <span class="filter-flexbox-item ml-1 mr-1">
-                            <span>Нач. время:</span>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-xl-8">
+                    <div class="row">
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 pl-1 pr-1">
+                            <span class="ml-1">Нач. время:</span>
                             <datetime v-model="filterStartTime" type="datetime" zone="UTC" value-zone="UTC" input-class="form-control"></datetime>
-                        </span>
+                        </div>
 
-                        <span class="filter-flexbox-item ml-1 mr-1">
-                            <span>Кон. время:</span>
-                            <datetime v-model="filterEndTime" type="datetime" zone="UTC" value-zone="UTC" input-class="form-control"></datetime>
-                        </span>
+                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 pl-1 pr-1">
+                            <span class="ml-1">Кон. время:</span>
+                            <datetime v-model="filterEndTime" type="datetime" zone="UTC" value-zone="UTC" input-class="form-control" :class="{'mb-3': !$isWideScreen()}"></datetime>
+                        </div>
 
-                        <span class="filter-flexbox-item ml-1 mr-1">
-                            <div>&nbsp;</div>
-                            <button type="button" class="btn btn-primary mr-1" @click="loadFilterData()">Применить</button>
-                            <button type="button" class="btn btn-secondary ml-1" @click="clearFilters()">Очистить</button>
-                        </span>
-                    </div>
-                </div>
+                        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 pl-1 pr-1">
+                            <span v-if="$isWideScreen()">&nbsp;</span>
+                            <button type="button" class="btn btn-success btn-block" :class="{'mb-1': !$isWideScreen()}" @click="loadFilterData()">Применить</button>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 pl-1 pr-1">
+                            <span v-if="$isWideScreen()">&nbsp;</span>
+                            <button type="button" class="btn btn-secondary btn-block" :class="{'mb-1': !$isWideScreen()}" @click="clearFilters()">Очистить</button>
+                        </div>
 
-                <div class="row pt-2">
-                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
-                        <button type="button" class="btn btn-primary mr-1" @click="loadLeftPageData()" :disabled="!leftPageActive">&#10094;</button>
-                        <button type="button" class="btn btn-primary ml-1 mr-1" @click="loadRightPageData()" :disabled="!rightPageActive">&#10095;</button>
-                        <button type="button" class="btn btn-secondary ml-1" @click="showModal()">Изменить интервал</button>
+                        <div v-if="!$isWideScreen()" class="col-12 col-sm-12 col-md-5 col-lg-4 col-xl-3 pl-1 pr-1">
+                            <div class="row">
+                                <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 pr-1">
+                                    <button type="button" class="btn btn-primary btn-block mb-1" @click="loadLeftPageData()" :disabled="!leftPageActive">&#10094;</button>
+                                </div>
+                                <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 pl-1">
+                                    <button type="button" class="btn btn-primary btn-block" @click="loadRightPageData()" :disabled="!rightPageActive">&#10095;</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="!$isWideScreen()" class="col-12 col-sm-12 col-md-5 col-lg-4 col-xl-3 pl-1 pr-1">
+                            <button type="button" class="btn btn-secondary btn-block" @click="showModal()">Изменить интервал</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
 
         <hr>
 
         <div class="container-fluid">
-            <div class="row">
+            <div class="row mb-3">
                 <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
                     <line-chart :id="`${fieldName}_chart`" v-if="chartData" :chart-data="chartData" :options="chartOptions"></line-chart>
                 </div>
@@ -62,6 +72,22 @@
                             </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="$isWideScreen()" class="row">
+                <div class="offset-md-2 offset-lg-3 offset-xl-3 col-12 col-sm-12 col-md-8 col-lg-6 col-xl-6">
+                    <div class="row">
+                        <div class="offset-0 offset-sm-1 offset-md-0 offset-lg-0 offset-xl-1 col-3 col-sm-3 col-md-3 col-lg-3 col-xl-3 pr-1">
+                            <button type="button" class="btn btn-primary btn-block mb-2" @click="loadLeftPageData()" :disabled="!leftPageActive">&#10094;</button>
+                        </div>
+                        <div class="col-6 col-sm-4 col-md-6 col-lg-6 col-xl-4 pl-1 pr-1">
+                            <button type="button" class="btn btn-secondary btn-block" @click="showModal()">Изменить интервал</button>
+                        </div>
+                        <div class="col-3 col-sm-3 col-md-3 col-lg-3 col-xl-3 pl-1">
+                            <button type="button" class="btn btn-primary btn-block mb-2" @click="loadRightPageData()" :disabled="!rightPageActive">&#10095;</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -446,50 +472,7 @@ const datasetOptions = {
 </script>
 
 <style lang="scss">
-    .filter-flexbox-container {
-        display: flex;
-        flex-direction: row;
-        justify-content: left;
-        align-items: flex-end;
-        flex-wrap: wrap;
-    }
-
-    .filter-flexbox-item {
-        flex-grow: 1;
-    }
-
-    .per-page-flexbox-container {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
-        align-items: center;
-    }
-
-    .pagination-flexbox-container {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    .paginator-flexbox-item {
-        margin: 0;
-        justify-self: center;
-        flex-grow: 3;
-    }
-
-    .per-page-flexbox-item {
-        justify-self: flex-end;
-        flex-grow: 1;
-    }
-
-    .chart-container {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-    }
+    @import "../global_css/styles";
 
     @keyframes highlight {
         $startBackground: currentBackground;
@@ -505,7 +488,7 @@ const datasetOptions = {
         animation-direction: alternate;
     }
 
-    @media  only screen and (min-width:960px) {
+    @media only screen and (min-width: $min-wide-width) {
         .table-container {
             overflow-y: auto;
             overflow-x: hidden;

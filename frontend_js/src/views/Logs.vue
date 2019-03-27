@@ -1,34 +1,46 @@
 <template>
     <div>
-        <form>
-            <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-lg-8 filter-flexbox-container pl-2 pr-2">
-                <span class="filter-flexbox-item ml-1 mr-1">
-                    <span>Нач. время: </span>
-                    <datetime v-model="filterStartTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
-                </span>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10">
+                    <div class="row">
+                        <div class="col-12 col-sm-12 col-md-4 col-lg-3 col-xl-3 pl-1 pr-1">
+                            <span>Нач. время: </span>
+                            <datetime v-model="filterStartTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
+                        </div>
 
-                <span class="filter-flexbox-item ml-1 mr-1">
-                    <span>Кон. время: </span>
-                    <datetime v-model="filterEndTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
-                </span>
+                        <div class="col-12 col-sm-12 col-md-4 col-lg-3 col-xl-3 pl-1 pr-1">
+                            <span>Кон. время: </span>
+                            <datetime v-model="filterEndTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
+                        </div>
 
-                <span class="filter-flexbox-item ml-1 mr-1">
-                    <span>Тип: </span>
-                    <select class="form-control" v-model="filterType">
-                        <option value=0>Critical</option>
-                        <option value=1>Warning</option>
-                        <option value=2>Debug</option>
-                        <option value=3>Info</option>
-                    </select>
-                </span>
+                        <div class="d-none d-md-block d-lg-none col-md-4"></div>
 
-                <span class="filter-flexbox-item ml-1 mr-1">
-                    <div>&nbsp;</div>
-                    <button type="button" class="btn btn-primary mr-1" @click="loadData(1)">Применить</button>
-                    <button type="button" class="btn btn-secondary ml-1" @click="clearFilters()">Очистить</button>
-                </span>
+                        <div class="col-12 col-sm-12 col-md-4 col-lg-3 col-xl-3 pl-1 pr-1">
+                            <span>Тип: </span>
+                            <select class="form-control" :class="{'mb-3': !$isWideScreen()}" v-model="filterType">
+                                <option value=0>Critical</option>
+                                <option value=1>Warning</option>
+                                <option value=2>Debug</option>
+                                <option value=3>Info</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
+                            <div class="row">
+                                <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6 pl-1 pr-1">
+                                    <span v-if="$isWideScreen()">&nbsp;</span>
+                                    <button type="button" class="btn btn-primary btn-block" :class="{'mb-1': !$isWideScreen()}" @click="loadData(1)">Применить</button>
+                                </div>
+                                <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6 pl-1 pr-1">
+                                    <span v-if="$isWideScreen()">&nbsp;</span>
+                                    <button type="button" class="btn btn-secondary btn-block" @click="clearFilters()">Очистить</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </form>
+        </div>
 
         <hr>
 
@@ -79,7 +91,6 @@
 </template>
 
 <script>
-import { LogModel } from '../models/LogModel';
 import LogsModal from '../components/LogsModal';
 
 export default {
@@ -110,22 +121,6 @@ export default {
         }
     },
     methods: {
-        mockedLoadData: function(page) {
-            this.dbElementsCount = 300;
-            let data = [];
-            for (let i = 0; i < this.dbElementsCount; ++i) {
-                const t = i + 1;
-                data.push(new LogModel(i, t, new Date(), 0, `Title ${t}`, `Very very very long message without any information ${t}`));
-            }
-
-            const offset = (page - 1) * this.elementsPerPage;
-            const limit = this.elementsPerPage;
-            if (offset > 0) {
-                data.splice(0, (page - 1) * this.elementsPerPage);
-            }
-            this.logs = data.slice(0, limit);
-        },
-
         clearFilters() {
             this.filterStartTime = null;
             this.filterEndTime = null;
@@ -158,6 +153,7 @@ export default {
         }
     },
     mounted() {
+        console.log(this.$isWideScreen());
         this.currentPage = 1;
     },
     filters: {
@@ -173,18 +169,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-    .filter-flexbox-container {
-        display: flex;
-        flex-direction: row;
-        justify-content: left;
-        align-items: flex-end;
-        flex-wrap: wrap;
-    }
-
-    .filter-flexbox-item {
-        flex-grow: 1;
-    }
-
     .per-page-flexbox-container {
         display: flex;
         flex-direction: row;
