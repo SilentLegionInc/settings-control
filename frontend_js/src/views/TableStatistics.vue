@@ -29,7 +29,7 @@
 
             <div class="row" style="margin:auto">
                 <div class="col-12 col-sm-12 col-md-4 col-lg-3 col-xl-3 pb-1 pl-1 pr-1">
-                    <button type="button" class="btn btn-primary btn-block" @click="loadData(1)">Применить</button>
+                    <button type="button" class="btn btn-success btn-block" @click="loadData(1)">Применить</button>
                 </div>
                 <div class="col-12 col-sm-12 col-md-4 col-lg-3 col-xl-3 pb-1 pl-1 pr-1">
                     <button type="button" class="btn btn-secondary btn-block" @click="clearFilters()">Очистить</button>

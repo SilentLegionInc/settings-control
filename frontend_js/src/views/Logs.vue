@@ -29,7 +29,7 @@
                             <div class="row">
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6 pl-1 pr-1">
                                     <span v-if="$isWideScreen()">&nbsp;</span>
-                                    <button type="button" class="btn btn-primary btn-block" :class="{'mb-1': !$isWideScreen()}" @click="loadData(1)">Применить</button>
+                                    <button type="button" class="btn btn-success btn-block" :class="{'mb-1': !$isWideScreen()}" @click="loadData(1)">Применить</button>
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6 pl-1 pr-1">
                                     <span v-if="$isWideScreen()">&nbsp;</span>
