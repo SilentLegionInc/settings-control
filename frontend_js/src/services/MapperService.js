@@ -1,6 +1,5 @@
 import { LogsResponse } from '../models/LogsResponse';
 import { ServerSettingsModel } from '../models/ServerSettingsModel';
-import { NetworkModel } from '../models/NetworkModel';
 import { LogModel } from '../models/LogModel';
 import { ChartDataModel } from '../models/ChartDataModel';
 import { MapsDataModel } from '../models/MapsDataModel';
@@ -14,11 +13,19 @@ import { MemoryInfoModel } from '../models/MemoryInfoModel';
 import { SystemInfoModel } from '../models/SystemInfoModel';
 import { InitChartDataResponse } from '../models/InitChartDataResponse';
 import { FilterChartDataResponse } from '../models/FilterChartDataResponse';
+import { WiredNetworkModel } from '../models/WiredNetworkModel'
+import { WirelessNetworkModel } from '../models/WirelessNetworkModel'
 
 export class MapperService {
     static mapNetworksResponse(responseBody) {
-        return responseBody.map(elem => new NetworkModel(elem.ssid, elem.security, elem.signal, elem.rate, elem.bars,
-            elem.chan, elem['in-use'], elem.mode, false));
+        const wiredNetwork = responseBody['wired'];
+        const wirelessNetworks = responseBody['wireless'];
+        return {
+            'wiredNetwork': new WiredNetworkModel(wiredNetwork.name, wiredNetwork.id, wiredNetwork.device,
+                wiredNetwork.active, wiredNetwork.autocreate),
+            'wirelessNetworks': wirelessNetworks.map(x => new WirelessNetworkModel(x.name, x.id, x.mode, x.channel,
+                x.frequency, x.speed_rate, x.signal_level, x.security_type, x.device, x.active))
+        }
     }
 
     static mapModulesResponse(responseBody) {

@@ -20,7 +20,7 @@ from werkzeug.exceptions import HTTP_STATUS_CODES
 from support.server_exception import ServerException
 import traceback
 from support.mapper import Mapper
-from configuration.wireless import WifiService, get_mocked_list, cmd
+from configuration.wireless import NetworkService, cmd
 from monitoring.system_monitoring_service import SystemMonitoringService
 from werkzeug.utils import secure_filename
 import os
@@ -167,24 +167,59 @@ def api_config():
         return jsonify(SettingsService().save_core_config(request.get_json()))
 
 
-@app.route('/api/wifi', methods=['GET'])
+@app.route('/api/network', methods=['GET'])
 @handle_errors
 @api_authorization
 def api_get_wifi_list():
-    # return jsonify(WifiService().list_of_connections())
-    return jsonify(get_mocked_list())
+    return jsonify(NetworkService().list_of_connections()), status.HTTP_200_OK
 
 
-@app.route('/api/wifi/connect', methods=['POST'])
+@app.route('/api/network/create_wifi_connection', methods=['POST'])
 @handle_errors
 @api_authorization
-def api_set_wifi():
-    # TODO test me, add reconnect if die here core will be isolated...
+def api_connect_to_new_wifi():
     params = request.get_json()
     ssid = params.get('name')
     password = params.get('password')
-    if WifiService().connect(ssid, password):
-        return jsonify({'code': 0}), status.HTTP_200_OK
+    if NetworkService().create_wifi_connection(ssid, password):
+        return jsonify({'ok': True}), status.HTTP_200_OK
+
+
+@app.route('/api/network/connection/up/<string:uuid>', methods=['GET'])
+@handle_errors
+@api_authorization
+def api_connection_up(uuid):
+    # This is connect to known connection
+    if NetworkService().connection_up(uuid):
+        return jsonify({'ok': True}), status.HTTP_200_OK
+
+
+@app.route('/api/network/connection/down/<string:uuid>', methods=['GET'])
+@handle_errors
+@api_authorization
+def api_connection_down(uuid):
+    # This is connect to known connection
+    if NetworkService().connection_down(uuid):
+        return jsonify({'ok': True}), status.HTTP_200_OK
+
+
+@app.route('/api/network/connection/<string:uuid>', methods=['POST'])
+@handle_errors
+@api_authorization
+def api_connection_modify(uuid):
+    # modify connection
+    params = request.get_json()
+    if NetworkService().modify_connection_params(uuid, params):
+        return jsonify({'ok': True}), status.HTTP_200_OK
+
+
+@app.route('/api/network/connection/<string:uuid>', methods=['DELETE'])
+@handle_errors
+@api_authorization
+def api_connection_delete(uuid):
+    # delete connection
+    if NetworkService().delete_connection(uuid):
+        return jsonify({'ok': True}), status.HTTP_200_OK
 
 
 @app.route('/api/core/compile', methods=['POST'])
@@ -522,6 +557,7 @@ def api_build_module(module_name):
         (is_cloned, _) = CoreService().cloned_info()
         if not is_cloned:
             CoreService().update_core_sync()
+        # TODO refactor move to UpdateService
         (compile_status, compile_output) = CoreService().compile_core()
 
     if compile_status is ProcessStatus.SUCCESS:
