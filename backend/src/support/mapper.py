@@ -195,8 +195,16 @@ class Mapper:
         return return_val
 
     @staticmethod
-    def map_get_monitoring_maps_data_response(body):
+    def map_get_monitoring_maps_data_request(body):
+        return {
+            'filter_params': {
+                'start_time': parser.parse(body['start_time']) if body.get('start_time') else None,
+                'end_time': parser.parse(body['end_time']) if body.get('end_time') else None,
+            }
+        }
 
+    @staticmethod
+    def map_get_monitoring_maps_data_response(body):
         def map_points(points):
             result = []
             for elem in points:

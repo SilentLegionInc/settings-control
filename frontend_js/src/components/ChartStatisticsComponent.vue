@@ -50,7 +50,7 @@
                     <line-chart :id="`${fieldName}_chart`" v-if="chartData" :chart-data="chartData" :options="chartOptions"></line-chart>
                 </div>
                 <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
-                    <div :id="`${fieldName}-table-container`" class="table-container">
+                    <div :id="`${fieldName}-table-container`" class="table-container" style="overflow-x: auto;">
                         <table class="custom-table">
                             <thead class="custom-table-header">
                             <tr>
@@ -121,7 +121,8 @@
 
 <script>
 import LineChart from '../views/LineChart.js';
-import Logger from '../logger';
+import { catchErrorsWrapper } from '../helpers';
+import { ClientExceptionModel } from '../models/ClientExceptionModel';
 
 export default {
     name: 'ChartStatisticsComponent',
@@ -165,7 +166,7 @@ export default {
             const neededId = this.chartData.datasets[datasetIndex].data[index].id;
             if (neededId !== null && neededId !== undefined) {
                 this.$scrollTo(`#${this.fieldName}_elem${neededId}`, 500, {
-                    container: `#${this.fieldName}-table-container`,
+                    container: this.$isWideScreen() ? `#${this.fieldName}-table-container` : 'body',
                     easing: 'ease',
                     offset: 0,
                     force: true,
@@ -193,91 +194,95 @@ export default {
             this.loadFilterData();
         },
         async loadInitData() {
-            if (!this.robotName || !this.dbName || !this.fieldName) {
-                Logger.error(`Chart statistics: can't load data, one of required params is empty`);
-                return;
-            }
+            this.loader = this.$loading.show();
 
-            const loader = this.$loading.show();
+            await catchErrorsWrapper(this.$toaster, async () => {
+                if (!this.robotName || !this.dbName || !this.fieldName) {
+                    throw new ClientExceptionModel('Chart statistics: can\'t load data, one of required params is empty');
+                }
 
-            const response = await this.$store.state.requestService.getStatisticsInitChartData(
-                this.robotName, this.dbName, this.fieldName, this.intervalSize
-            );
+                const response = await this.$store.state.requestService.getStatisticsInitChartData(
+                    this.robotName, this.dbName, this.fieldName, this.intervalSize
+                );
 
-            this.minTime = response.minTime;
-            this.maxTime = response.maxTime;
-            this.filterStartTime = response.minTime.toISOString();
-            this.filterEndTime = response.maxTime.toISOString();
-            this.intervalStartTime = response.intervalStartTime;
-            this.intervalEndTime = response.intervalEndTime;
-            this.minimumValue = response.minimum;
-            this.averageValue = response.average;
-            this.maximumValue = response.maximum;
-            this.data = response.result;
+                this.minTime = response.minTime;
+                this.maxTime = response.maxTime;
+                this.filterStartTime = response.minTime.toISOString();
+                this.filterEndTime = response.maxTime.toISOString();
+                this.intervalStartTime = response.intervalStartTime;
+                this.intervalEndTime = response.intervalEndTime;
+                this.minimumValue = response.minimum;
+                this.averageValue = response.average;
+                this.maximumValue = response.maximum;
+                this.data = response.result;
+            });
 
-            loader.hide();
+            this.loader.hide();
         },
         async loadFilterData() {
-            if (!this.robotName || !this.dbName || !this.fieldName) {
-                Logger.error(`Chart statistics: can't load data, one of required params is empty`);
-                return;
-            }
+            this.loader = this.$loading.show();
 
-            const loader = this.$loading.show();
+            await catchErrorsWrapper(this.$toaster, async () => {
+                if (!this.robotName || !this.dbName || !this.fieldName) {
+                    throw new ClientExceptionModel('Chart statistics: can\'t load data, one of required params is empty');
+                }
 
-            const filterStartTime = new Date(this.filterStartTime);
-            const filterEndTime = new Date(this.filterEndTime);
+                const filterStartTime = new Date(this.filterStartTime);
+                const filterEndTime = new Date(this.filterEndTime);
 
-            const response = await this.$store.state.requestService.getStatisticsFilterChartData(
-                this.robotName, this.dbName, this.fieldName, filterStartTime, filterEndTime, this.intervalSize
-            );
+                const response = await this.$store.state.requestService.getStatisticsFilterChartData(
+                    this.robotName, this.dbName, this.fieldName, filterStartTime, filterEndTime, this.intervalSize
+                );
 
-            this.minTime = filterStartTime;
-            this.maxTime = filterEndTime;
-            this.intervalStartTime = response.intervalStartTime;
-            this.intervalEndTime = response.intervalEndTime;
-            this.minimumValue = response.minimum;
-            this.averageValue = response.average;
-            this.maximumValue = response.maximum;
-            this.data = response.result;
+                this.minTime = filterStartTime;
+                this.maxTime = filterEndTime;
+                this.intervalStartTime = response.intervalStartTime;
+                this.intervalEndTime = response.intervalEndTime;
+                this.minimumValue = response.minimum;
+                this.averageValue = response.average;
+                this.maximumValue = response.maximum;
+                this.data = response.result;
+            });
 
-            loader.hide();
+            this.loader.hide();
         },
         async loadLeftPageData() {
-            if (!this.robotName || !this.dbName || !this.fieldName) {
-                Logger.error(`Chart statistics: can't load data, one of required params is empty`);
-                return;
-            }
+            this.loader = this.$loading.show();
 
-            const loader = this.$loading.show();
+            await catchErrorsWrapper(this.$toaster, async () => {
+                if (!this.robotName || !this.dbName || !this.fieldName) {
+                    throw new ClientExceptionModel('Chart statistics: can\'t load data, one of required params is empty');
+                }
 
-            this.intervalEndTime = this.intervalStartTime;
-            this.intervalStartTime = this.$moment(this.intervalStartTime).subtract(this.intervalSize, 'm').toDate();
-            this.intervalStartTime = this.intervalStartTime > this.minTime ? this.intervalStartTime : this.minTime;
+                this.intervalEndTime = this.intervalStartTime;
+                this.intervalStartTime = this.$moment(this.intervalStartTime).subtract(this.intervalSize, 'm').toDate();
+                this.intervalStartTime = this.intervalStartTime > this.minTime ? this.intervalStartTime : this.minTime;
 
-            this.data = await this.$store.state.requestService.getStatisticsPageChartData(
-                this.robotName, this.dbName, this.fieldName, this.intervalStartTime, this.intervalEndTime
-            );
+                this.data = await this.$store.state.requestService.getStatisticsPageChartData(
+                    this.robotName, this.dbName, this.fieldName, this.intervalStartTime, this.intervalEndTime
+                );
+            });
 
-            loader.hide();
+            this.loader.hide();
         },
         async loadRightPageData() {
-            if (!this.robotName || !this.dbName || !this.fieldName) {
-                Logger.error(`Chart statistics: can't load data, one of required params is empty`);
-                return;
-            }
+            this.loader = this.$loading.show();
 
-            const loader = this.$loading.show();
+            await catchErrorsWrapper(this.$toaster, async () => {
+                if (!this.robotName || !this.dbName || !this.fieldName) {
+                    throw new ClientExceptionModel('Chart statistics: can\'t load data, one of required params is empty');
+                }
 
-            this.intervalStartTime = this.intervalEndTime;
-            this.intervalEndTime = this.$moment(this.intervalEndTime).add(this.intervalSize, 'm').toDate();
-            this.intervalEndTime = this.intervalEndTime < this.maxTime ? this.intervalEndTime : this.maxTime;
+                this.intervalStartTime = this.intervalEndTime;
+                this.intervalEndTime = this.$moment(this.intervalEndTime).add(this.intervalSize, 'm').toDate();
+                this.intervalEndTime = this.intervalEndTime < this.maxTime ? this.intervalEndTime : this.maxTime;
 
-            this.data = await this.$store.state.requestService.getStatisticsPageChartData(
-                this.robotName, this.dbName, this.fieldName, this.intervalStartTime, this.intervalEndTime
-            );
+                this.data = await this.$store.state.requestService.getStatisticsPageChartData(
+                    this.robotName, this.dbName, this.fieldName, this.intervalStartTime, this.intervalEndTime
+                );
+            });
 
-            loader.hide();
+            this.loader.hide();
         }
     },
     computed: {
@@ -491,7 +496,6 @@ const datasetOptions = {
     @media only screen and (min-width: $min-wide-width) {
         .table-container {
             overflow-y: auto;
-            overflow-x: hidden;
             max-height: 400px;
         }
     }

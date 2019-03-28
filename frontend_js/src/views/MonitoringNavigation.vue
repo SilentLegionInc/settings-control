@@ -27,6 +27,8 @@
 </template>
 
 <script>
+import { catchErrorsWrapper } from '../helpers';
+
 export default {
     name: 'MonitoringNavigation',
     data() {
@@ -35,9 +37,20 @@ export default {
             databasesInfo: []
         }
     },
-    async mounted() {
-        this.robotName = this.$store.state.robotName;
-        this.databasesInfo = await this.$store.state.requestService.getStatisticsDatabasesInfo(this.robotName);
+    methods: {
+        async loadDatabasesInfo() {
+            this.loader = this.$loading.show();
+
+            await catchErrorsWrapper(this.$toaster, async () => {
+                this.robotName = this.$store.state.robotName;
+                this.databasesInfo = await this.$store.state.requestService.getStatisticsDatabasesInfo(this.robotName);
+            });
+
+            this.loader.hide();
+        }
+    },
+    mounted() {
+        this.loadDatabasesInfo();
     }
 }
 </script>

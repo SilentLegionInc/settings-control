@@ -37,6 +37,7 @@
 <script>
 import ChartStatisticsComponent from '../components/ChartStatisticsComponent';
 import Logger from '../logger';
+import { catchErrorsWrapper } from '../helpers';
 
 export default {
     name: 'ChartStatistics',
@@ -60,22 +61,27 @@ export default {
         },
         isMobileTabVisible(tabName) {
             return this.activeTab === tabName;
+        },
+        async loadAvailableFields() {
+            this.loader = this.$loading.show();
+
+            await catchErrorsWrapper(this.$toaster, async () => {
+                this.robotName = this.$store.state.robotName;
+                this.databaseName = this.$route.query.dbName;
+                if (this.databaseName == null) {
+                    Logger.warn(`Chart statistics: can't load data, database name is empty`);
+                    return;
+                }
+
+                this.dataStructure = await this.$store.state.requestService.getStatisticsDataStructure(this.robotName, this.databaseName);
+                this.dataStructure = this.dataStructure.filter(elem => elem.type === 'number');
+            });
+
+            this.loader.hide();
         }
     },
-    async mounted() {
-        const loader = this.$loading.show();
-
-        this.robotName = this.$store.state.robotName;
-        this.databaseName = this.$route.query.dbName;
-        if (this.databaseName == null) {
-            Logger.warn(`Chart statistics: can't load data, database name is empty`);
-            return;
-        }
-
-        this.dataStructure = await this.$store.state.requestService.getStatisticsDataStructure(this.robotName, this.databaseName);
-        this.dataStructure = this.dataStructure.filter(elem => elem.type === 'number');
-
-        loader.hide();
+    mounted() {
+        this.loadAvailableFields();
     }
 }
 </script>

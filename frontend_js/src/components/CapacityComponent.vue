@@ -37,7 +37,7 @@ export default {
     methods: {
         // this is not a filter because this context is needed
         bytesToHumanMeasure(value) {
-            if (!value) return ''
+            if (!value) return '';
 
             let result = parseInt(value);
             let multiplicity = 0;

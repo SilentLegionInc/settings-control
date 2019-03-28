@@ -244,7 +244,12 @@ export class RequestService {
         Logger.debug(`Body: ${JSON.stringify(body)}`);
 
         const result = await axios.post(path, body);
-        return MapperService.mapLogsResponse(result.data);
+        if (result.status === 200) {
+            return MapperService.mapLogsResponse(result.data);
+        } else {
+            Logger.error(result.data.errorInfo);
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+        }
     }
 
     async getStatisticsDataStructure(robotName, dbName) {
@@ -254,7 +259,12 @@ export class RequestService {
         Logger.debug(`Path: ${path}`);
 
         const result = await axios.get(path);
-        return MapperService.mapDataStructureResponse(result.data);
+        if (result.status === 200) {
+            return MapperService.mapDataStructureResponse(result.data);
+        } else {
+            Logger.error(result.data.errorInfo);
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+        }
     }
 
     async getStatisticsDatabasesInfo(robotName) {
@@ -264,7 +274,12 @@ export class RequestService {
         Logger.debug(`Path: ${path}`);
 
         const result = await axios.get(path);
-        return MapperService.mapDatabasesInfoResponse(result.data);
+        if (result.status === 200) {
+            return MapperService.mapDatabasesInfoResponse(result.data);
+        } else {
+            Logger.error(result.data.errorInfo);
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+        }
     }
 
     async getStatisticsInitChartData(robotName, dbName, fieldName, intervalSize) {
@@ -274,7 +289,12 @@ export class RequestService {
         Logger.debug(`Path: ${path}`);
 
         const result = await axios.get(path);
-        return MapperService.mapInitChartDataResponse(result.data);
+        if (result.status === 200) {
+            return MapperService.mapInitChartDataResponse(result.data);
+        } else {
+            Logger.error(result.data.errorInfo);
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+        }
     }
 
     async getStatisticsFilterChartData(robotName, dbName, fieldName, minTime, maxTime, intervalSize) {
@@ -297,7 +317,12 @@ export class RequestService {
         Logger.debug(`Body: ${JSON.stringify(body)}`);
 
         const result = await axios.post(path, body);
-        return MapperService.mapFilterChartDataResponse(result.data);
+        if (result.status === 200) {
+            return MapperService.mapFilterChartDataResponse(result.data);
+        } else {
+            Logger.error(result.data.errorInfo);
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+        }
     }
 
     async getStatisticsPageChartData(robotName, dbName, fieldName, intervalStartTime, intervalEndTime) {
@@ -319,7 +344,12 @@ export class RequestService {
         Logger.debug(`Body: ${JSON.stringify(body)}`);
 
         const result = await axios.post(path, body);
-        return MapperService.mapPageChartDataResponse(result.data);
+        if (result.status === 200) {
+            return MapperService.mapPageChartDataResponse(result.data);
+        } else {
+            Logger.error(result.data.errorInfo);
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+        }
     }
 
     async getStatisticsTableData(robotName, dbName, limit = 1, offset = 0, extended = false, filter = {}, sort = {}) {
@@ -359,7 +389,12 @@ export class RequestService {
         Logger.debug(`Body: ${JSON.stringify(body)}`);
 
         const result = await axios.post(path, body);
-        return MapperService.mapTableDataResponse(result.data);
+        if (result.status === 200) {
+            return MapperService.mapTableDataResponse(result.data);
+        } else {
+            Logger.error(result.data.errorInfo);
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+        }
     }
 
     async getSystemInfo(extended = true) {
@@ -369,17 +404,50 @@ export class RequestService {
         Logger.debug(`Path: ${path}`);
 
         const result = await axios.get(path);
-        return MapperService.mapSystemInfoResponse(result.data);
+        if (result.status === 200) {
+            return MapperService.mapSystemInfoResponse(result.data);
+        } else {
+            Logger.error(result.data.errorInfo);
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+        }
     }
 
     async getStatisticsMapsData(robotName, dbName, onlyFields, filter = {}) {
-        const path = this._constructPath(`api/monitoring/maps_data/${robotName}/${dbName}?only_fields=${onlyFields}`);
+        const path = this._constructPath(`api/monitoring/maps_data/${robotName}/${dbName}`);
 
-        Logger.debug('GET request: get statistics maps data');
-        Logger.debug(`Path: ${path}`);
+        let result = null;
+        if (onlyFields) {
+            Logger.debug('GET request: get statistics maps data');
+            Logger.debug(`Path: ${path}`);
 
-        const result = await axios.get(path);
-        return MapperService.mapMapsDataResponse(result.data);
+            result = await axios.get(path);
+        } else {
+            Logger.debug('POST request: get statistics maps data');
+            Logger.debug(`Path: ${path}`);
+
+            const body = {};
+
+            if (filter.startTime != null) {
+                body['start_time'] = filter.startTime;
+                if (typeof body['start_time'] !== 'string') {
+                    body['start_time'] = body['start_time'].toISOString();
+                }
+            }
+            if (filter.endTime != null) {
+                body['end_time'] = filter.endTime;
+                if (typeof body['end_time'] !== 'string') {
+                    body['end_time'] = body['end_time'].toISOString();
+                }
+            }
+
+            result = await axios.post(path, body);
+        }
+        if (result.status === 200) {
+            return MapperService.mapMapsDataResponse(result.data);
+        } else {
+            Logger.error(result.data.errorInfo);
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+        }
     }
 
     async uploadModuleArchive(formData, moduleName) {
@@ -392,7 +460,7 @@ export class RequestService {
         if (result.status === 200) {
             return true;
         } else {
-            Logger.error(`Can't upload file`)
+            Logger.error(`Can't upload file`);
             throw new ServerExceptionModel(result.data.errorInfo, result.status);
         }
     }

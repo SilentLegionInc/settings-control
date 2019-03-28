@@ -418,7 +418,7 @@ class MonitoringDataService(metaclass=Singleton):
             connection.close()
             raise ServerException('Error while preparing and executing query', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
 
-    def get_maps_data(self, robot_name, db_name):
+    def get_maps_data(self, robot_name, db_name, filter_params=None):
         try:
             connection = sqlite3.connect(self.connections[robot_name]['sensors'][db_name]['file_path'])
             cursor = connection.cursor()
@@ -434,16 +434,32 @@ class MonitoringDataService(metaclass=Singleton):
             sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
             latitude_column_name = sensors_config['latitude_field']
             longitude_column_name = sensors_config['longitude_field']
+            time_column_name = sensors_config['time_column']
             numeric_fields = list(filter(lambda elem: elem[1]['type'] == 'number', sensors_config['fields_to_retrieve'].items()))
 
-            query = 'SELECT {},{},COUNT(*),{} FROM {} group by {},{}'.format(
+            filter_conditions = []
+            if filter_params.get('start_time') is not None:
+                if isinstance(filter_params['start_time'], datetime.datetime):
+                    filter_params['start_time'] = filter_params['start_time'].strftime("%Y-%m-%d %H:%M:%S")
+                filter_conditions.append(
+                    'datetime({}) >= datetime("{}")'.format(time_column_name, filter_params['start_time']))
+            if filter_params.get('end_time') is not None:
+                if isinstance(filter_params['end_time'], datetime.datetime):
+                    filter_params['end_time'] = filter_params['end_time'].strftime("%Y-%m-%d %H:%M:%S")
+                filter_conditions.append(
+                    'datetime({}) <= datetime("{}")'.format(time_column_name, filter_params['end_time']))
+
+            query = 'SELECT {},{},COUNT(*),{} FROM {}'.format(
                 latitude_column_name,
                 longitude_column_name,
                 ','.join(list(map(lambda elem: 'SUM({})'.format(elem[1]['column_name']), numeric_fields))),
-                collection_name,
-                latitude_column_name,
-                longitude_column_name
+                collection_name
             )
+
+            if filter_conditions:
+                query += ' WHERE ' + ' AND '.join(filter_conditions)
+
+            query += ' GROUP BY {},{}'.format(latitude_column_name, longitude_column_name)
 
             Logger().debug_message(query, "get_maps_data :: Sensors database query: ")
 

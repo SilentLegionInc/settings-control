@@ -82,7 +82,8 @@
 <script>
 import CapacityComponent from '../components/CapacityComponent';
 import LineChart from './LineChart';
-import Logger from '../logger';
+import { catchErrorsWrapper } from '../helpers';
+import { ClientExceptionModel } from '../models/ClientExceptionModel';
 
 export default {
     name: 'SystemInfo',
@@ -99,68 +100,71 @@ export default {
     },
     methods: {
         async loadFullInfo() {
-            const loader = this.$loading.show();
+            this.loader = this.$loading.show();
 
-            const response = await this.$store.state.requestService.getSystemInfo();
-            this.diskInfo = response.diskInfo;
-            this.memoryInfo = response.memoryInfo;
+            await catchErrorsWrapper(this.$toaster, async () => {
+                const response = await this.$store.state.requestService.getSystemInfo();
+                this.diskInfo = response.diskInfo;
+                this.memoryInfo = response.memoryInfo;
 
-            const cpuInfoKeys = Object.keys(response.cpuInfo);
-            cpuInfoKeys.sort();
-            this.chartData = {
-                datasets: [],
-                labels: Array(this.elementsPerChart).fill('')
-            };
-            for (const key of cpuInfoKeys) {
-                if (response.cpuInfo.hasOwnProperty(key)) {
-                    const color = this.getRandomColor();
-                    const dataset = JSON.parse(JSON.stringify(datasetOptions));
-                    dataset.label = key;
-                    dataset.backgroundColor = color;
-                    dataset.borderColor = color;
-                    dataset.data = [...Array(this.elementsPerChart - 1).fill(null), response.cpuInfo[key]];
+                const cpuInfoKeys = Object.keys(response.cpuInfo);
+                cpuInfoKeys.sort();
+                this.chartData = {
+                    datasets: [],
+                    labels: Array(this.elementsPerChart).fill('')
+                };
+                for (const key of cpuInfoKeys) {
+                    if (response.cpuInfo.hasOwnProperty(key)) {
+                        const color = this.getRandomColor();
+                        const dataset = JSON.parse(JSON.stringify(datasetOptions));
+                        dataset.label = key;
+                        dataset.backgroundColor = color;
+                        dataset.borderColor = color;
+                        dataset.data = [...Array(this.elementsPerChart - 1).fill(null), response.cpuInfo[key]];
 
-                    this.chartData.datasets.push(dataset);
+                        this.chartData.datasets.push(dataset);
+                    }
                 }
-            }
+            });
 
-            loader.hide();
+            this.loader.hide();
         },
         async loadCpuInfo() {
-            const response = await this.$store.state.requestService.getSystemInfo(false);
-            const cpuInfoKeys = Object.keys(response);
-            if (this.chartData.datasets.length !== cpuInfoKeys.length) {
-                Logger.error('CPU\'s count didn\'t match');
-                return;
-            }
-            cpuInfoKeys.sort();
-
-            const oldDatasets = this.chartData.datasets.slice();
-
-            this.chartData = {
-                datasets: [],
-                labels: this.chartData.labels
-            };
-
-            let index = 0;
-            for (const key of cpuInfoKeys) {
-                if (response.hasOwnProperty(key)) {
-                    const color = oldDatasets[index].backgroundColor;
-                    const dataset = JSON.parse(JSON.stringify(datasetOptions));
-                    dataset.label = key;
-                    dataset.backgroundColor = color;
-                    dataset.borderColor = color;
-                    dataset.data = [...oldDatasets[index++].data.slice(-(this.elementsPerChart - 1)), response[key]];
-
-                    this.chartData.datasets.push(dataset);
+            await catchErrorsWrapper(this.$toaster, async () => {
+                const response = await this.$store.state.requestService.getSystemInfo(false);
+                const cpuInfoKeys = Object.keys(response);
+                if (this.chartData.datasets.length !== cpuInfoKeys.length) {
+                    throw new ClientExceptionModel('Cpu info: CPU\'s count didn\'t match');
                 }
-            }
+                cpuInfoKeys.sort();
+
+                const oldDatasets = this.chartData.datasets.slice();
+
+                this.chartData = {
+                    datasets: [],
+                    labels: this.chartData.labels
+                };
+
+                let index = 0;
+                for (const key of cpuInfoKeys) {
+                    if (response.hasOwnProperty(key)) {
+                        const color = oldDatasets[index].backgroundColor;
+                        const dataset = JSON.parse(JSON.stringify(datasetOptions));
+                        dataset.label = key;
+                        dataset.backgroundColor = color;
+                        dataset.borderColor = color;
+                        dataset.data = [...oldDatasets[index++].data.slice(-(this.elementsPerChart - 1)), response[key]];
+
+                        this.chartData.datasets.push(dataset);
+                    }
+                }
+            });
         },
         getRandomColor() {
             return '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6);
         }
     },
-    mounted: async function() {
+    async mounted() {
         await this.loadFullInfo();
         this._intervalFunction = setInterval(this.loadCpuInfo, 1000);
     },

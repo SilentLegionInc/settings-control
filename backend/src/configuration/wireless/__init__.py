@@ -1,1 +1,1 @@
-from configuration.wireless.network_service import NetworkService
+from configuration.wireless.network_service import NetworkService, cmd

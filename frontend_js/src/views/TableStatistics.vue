@@ -106,6 +106,8 @@
 
 <script>
 import Logger from '../logger';
+import { catchErrorsWrapper } from '../helpers';
+
 export default {
     name: 'TableStatistics',
     data: function() {
@@ -155,33 +157,35 @@ export default {
         },
 
         loadData: async function(page) {
-            const loader = this.$loading.show();
+            this.loader = this.$loading.show();
 
-            const offset = (page - 1) * this.elementsPerPage;
-            const limit = this.elementsPerPage;
-            const extended = this.dataStructure.length <= 0;
-            const filter = JSON.parse(JSON.stringify(this.filter));
-            for (let key in filter) {
-                if (filter.hasOwnProperty(key)) {
-                    if (key === 'startTime' || key === 'endTime') {
-                        filter[key] = filter[key] ? new Date(filter[key]) : null;
-                    } else if (key.startsWith('min__') || key.startsWith('max__')) {
-                        filter[key] = filter[key] ? parseFloat(filter[key]) : null;
+            await catchErrorsWrapper(this.$toaster, async () => {
+                const offset = (page - 1) * this.elementsPerPage;
+                const limit = this.elementsPerPage;
+                const extended = this.dataStructure.length <= 0;
+                const filter = JSON.parse(JSON.stringify(this.filter));
+                for (let key in filter) {
+                    if (filter.hasOwnProperty(key)) {
+                        if (key === 'startTime' || key === 'endTime') {
+                            filter[key] = filter[key] ? new Date(filter[key]) : null;
+                        } else if (key.startsWith('min__') || key.startsWith('max__')) {
+                            filter[key] = filter[key] ? parseFloat(filter[key]) : null;
+                        }
                     }
                 }
-            }
 
-            const response = await this.$store.state.requestService.getStatisticsTableData(
-                this.robotName, this.databaseName, limit, offset, extended, filter, this.sort
-            );
-            this.dbElementsCount = response.count;
-            this.dataElements = response.result;
-            if (extended) {
-                this.dataStructure = response.dataStructure;
-                this.numDataStructure = this.dataStructure.filter(elem => elem.type === 'number');
-            }
+                const response = await this.$store.state.requestService.getStatisticsTableData(
+                    this.robotName, this.databaseName, limit, offset, extended, filter, this.sort
+                );
+                this.dbElementsCount = response.count;
+                this.dataElements = response.result;
+                if (extended) {
+                    this.dataStructure = response.dataStructure;
+                    this.numDataStructure = this.dataStructure.filter(elem => elem.type === 'number');
+                }
+            });
 
-            loader.hide();
+            this.loader.hide();
         },
 
         selectElement(index) {

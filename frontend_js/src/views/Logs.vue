@@ -44,8 +44,9 @@
 
         <hr>
 
-        <table class="custom-table">
-            <thead class="custom-table-header">
+        <div style="overflow-x: auto;">
+            <table class="custom-table">
+                <thead class="custom-table-header">
                 <tr>
                     <th>№</th>
                     <th>Время</th>
@@ -53,9 +54,9 @@
                     <th>Заголовок</th>
                     <th>Сообщение</th>
                 </tr>
-            </thead>
+                </thead>
 
-            <tbody class="custom-table-body">
+                <tbody class="custom-table-body">
                 <tr v-for="(log, index) in logs" :key="index" @click="selectLog(index)" class="selectable-table-row">
                     <td>{{ (_currentPage - 1) * elementsPerPage + index + 1 }}</td>
                     <td>{{ log.time | moment("DD.MM.YYYY HH:mm:ss.SSS") }}</td>
@@ -63,8 +64,9 @@
                     <td>{{ log.title }}</td>
                     <td>{{ log.message | chopLongMessage}}</td>
                 </tr>
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
 
         <div class="pagination-flexbox-container pt-2">
             <b-pagination class="paginator-flexbox-item pb-2"
@@ -92,6 +94,7 @@
 
 <script>
 import LogsModal from '../components/LogsModal';
+import { catchErrorsWrapper } from '../helpers';
 
 export default {
     name: 'Logs',
@@ -133,19 +136,21 @@ export default {
         },
 
         loadData: async function(page) {
-            const loader = this.$loading.show();
+            this.loader = this.$loading.show();
 
-            const offset = (page - 1) * this.elementsPerPage;
-            const limit = this.elementsPerPage;
-            const filterStartTime = this.filterStartTime ? new Date(this.filterStartTime) : null;
-            const filterEndTime = this.filterEndTime ? new Date(this.filterEndTime) : null;
-            const filterType = this.filterType ? parseInt(this.filterType) : null;
+            await catchErrorsWrapper(this.$toaster, async () => {
+                const offset = (page - 1) * this.elementsPerPage;
+                const limit = this.elementsPerPage;
+                const filterStartTime = this.filterStartTime ? new Date(this.filterStartTime) : null;
+                const filterEndTime = this.filterEndTime ? new Date(this.filterEndTime) : null;
+                const filterType = this.filterType ? parseInt(this.filterType) : null;
 
-            const response = await this.$store.state.requestService.getLogs('AMTS', limit, offset, filterStartTime, filterEndTime, filterType);
-            this.dbElementsCount = response.count;
-            this.logs = response.result;
+                const response = await this.$store.state.requestService.getLogs('AMTS', limit, offset, filterStartTime, filterEndTime, filterType);
+                this.dbElementsCount = response.count;
+                this.logs = response.result;
+            });
 
-            loader.hide();
+            this.loader.hide();
         },
 
         selectLog(index) {

@@ -6,12 +6,12 @@
                     <div class="row">
                         <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 pl-1 pr-1">
                             <span>Нач. время:</span>
-                            <datetime v-model="filter.startTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
+                            <datetime v-model="filter.startTime" type="datetime" zone="UTC" value-zone="UTC" input-class="form-control"></datetime>
                         </div>
 
                         <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 pl-1 pr-1">
                             <span>Кон. время:</span>
-                            <datetime v-model="filter.endTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control" :class="{'mb-3': !$isWideScreen()}"></datetime>
+                            <datetime v-model="filter.endTime" type="datetime" zone="UTC" value-zone="UTC" input-class="form-control" :class="{'mb-3': !$isWideScreen()}"></datetime>
                         </div>
 
                         <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 pl-1 pr-1">
@@ -58,7 +58,7 @@
                                 </div>
                                 <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
                             <span v-if="selectedIndex !== null">
-                                {{elements[selectedIndex].latitude | toFixedPrecision}}
+                                {{elements[selectedIndex].latitude.toFixed(6)}}
                             </span>
                                 </div>
                             </div>
@@ -68,7 +68,7 @@
                                 </div>
                                 <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
                             <span v-if="selectedIndex !== null">
-                                {{elements[selectedIndex].longitude | toFixedPrecision}}
+                                {{elements[selectedIndex].longitude.toFixed(6)}}
                             </span>
                                 </div>
                             </div>
@@ -101,8 +101,8 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-2" style="padding-right: 0 !important;" align="right">
-                                <button type="button" class="btn btn-primary" @click="redirectToTableStatistics">Подробнее</button>
+                            <div class="offset-md-6 offset-lg-7 offset-xl-7 col-12 col-sm-12 col-md-6 col-lg-5 col-xl-5 mt-2 mb-1">
+                                <button type="button" class="btn btn-primary btn-block" @click="redirectToTableStatistics">Подробнее</button>
                             </div>
                         </div>
                     </div>
@@ -113,7 +113,9 @@
 </template>
 
 <script>
-import { yandexMap } from 'vue-yandex-maps'
+import { yandexMap } from 'vue-yandex-maps';
+import { catchErrorsWrapper } from '../helpers';
+
 export default {
     name: 'Maps',
     components: { yandexMap },
@@ -130,44 +132,53 @@ export default {
             filter: {}
         }
     },
-    async mounted() {
+    mounted() {
         this.databaseName = this.$route.query.dbName;
         this.robotName = this.$store.state.robotName;
         this.loadStartData();
     },
     methods: {
         async loadStartData() {
-            const loader = this.$loading.show();
-            this.numericFields = await this.$store.state.requestService.getStatisticsMapsData(this.robotName, this.databaseName, true);
-            loader.hide();
-        },
-        async loadData() {
-            const loader = this.$loading.show();
+            this.loader = this.$loading.show();
 
-            const filter = JSON.parse(JSON.stringify(this.filter));
-            filter.startTime = filter.startTime ? new Date(filter.startTime) : null;
-            filter.endTime = filter.endTime ? new Date(filter.endTime) : null;
-            const result = await this.$store.state.requestService.getStatisticsMapsData(this.robotName, this.databaseName, false, filter);
-            this.centerLatitude = result.centerLatitude;
-            this.centerLongitude = result.centerLongitude;
-            result.points.forEach((elem, index) => {
-                const placemark = JSON.parse(JSON.stringify(placemarkConfig));
-                placemark.markerId = `${index}`;
-                placemark.coords = [elem.latitude, elem.longitude];
-                placemark.callbacks = { click: (event) => { this.placemarkClicked(event, index) } };
-                // TODO
-                // placemark.icon = {
-                //     color: 'green',
-                //     content: `${elem.count}`,
-                //     glyph: 'cinema'
-                // };
-                placemark.balloonTemplate = this.getBalloon(elem.latitude, elem.longitude, elem.count);
-                this.placemarks.push(placemark);
-
-                this.elements.push(elem);
+            await catchErrorsWrapper(this.$toaster, async () => {
+                this.numericFields = await this.$store.state.requestService.getStatisticsMapsData(this.robotName, this.databaseName, true);
             });
 
-            loader.hide();
+            this.loader.hide();
+        },
+        async loadData() {
+            this.loader = this.$loading.show();
+
+            await catchErrorsWrapper(this.$toaster, async () => {
+                const filter = JSON.parse(JSON.stringify(this.filter));
+                filter.startTime = filter.startTime ? new Date(filter.startTime) : null;
+                filter.endTime = filter.endTime ? new Date(filter.endTime) : null;
+                const result = await this.$store.state.requestService.getStatisticsMapsData(this.robotName, this.databaseName, false, filter);
+
+                this.placemarks = [];
+                this.elements = [];
+
+                this.centerLatitude = result.centerLatitude;
+                this.centerLongitude = result.centerLongitude;
+                result.points.forEach((elem, index) => {
+                    const placemark = JSON.parse(JSON.stringify(placemarkConfig));
+                    placemark.markerId = `${index}`;
+                    placemark.coords = [elem.latitude, elem.longitude];
+                    placemark.callbacks = { click: (event) => { this.placemarkClicked(event, index) } };
+                    // TODO
+                    // placemark.icon = {
+                    //     color: 'green',
+                    //     content: `${elem.count}`,
+                    //     glyph: 'cinema'
+                    // };
+                    placemark.balloonTemplate = this.getBalloon(elem.latitude, elem.longitude, elem.count);
+                    this.placemarks.push(placemark);
+                    this.elements.push(elem);
+                });
+            });
+
+            this.loader.hide();
         },
         clearFilters() {
             this.filter.startTime = null;
@@ -188,7 +199,7 @@ export default {
                         Широта:
                     </div>
                     <div class="col-md-6">
-                        ${latitude}
+                        ${latitude.toFixed(6)}
                     </div>
                 </div>
                 <div class="row">
@@ -196,7 +207,7 @@ export default {
                         Долгота:
                     </div>
                     <div class="col-md-6">
-                        ${longitude}
+                        ${longitude.toFixed(6)}
                     </div>
                 </div>
                 <div class="row">
