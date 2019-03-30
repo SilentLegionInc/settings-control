@@ -102,7 +102,7 @@
                         </div>
                         <div class="row">
                             <div class="offset-md-6 offset-lg-7 offset-xl-7 col-12 col-sm-12 col-md-6 col-lg-5 col-xl-5 mt-2 mb-1">
-                                <button type="button" class="btn btn-primary btn-block" @click="redirectToTableStatistics">Подробнее</button>
+                                <button type="button" class="btn btn-primary btn-block" @click="redirectToTableStatistics" :disabled="selectedIndex === null">Подробнее</button>
                             </div>
                         </div>
                     </div>

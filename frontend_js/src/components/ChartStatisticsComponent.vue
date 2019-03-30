@@ -143,7 +143,7 @@ export default {
             required: true
         }
     },
-    data: function() {
+    data() {
         return {
             chartData: null,
             chartOptions: getChartOptions(this.$moment, this.scrollToTableRow),
@@ -286,10 +286,10 @@ export default {
         }
     },
     computed: {
-        leftPageActive: function() {
+        leftPageActive() {
             return this.intervalStartTime > this.minTime;
         },
-        rightPageActive: function() {
+        rightPageActive() {
             return this.intervalEndTime < this.maxTime;
         },
         data: {

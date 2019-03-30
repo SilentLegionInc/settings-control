@@ -71,7 +71,7 @@
                 </thead>
 
                 <tbody class="custom-table-body">
-                <tr v-for="(dataElement, dataElementIndex) in dataElements" :key="dataElementIndex" @click="selectElement(dataElementIndex)" class="selectable-table-row">
+                <tr v-for="(dataElement, dataElementIndex) in dataElements" :key="dataElementIndex" @click="selectElement(dataElementIndex)">
                     <td>{{ (_currentPage - 1) * elementsPerPage + dataElementIndex + 1 }}</td>
                     <td>{{ dataElement.time | moment("DD.MM.YYYY HH:mm:ss.SSS") }}</td>
                     <td>{{ dataElement.latitude }}</td>
@@ -110,7 +110,7 @@ import { catchErrorsWrapper } from '../helpers';
 
 export default {
     name: 'TableStatistics',
-    data: function() {
+    data() {
         return {
             dataElements: [],
             elementsPerPage: 20,

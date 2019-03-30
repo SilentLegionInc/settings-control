@@ -28,7 +28,7 @@
 export default {
     name: 'Header',
     methods: {
-        onHamburgerClicked: function() {
+        onHamburgerClicked() {
             this.$emit('onHamburger');
         }
     }
