@@ -1,99 +1,165 @@
 <template>
     <div class="sidebar" v-bind:class="{'sidebar-opened': isOpen, 'sidebar-closed': !isOpen}">
+        <a href="#" class="hamburgerbtn clickable" @click="close">
+            <i class="fa fa-bars" aria-hidden="true"></i>
+        </a>
         <a href="#" class="closebtn clickable" @click="close">
             <i class="fa fa-times" aria-hidden="true"></i>
         </a>
-
-        <ul>
-            <li>
-                <router-link class="clickable" to="/" @click.native="close">
-                    Домашняя страница
-                </router-link>
-            </li>
-
-            <li>
-                <router-link class="clickable" to="/system_info" @click.native="close">
-                    Нагрузка
-                </router-link>
-            </li>
-
-            <li>
-                <router-link class="clickable" to="/monitoring_navigation" @click.native="close">
-                    Мониторинг
-                </router-link>
-            </li>
-
-            <li>
-                <router-link class="clickable" to="/logs" @click.native="close">
-                    Логи
-                </router-link>
-            </li>
-        </ul>
-
-        <ul>
-            <li v-if="$store.getters.isAuthenticated">
-                <router-link class="clickable" to="/settings" @click.native="close">
-                    Конфигурация ядра
-                </router-link>
-            </li>
-
-            <li v-if="$store.getters.isAuthenticated">
-                <router-link class="clickable" to="/server_settings" @click.native="close">
-                    Конфигурация сервера
-                </router-link>
-            </li>
-
-            <li v-if="$store.getters.isAuthenticated">
-                <router-link class="clickable" to="/wifi" @click.native="close">
-                    Сети
-                </router-link>
-            </li>
-
-            <li v-if="$store.getters.isAuthenticated">
-                <router-link class="clickable" to="/modules" @click.native="close">
-                    Модули
-                </router-link>
-            </li>
-        </ul>
-        <ul>
-            <li v-if="!this.$store.getters.isAuthenticated">
-                <router-link class="clickable" to="/login" @click.native="close">
-                    Вход
-                </router-link>
-            </li>
-            <li v-if="this.$store.getters.isAuthenticated">
-                <a class="clickable" @click="logout()">
-                    Выход
-                </a>
-            </li>
-        </ul>
+        <div v-if="$store.getters.isAuthenticated">
+            <divider text="Конфигурация"></divider>
+            <ul>
+                <li>
+                    <router-link class="clickable" to="/settings" @click.native="close">
+                        <div class="row">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                                <i class="fas fa-truck-monster"></i>
+                            </div>
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                                Конфигурация ядра
+                            </div>
+                        </div>
+                    </router-link>
+                </li>
+                <li>
+                    <router-link class="clickable" to="/server_settings" @click.native="close">
+                        <div class="row">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                                <i class="fas fa-sliders-h"></i>
+                            </div>
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                                Конфигурация сервера
+                            </div>
+                        </div>
+                    </router-link>
+                </li>
+                <li>
+                    <router-link class="clickable" to="/wifi" @click.native="close">
+                        <div class="row">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                                <i class="fas fa-broadcast-tower"></i>
+                            </div>
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                                Сети
+                            </div>
+                        </div>
+                    </router-link>
+                </li>
+                <li>
+                    <router-link class="clickable" to="/modules" @click.native="close">
+                        <div class="row">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                                <i class="fa fa-key"></i>
+                            </div>
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                                Модули
+                            </div>
+                        </div>
+                    </router-link>
+                </li>
+            </ul>
+        </div>
+        <div v-if="$store.getters.isAuthenticated">
+            <divider text="Мониторинг"></divider>
+            <ul>
+                <li>
+                    <router-link class="clickable" to="/system_info" @click.native="close">
+                        <div class="row">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                                <i class="fas fa-thermometer"></i>
+                            </div>
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                                Нагрузка системы
+                            </div>
+                        </div>
+                    </router-link>
+                </li>
+                <li>
+                    <router-link class="clickable" to="/monitoring_navigation" @click.native="close">
+                        <div class="row">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                                <i class="far fa-chart-bar"></i>
+                            </div>
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                                Данные датчиков
+                            </div>
+                        </div>
+                    </router-link>
+                </li>
+                <li>
+                    <router-link class="clickable" to="/logs" @click.native="close">
+                        <div class="row">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                                Логи ядра
+                            </div>
+                        </div>
+                    </router-link>
+                </li>
+            </ul>
+        </div>
+        <div>
+            <divider text="Авторизация"></divider>
+            <ul>
+                <li v-if="!this.$store.getters.isAuthenticated">
+                    <router-link class="clickable" to="/login" @click.native="close">
+                        <div class="row">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                                <i class="fa fa-key"></i>
+                            </div>
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                                Вход
+                            </div>
+                        </div>
+                    </router-link>
+                </li>
+                <li v-if="this.$store.getters.isAuthenticated">
+                    <router-link class="clickable" to="/" @click.native="logout()">
+                        <div class="row">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                                <i class="fa fa-lock"></i>
+                            </div>
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                                Выход
+                            </div>
+                        </div>
+                    </router-link>
+                </li>
+            </ul>
+        </div>
     </div>
 </template>
 
 <script>
 import { ServerExceptionModel } from '../models/ServerExceptionModel';
+import Divider from './Divider';
 import Logger from '../logger';
 
 export default {
     name: 'Sidebar',
     props: ['isOpen'],
+    components: {
+        'divider': Divider
+    },
     data: function () {
         return {
             monitorIsOpen: false
         }
     },
     methods: {
-        onClick: function(event) {
+        onClick(event) {
             if (!this.$el.contains(event.target) && this.isOpen) {
                 this.close();
             }
         },
 
-        close: function() {
+        close() {
             this.$emit('closeSidebar');
         },
 
-        switchMonitorList: function() {
+        switchMonitorList() {
             this.monitorIsOpen = !this.monitorIsOpen;
         },
 
@@ -101,7 +167,6 @@ export default {
             this.close();
             try {
                 await this.$store.dispatch('deauthorize');
-                this.$router.push('/');
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
@@ -113,11 +178,11 @@ export default {
         }
     },
 
-    created: function() {
+    created() {
         window.addEventListener('click', this.onClick);
     },
 
-    beforeDestroy: function() {
+    beforeDestroy() {
         window.removeEventListener('click', this.onClick);
     }
 }
@@ -133,7 +198,7 @@ export default {
         background-color: #7b88d3;
         overflow-x: hidden;
         transition: 0.5s;
-        padding-top: 40px;
+        padding-top: 50px;
         white-space: nowrap;
     }
 
@@ -155,6 +220,14 @@ export default {
         right: 0;
         font-size: 30px;
         padding: 0 10px 0 0;
+    }
+
+    .sidebar .hamburgerbtn {
+        position: absolute;
+        top: 0;
+        left: 0;
+        font-size: 180%;
+        padding: 3px 10px 0 15px;
     }
 
     .sidebar-opened {
@@ -181,7 +254,7 @@ export default {
         @media (min-width:1025px) {
             /* big landscape tablets, laptops, and desktops */
             min-width: 340px;
-            width: 35%;
+            width: 30%;
         }
         @media (min-width:1281px) {
             /* hi-res laptops and desktops */

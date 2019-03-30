@@ -21,6 +21,7 @@ export default {
         flex-wrap: nowrap;
         justify-content: center;
         align-items: center;
+        cursor: default;
     }
     .inner-text {
         flex-basis: auto;
