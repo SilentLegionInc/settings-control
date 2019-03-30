@@ -1,7 +1,9 @@
 <template>
-    <div>
-        <div class="mb-3">
-            <h2 align="center">Конфигурация ядра</h2>
+    <div class="container-fluid">
+        <div class="row mb-3" style="margin: auto">
+            <div class="col-12"  align="center">
+                <h2>Конфигурация ядра</h2>
+            </div>
         </div>
         <div v-if="settings">
             <div v-if="!rawMode" class="mb-2">
@@ -14,11 +16,11 @@
                 </div>
             </div>
             <div v-else class="mb-2">
-                <div class="row">
+                <div class="row" style="margin: auto">
                     <vue-json-editor class="offset-xl-2 col-xl-8 offset-0 col-12" v-model="settings" :show-btns="false"></vue-json-editor>
                 </div>
             </div>
-            <div class="row">
+            <div class="row" style="margin: auto">
                 <div class="col-xl-3 offset-xl-4 col-sm-6 offset-0 col-12 mb-2">
                     <!--<button class="btn btn-default" @click="rawMode = !rawMode">-->
                         <!--Change mode-->
@@ -57,7 +59,7 @@ export default {
         loadData: async function () {
             try {
                 this._loader = this.$loading.show();
-                this.settings = await this.$store.state.requestService.getCoreConfig()
+                this.settings = await this.$store.state.requestService.getCoreConfig();
                 for (const key in this.settings) {
                     if (this.settings.hasOwnProperty(key)) {
                         const value = this.settings[key];
@@ -72,7 +74,7 @@ export default {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message)
                 } else {
-                    this.$toaster.error('Серверная ошибка')
+                    this.$toaster.error('Серверная ошибка');
                     Logger.error(err)
                 }
                 this.settings = {}

@@ -1,25 +1,24 @@
 <template>
     <div class="container-fluid">
-        <div class="row mb-3">
+        <div class="row mb-3" style="margin: auto">
             <div class="col-12"  align="center">
                 <h2>Настройки сервера</h2>
                 <hr>
             </div>
-
         </div>
-        <div class="row mb-3">
+        <div class="row mb-3" style="margin: auto">
             <div class="col-12" align="center">
                 <h3>Конфигурация подключения к серверу</h3>
             </div>
         </div>
         <app-server-connection></app-server-connection>
-        <div class="row mb-3">
+        <div class="row mb-3" style="margin: auto">
             <div class="col-12" align="center">
                 <h3>Конфигурация сервера</h3>
             </div>
         </div>
         <app-server-config></app-server-config>
-        <div class="row mb-3">
+        <div class="row mb-3" style="margin: auto">
             <div class="col-12" align="center">
                 <h3>Конфигурация ssh ключей</h3>
             </div>
@@ -45,7 +44,7 @@
                 </div>
             </div>
         </div>
-        <div class="row mb-2">
+        <div class="row mb-2" style="margin: auto">
             <div class="col-12" align="center">
                 <h3>Смена пароля</h3>
             </div>

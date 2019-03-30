@@ -2,7 +2,7 @@
     <div class="container-fluid">
 
         <div role="tablist">
-            <div class="row">
+            <div class="row" style="margin: auto">
                 <div class="col-xl-8 offset-xl-2 offset-0 col-12">
                     <b-card no-body class="mb-1">
                         <b-card-header header-tag="header" class="p-1" role="tab">
@@ -80,17 +80,24 @@
                                     </div>
 
                                 </div>
-                                <div class="row mb-2" v-if="core.detail">
-                                    <label class="col-xl-3 col-form-label mb-1" for="core_update">Архив с исходниками для обновления:</label>
-                                    <div class="col-xl-9 col-12 mb-1">
-                                        <b-form-file
-                                            v-model="file"
-                                            placeholder="..."
-                                            accept=".zip"
-                                            drop-placeholder="Перетащите архив сюда"
-                                            id="core_update"
-                                        />
-                                        <p class="card-text" style="font-size: 0.75rem; color: rgba(16,8,13,0.54)">Внутри архива должна быть папка, с именем модуля, например, fomodel</p>
+                                <div v-if="core.detail">
+                                    <div class="row mb-2">
+                                        <label class="col-xl-3 col-form-label mb-1" for="core_update">Архив с исходниками для обновления:</label>
+                                        <div class="col-xl-9 col-12 mb-1">
+                                            <b-form-file
+                                                v-model="file"
+                                                placeholder="..."
+                                                accept=".zip"
+                                                drop-placeholder="Перетащите архив сюда"
+                                                id="core_update"
+                                            />
+                                            <p class="card-text" style="font-size: 0.75rem; color: rgba(16,8,13,0.54)">Внутри архива должна быть папка, с именем модуля, например, fomodel</p>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="offset-xl-9 offset-md-8 offset-0 col-xl-3 col-md-4 col-12">
+                                            <button :disabled="!file" class="btn btn-success btn-block" @click="uploadModuleArchive(module_elem.name)">Обновить</button>
+                                        </div>
                                     </div>
                                 </div>
                             </b-card-body>
@@ -101,7 +108,7 @@
 
             <div v-if="modules.length > 0">
                 <div v-for="(module_elem, index) of modules" v-bind:key="index">
-                    <div class="row">
+                    <div class="row" style="margin: auto">
                         <div class="col-xl-8 offset-xl-2 offset-0 col-12">
                             <b-card no-body class="mb-1">
                                 <b-card-header header-tag="header" class="p-1" role="tab">
@@ -153,17 +160,24 @@
                                                 </button>
                                             </div>
                                         </div>
-                                        <div class="row mb-2" v-if="module_elem.detail">
-                                            <label class="col-xl-3 col-form-label mb-1" :for="'module'+index+'update'">Архив с исходниками для обновления:</label>
-                                            <div class="col-xl-9 col-12 mb-1">
-                                                <b-form-file
-                                                    v-model="file"
-                                                    placeholder="..."
-                                                    accept=".zip"
-                                                    drop-placeholder="Перетащите архив сюда"
-                                                    :id="'module'+index+'update'"
-                                                />
-                                                <p class="card-text" style="font-size: 0.75rem; color: rgba(16,8,13,0.54)">Внутри архива должна быть папка, с именем модуля, например, fomodel</p>
+                                        <div v-if="module_elem.detail">
+                                            <div class="row mb-1">
+                                                <label class="col-xl-3 col-form-label mb-1" :for="'module'+index+'update'">Архив с исходниками для обновления:</label>
+                                                <div class="col-xl-9 col-12 mb-1">
+                                                    <b-form-file
+                                                        v-model="file"
+                                                        placeholder="..."
+                                                        accept=".zip"
+                                                        drop-placeholder="Перетащите архив сюда"
+                                                        :id="'module'+index+'update'"
+                                                    />
+                                                    <p class="card-text" style="font-size: 0.75rem; color: rgba(16,8,13,0.54)">Внутри архива должна быть папка, с именем модуля, например, fomodel</p>
+                                                </div>
+                                            </div>
+                                            <div class="row mb-2">
+                                                <div class="offset-xl-9 offset-md-8 offset-0 col-xl-3 col-md-4 col-12">
+                                                    <button :disabled="!file" class="btn btn-success btn-block" @click="uploadModuleArchive(module_elem.name)">Обновить</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </b-card-body>
@@ -243,6 +257,7 @@ export default {
             }
             this._loader.hide();
             delete this.file;
+            this.file = null;
         },
         // TODO may be pass index\object to not loadData(), may be add status instead of is_built, is_cloned
         //  to change color while build/clone in process
@@ -308,7 +323,7 @@ export default {
         async stopCore() {
             try {
                 this._loader = this.$loading.show();
-                const res = await this.$store.state.requestService.stopCore()
+                const res = await this.$store.state.requestService.stopCore();
                 await this.loadData();
                 if (res) {
                     this.$toaster.success('Ядро остановлено');

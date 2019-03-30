@@ -1,8 +1,8 @@
 <template>
     <div class="divider ml-2 mr-2">
-        <span style="flex-grow: 2"><hr></span>
-        <span style="flex-basis: auto" class="ml-2 mr-2">{{text}}</span>
-        <span style="flex-grow: 2"><hr></span>
+        <span class="lines"><hr></span>
+        <span class="inner-text ml-2 mr-2"><h5>{{text}}</h5></span>
+        <span class="lines"><hr></span>
     </div>
 </template>
 
@@ -21,5 +21,11 @@ export default {
         flex-wrap: nowrap;
         justify-content: center;
         align-items: center;
+    }
+    .inner-text {
+        flex-basis: auto;
+    }
+    .lines {
+        flex-grow: 2
     }
 </style>

@@ -18,13 +18,12 @@ import { WirelessNetworkModel } from '../models/WirelessNetworkModel'
 
 export class MapperService {
     static mapNetworksResponse(responseBody) {
-        const wiredNetwork = responseBody['wired'];
+        const wiredNetworks = responseBody['wired'];
         const wirelessNetworks = responseBody['wireless'];
         return {
-            'wiredNetwork': new WiredNetworkModel(wiredNetwork.name, wiredNetwork.id, wiredNetwork.device,
-                wiredNetwork.active, wiredNetwork.autocreate),
+            'wiredNetworks': wiredNetworks.map(x => new WiredNetworkModel(x.name, x.id, x.device, x.active, x.autoconnect, x.params)),
             'wirelessNetworks': wirelessNetworks.map(x => new WirelessNetworkModel(x.name, x.id, x.mode, x.channel,
-                x.frequency, x.speed_rate, x.signal_level, x.security_type, x.device, x.active))
+                x.frequency, x.speed_rate, x.signal_level, x.security_type, x.device, x.active, x.autoconnect, x.params))
         }
     }
 
