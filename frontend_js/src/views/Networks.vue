@@ -1,6 +1,6 @@
 <template>
     <div class="container-fluid">
-        <div class="mb-3">
+        <div class="mb-3" :ref="'aaa' + 15">
             <h2 align="center">Конфигурация сети</h2>
         </div>
         <divider text="Беспроводные соединения"></divider>
@@ -12,7 +12,7 @@
                             <b-card-header header-tag="header" class="p-1" role="tab">
                                 <b-button block href="#" v-b-toggle="'wireless' + index" variant="info">{{network.name}} ({{network.signalLevel}})</b-button>
                             </b-card-header>
-                            <b-collapse :id="'wireless' + index" :visible="network.active" accordion="wireless-accordion" role="tabpanel">
+                            <b-collapse :ref="'wireless' + index" :id="'wireless' + index" :visible="network.active" accordion="wireless-accordion" role="tabpanel">
                                 <b-card-body>
                                     <div class="row mb-2">
                                         <div class="col-xl-3 col-4">
@@ -89,7 +89,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <b-collapse :id="'wirelessParams' + index">
+                                    <b-collapse :id="'wirelessParams' + index" :ref="'wirelessParams' + index">
                                         <div class="row mb-2">
                                             <div class="col-xl-3 col-4">
                                                 DHCP:
@@ -132,6 +132,11 @@
                                                        v-model="network.requiredParams.ipv4dns"
                                                        class="form-control"
                                                        type="text"/>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="offset-xl-9 offset-md-8 offset-0 col-xl-3 col-md-4 col-12">
+                                                <button class="btn btn-success btn-block" @click="modifyConnectionParams(network)">Применить</button>
                                             </div>
                                         </div>
                                     </b-collapse>
@@ -202,8 +207,13 @@
                                             </button>
                                         </div>
                                         <div class="col-xl-3 col-4">
-                                            <button :id="'wiredParamsButton' + index" class="btn btn-block btn-primary" v-b-toggle="'wiredParams' + index">
-                                                Настройка параметров&nbsp;<i class="fa fa-angle-down"></i>
+                                            <button :id="'wiredParamsButton' + index"
+                                                    class="btn btn-block btn-primary"
+                                                    v-b-toggle="'wiredParams' + index"
+                                                    @click="changeCollapseStatus(`wiredParams${index}`)">
+                                                Настройка параметров&nbsp;<i :class="{'fa-angle-down': !collapseStatuses['wiredParams' + index],
+                                                'fa-angle-up': collapseStatuses['wiredParams' + index]}"></i>
+                                                {{collapseStatuses['wiredParams' + index]}}
                                             </button>
                                         </div>
                                         <div class="col-xl-3 col-4">
@@ -212,7 +222,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <b-collapse :id="'wiredParams' + index">
+                                    <b-collapse :id="'wiredParams' + index" :ref="'wiredParams' + index">
                                         <div class="row mb-2">
                                             <div class="col-xl-3 col-4">
                                                 DHCP:
@@ -288,6 +298,15 @@ export default {
             this.$router.push('/login');
         }
     },
+    data: () => {
+        return {
+            wiredNetworks: [],
+            wirelessNetworks: [],
+            password: '',
+            _loader: null,
+            collapseStatuses: {}
+        }
+    },
     components: {
         'divider': Divider
     },
@@ -361,14 +380,23 @@ export default {
         },
         async modifyConnectionParams(connection) {
 
+        },
+
+        changeCollapseStatus(collapseId) {
+            if (this.collapseStatuses[collapseId]) {
+                this.collapseStatuses[collapseId] = !this.collapseStatuses[collapseId]
+            } else {
+                this.collapseStatuses[collapseId] = true;
+            }
         }
     },
-    data: () => {
-        return {
-            wiredNetworks: [],
-            wirelessNetworks: [],
-            password: '',
-            _loader: null
+    watch: {
+        collapseStatuses: {
+            handler: function (oldValue, newValue) {
+                Logger.info(`Changed status of ${newValue}`);
+                this.setValue();
+            },
+            deep: true
         }
     }
 }
