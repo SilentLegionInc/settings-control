@@ -12,7 +12,6 @@
     "bootstrap-vue": "^2.0.0-rc.14",
     "chart.js": "^2.7.3",
     "chartjs-plugin-zoom": "^0.6.6",
-    "font-awesome": "^4.7.0",
     "js-logger": "^1.6.0",
     "luxon": "^1.9.0",
     "v-toaster": "^1.0.3",
@@ -29,7 +28,7 @@
     "weekstart": "^1.0.0"
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-free": "^5.7.1",
+    "@fortawesome/fontawesome-free": "^5.8.1",
     "@vue/cli-plugin-babel": "^3.2.0",
     "@vue/cli-plugin-eslint": "^3.2.0",
     "@vue/cli-service": "^3.2.0",
