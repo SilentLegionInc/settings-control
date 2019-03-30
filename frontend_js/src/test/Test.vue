@@ -11,15 +11,13 @@
 import TestChart from './TestChart.vue';
 import TestSelect from './TestSelect';
 import TestAnimation from './TestAnimation';
-import Divider from '../components/Divider';
 
 export default {
     name: 'Test',
     components: {
         'test-chart': TestChart,
         'test-select': TestSelect,
-        'test-animation': TestAnimation,
-        'divider': Divider
+        'test-animation': TestAnimation
     }
 }
 </script>
