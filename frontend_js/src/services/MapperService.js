@@ -21,9 +21,9 @@ export class MapperService {
         const wiredNetworks = responseBody['wired'];
         const wirelessNetworks = responseBody['wireless'];
         return {
-            'wiredNetworks': wiredNetworks.map(x => new WiredNetworkModel(x.name, x.id, x.device, x.active, x.autocreate)),
+            'wiredNetworks': wiredNetworks.map(x => new WiredNetworkModel(x.name, x.id, x.device, x.active, x.autoconnect, x.params)),
             'wirelessNetworks': wirelessNetworks.map(x => new WirelessNetworkModel(x.name, x.id, x.mode, x.channel,
-                x.frequency, x.speed_rate, x.signal_level, x.security_type, x.device, x.active))
+                x.frequency, x.speed_rate, x.signal_level, x.security_type, x.device, x.active, x.autoconnect, x.params))
         }
     }
 

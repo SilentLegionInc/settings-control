@@ -4,6 +4,7 @@ from time import sleep
 from packaging import version
 from support.singleton import Singleton
 from support.server_exception import ServerException
+from configuration.settings_service import SettingsService
 from flask_api import status
 import atexit
 import json
@@ -26,24 +27,19 @@ class NetworkService(metaclass=Singleton):
     _driver_name = None
     _driver = None
 
+    def __call__(self):
+        self.refresh_interfaces()
+
     # init
-    def __init__(self, interface_wifi=None, interface_eth=None):
+    def __init__(self, interface_wifi=None, interface_eth=None,
+                 detail_connection_params=SettingsService().private_server_config['detail_connection_params']):
         # detect and init appropriate driver
         self._driver_name = self._detect_driver()
         if self._driver_name == 'nmcli0990':
-            self._driver = NewNmcli0990(interface_wifi=interface_wifi, interface_eth=interface_eth)
+            self._driver = Nmcli0990(interface_wifi=interface_wifi, interface_eth=interface_eth,
+                                     detail_connection_params=detail_connection_params)
 
-        # attempt to auto detect the wifi interface if none was provided
-        if self.interface_wifi() is None:
-            interfaces = self.interfaces_wifi()
-            if interfaces:
-                self.interface_wifi(interfaces[0])
-
-        # attempt to auto detect the ethernet interface if none was provided
-        if self.interface_eth() is None:
-            interfaces = self.interfaces_eth()
-            if interfaces:
-                self.interface_eth(interfaces[0])
+        self.refresh_interfaces()
 
         # raise an error if there is still no interface defined
         if self.interface_wifi() is None and self.interface_eth() is None:
@@ -57,13 +53,25 @@ class NetworkService(metaclass=Singleton):
             response = cmd('nmcli --version')
             parts = response.split()
             ver = parts[-1]
-            print(ver)
             if version.parse(ver) > version.parse('0.9.9.0'):
                 return 'nmcli0990'
             else:
                 return 'nmcli'
 
         raise Exception('Unable to find compatible nmcli driver.')
+
+    def refresh_interfaces(self):
+        # attempt to auto detect the wifi interface if none was provided
+        if self.interface_wifi() is None:
+            interfaces = self.interfaces_wifi()
+            if interfaces:
+                self.interface_wifi(interfaces[0])
+
+        # attempt to auto detect the ethernet interface if none was provided
+        if self.interface_eth() is None:
+            interfaces = self.interfaces_eth()
+            if interfaces:
+                self.interface_eth(interfaces[0])
 
     def connection_up(self, uuid):
         return self._driver.connection_up(uuid)
@@ -170,18 +178,21 @@ class NetworkDriver(metaclass=ABCMeta):
 
 
 # Linux nmcli Driver >= 0.9.9.0 (Actual driver)
-class NewNmcli0990(NetworkDriver):
+class Nmcli0990(NetworkDriver):
     _interface_wifi = None
     _interface_eth = None
 
     # init
-    def __init__(self, interface_wifi=None, interface_eth=None):
+    def __init__(self, interface_wifi=None, interface_eth=None,
+                 detail_connection_params=None):
         self.interface_wifi(interface_wifi)
         self.interface_eth(interface_eth)
+        self.ssid_to_uuid = {}
         self._load_connection_map()
+        self._detail_connection_params = detail_connection_params
         # register destructor method
+        # TODO doesn't work
         atexit.register(self._save_connection_map)
-        print(self.ssid_to_uuid)
 
     def _save_connection_map(self):
         print('saving connections map')
@@ -231,6 +242,37 @@ class NewNmcli0990(NetworkDriver):
         # if we didn't find an error then we are in the clear
         return False
 
+    def _get_detailed_record_info(self, search_str, connection_type=''):
+        result = {}
+        response = cmd('nmcli -t -f NAME,UUID,AUTOCONNECT,TYPE con show | grep {} | grep -w {}'
+                       .format(connection_type, search_str))
+        if self._error_in_response(response):
+            print('Error in get detailed info {}'.format(response))
+            return result
+
+        if response:
+            splitted = response.split(':')
+            result['id'] = splitted[1]
+            result['autoconnect'] = splitted[2] == 'yes'
+            if self._detail_connection_params:
+                fields = ','.join(self._detail_connection_params)
+                detail_response = cmd('nmcli -t -f {} con show {}'.format(fields, result['id']))
+                if self._error_in_response(detail_response):
+                    print('Cant find detail fields {} of connection {}. Response: {}'.format(fields, result['id'], detail_response))
+                    return result
+                params_fields = detail_response.splitlines()
+                result['params'] = {}
+                for field_str in params_fields:
+                    splitted_field = field_str.split(':')
+                    field_key = splitted_field[0]
+                    field_value = splitted_field[1]
+                    result['params'][field_key] = field_value
+
+        else:
+            print('Cant find connection by {}'.format(search_str))
+            return result
+        return result
+
     def _get_wifi_list(self):
         response = cmd('nmcli -t -f SSID,MODE,CHAN,FREQ,RATE,SIGNAL,SECURITY,DEVICE,ACTIVE dev wifi list')
         if self._error_in_response(response):
@@ -238,9 +280,10 @@ class NewNmcli0990(NetworkDriver):
                                   .format(response), status.HTTP_500_INTERNAL_SERVER_ERROR)
         connections = response.splitlines()
         mapped = []
+        need_to_save_map = False
         for connection in connections:
             splitted_array = connection.split(':')
-            mapped.append({
+            record = {
                 'name': splitted_array[0],
                 'id': self.ssid_to_uuid.get(splitted_array[0]),
                 'type': 'wifi',
@@ -252,8 +295,22 @@ class NewNmcli0990(NetworkDriver):
                 'security_type': splitted_array[6],
                 'device': splitted_array[7],
                 'active': splitted_array[8] == 'yes',
-                # TODO may be add in map by ssid 'autoconnect': splitted_array[5] == 'yes'
-            })
+            }
+
+            search_str = record['id'] if record['id'] else record['name']
+            detail_record_info = self._get_detailed_record_info(search_str, 'wireless')
+            if detail_record_info.get('id'):
+                record['id'] = detail_record_info['id']
+                self.ssid_to_uuid[record['name']] = record['id']
+                need_to_save_map = True
+            record['autoconnect'] = detail_record_info.get('autoconnect', None)
+            record['params'] = detail_record_info.get('params', {})
+
+            mapped.append(record)
+
+        if need_to_save_map:
+            self._save_connection_map()
+        # sorted_list = list(sorted(mapped, key=lambda k: k['signal_level'], reverse=True))
         return mapped
 
     def _get_eth_list(self):
@@ -264,14 +321,21 @@ class NewNmcli0990(NetworkDriver):
         mapped = []
         for connection in connections:
             splitted_array = connection.split(':')
-            mapped.append({
+            record = {
                 'name': splitted_array[0],
                 'id': splitted_array[1],
                 'type': 'eth',
                 'device': splitted_array[3],
                 'active': splitted_array[4] == 'yes',
                 'autoconnect': splitted_array[5] == 'yes'
-            })
+            }
+
+            search_str = record['id'] if record['id'] else record['name']
+            detail_record_info = self._get_detailed_record_info(search_str, 'ethernet')
+            record['autoconnect'] = detail_record_info.get('autoconnect', None)
+            record['params'] = detail_record_info.get('params', {})
+
+            mapped.append(record)
         return mapped
 
     def connection_up(self, connection_uuid):
@@ -314,6 +378,7 @@ class NewNmcli0990(NetworkDriver):
         ssid = re.findall(name_regex, response)[0]
         if self.ssid_to_uuid.get(ssid):
             del self.ssid_to_uuid[ssid]
+            self._save_connection_map()
         return True
 
     def current_wifi(self):
@@ -372,7 +437,7 @@ class NewNmcli0990(NetworkDriver):
             # trying to fetch uuid from response from nmcli
             connection_uuid = response.split(' ')[-1].replace("'", '').replace('.', '').replace('\n', '')
             self.ssid_to_uuid[ssid] = connection_uuid
-            # self._save_connection_map()
+            self._save_connection_map()
             return True
 
     def list_of_connections(self, rescan_wifi=True):
@@ -383,10 +448,11 @@ class NewNmcli0990(NetworkDriver):
                 sleep(0.5)
             sleep(1)
 
-        return {
+        answer = {
             'wired': self._get_eth_list(),
             'wireless': self._get_wifi_list()
         }
+        return answer
 
     def interfaces_wifi(self):
         # grab list of interfaces
@@ -451,12 +517,12 @@ if __name__ == '__main__':
         'ipv4.dns': '8.8.4.4'
     }
     print(NetworkService().list_of_connections())
-    print('Changed connection static params result: {}'.format(NetworkService().modify_connection_params(test_connection_uuid, params)))
-    params = {
-        'ipv4.method': 'auto'
-    }
-    print('Changed connection dynamic params result: {}'.format(NetworkService().modify_connection_params(test_connection_uuid, params)))
-    print('Changed connection empty params result: {}'.format(NetworkService().modify_connection_params(test_connection_uuid, {})))
-    NetworkService().delete_connection('370a8d53-a80c-42e1-b82c-63ded0db8581')
-    NetworkService().create_wifi_connection('Silencium', 'KeepSilence')
-    NetworkService().create_wifi_connection('Silencium', 'KeepSilence')
+    # print('Changed connection static params result: {}'.format(NetworkService().modify_connection_params(test_connection_uuid, params)))
+    # params = {
+    #     'ipv4.method': 'auto'
+    # }
+    # print('Changed connection dynamic params result: {}'.format(NetworkService().modify_connection_params(test_connection_uuid, params)))
+    # print('Changed connection empty params result: {}'.format(NetworkService().modify_connection_params(test_connection_uuid, {})))
+    # NetworkService().delete_connection('370a8d53-a80c-42e1-b82c-63ded0db8581')
+    # NetworkService().create_wifi_connection('Silencium', 'KeepSilence')
+    # NetworkService().create_wifi_connection('Silencium', 'KeepSilence')
