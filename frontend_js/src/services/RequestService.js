@@ -87,7 +87,8 @@ export class RequestService {
         const path = this._constructPath('api/network');
         const res = await axios.get(path);
         if (res.status === 200) {
-            return MapperService.mapNetworksResponse(res.data);} else {
+            return MapperService.mapNetworksResponse(res.data);
+        } else {
             Logger.error(res.data.errorInfo);
             throw new ServerExceptionModel(res.data.errorInfo, res.status);
         }
