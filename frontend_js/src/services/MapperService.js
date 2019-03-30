@@ -5,7 +5,7 @@ import { ChartDataModel } from '../models/ChartDataModel';
 import { MapsDataModel } from '../models/MapsDataModel';
 import { TableDataResponse } from '../models/TableDataResponse'
 import { TableDataModel } from '../models/TableDataModel'
-import { ShortDataStructureModel } from '../models/ShortDataStructureModel'
+import { DatabaseStructureModel } from '../models/DatabaseStructureModel';
 import { DataStructureElementModel } from '../models/DataStructureElementModel';
 import { ModuleModel } from '../models/ModuleModel'
 import { CapacityInfoModel } from '../models/CapacityInfoModel';
@@ -99,7 +99,18 @@ export class MapperService {
         const result = [];
         for (let key in responseBody) {
             if (responseBody.hasOwnProperty(key)) {
-                result.push(new ShortDataStructureModel(responseBody[key], key));
+                result.push(
+                    new DatabaseStructureModel(
+                        key,
+                        responseBody[key]['name'],
+                        responseBody[key]['fields'].map(elem => {
+                            return {
+                                name: elem.name,
+                                type: elem.type
+                            }
+                        })
+                    )
+                );
             }
         }
         return result

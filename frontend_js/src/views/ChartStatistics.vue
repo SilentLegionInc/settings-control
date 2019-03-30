@@ -12,7 +12,7 @@
 
         <div v-else class="container-fluid pl-0 pr-0">
             <div class="row" style="margin: auto;" v-for="elem in dataStructure" :key="elem.systemName">
-                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-lg-12 p-0">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 p-0">
                     <b-card no-body class="mb-1">
                         <b-card-header header-tag="header" class="p-1" role="tab">
                             <button class="btn btn-info" style="width: 100%" @click="selectMobileTab(elem.systemName)">{{elem.name}}</button>

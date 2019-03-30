@@ -14,7 +14,10 @@ class Mapper:
     def map_get_monitoring_databases_info_response(body):
         result = {}
         for key, value in body.items():
-            result[key] = value
+            result[key] = {
+                'name': value['name'],
+                'fields': list(map(lambda elem: {'name': elem['name'], 'type': elem['type']}, value['fields']))
+            }
         return result
 
     @staticmethod

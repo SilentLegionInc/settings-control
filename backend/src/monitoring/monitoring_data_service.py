@@ -67,7 +67,15 @@ class MonitoringDataService(metaclass=Singleton):
             sensors_dbs = MonitoringConfigService().get_sensors_data_config(robot_name)
             result = {}
             for db_key, db_value in sensors_dbs.items():
-                result[db_key] = db_value['name']
+                result[db_key] = {
+                    'name': db_value['name'],
+                    'fields': []
+                }
+                for key, value in db_value['fields_to_retrieve'].items():
+                    result[db_key]['fields'].append({
+                        'name': value['name'],
+                        'type': value['type']
+                    })
         except Exception as ex:
             raise ServerException('Can\'t get information from config', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
         return result
