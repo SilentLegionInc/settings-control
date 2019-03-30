@@ -127,6 +127,28 @@ export class RequestService {
         }
     }
 
+    async deleteConnection(id) {
+        const path = this._constructPath(`api/network/connection/${id}`);
+        const res = await axios.delete(path);
+        if (res.status === 200) {
+            return true
+        } else {
+            Logger.error(res.data.errorInfo);
+            throw new ServerExceptionModel(res.data.errorInfo, res.status);
+        }
+    }
+
+    async modifyConnectionParams(id, params) {
+        const path = this._constructPath(`api/network/connection/${id}`);
+        const res = await axios.put(path, params);
+        if (res.status === 200) {
+            return true;
+        } else {
+            Logger.error(res.data.errorInfo);
+            throw new ServerExceptionModel(res.data.errorInfo, res.status);
+        }
+    }
+
     async getServerConfig() {
         const path = this._constructPath('api/server_config');
         const res = await axios.get(path);

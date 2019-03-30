@@ -11,4 +11,12 @@ export class NetworkRequiredParamsModel {
     set ipv4method(value) {
         this._ipv4method = value ? 'auto' : 'manual'
     }
+    toPythonDict() {
+        return {
+            'ipv4.address': this.ipv4address,
+            'ipv4.method': this._ipv4method,
+            'ipv4.gateway': this.ipv4gateway,
+            'ipv4.dns': this.ipv4dns
+        }
+    }
 }

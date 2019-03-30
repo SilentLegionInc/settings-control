@@ -10,7 +10,11 @@
                     <div class="col-xl-8 offset-xl-2 offset-0 col-12">
                         <b-card no-body class="mb-1">
                             <b-card-header header-tag="header" class="p-1" role="tab">
-                                <b-button block href="#" v-b-toggle="'wireless' + index" variant="info">{{network.name}} ({{network.signalLevel}})</b-button>
+                                <b-button block href="#"
+                                          v-b-toggle="'wireless' + index"
+                                          variant="info">
+                                    {{network.name}} ({{network.signalLevel}} <i class="fas fa-signal"></i>)
+                                </b-button>
                             </b-card-header>
                             <b-collapse :ref="'wireless' + index" :id="'wireless' + index" :visible="network.active" accordion="wireless-accordion" role="tabpanel">
                                 <b-card-body>
@@ -70,21 +74,34 @@
                                             {{network.device || '-'}}
                                         </div>
                                     </div>
-                                    <!--TODO finish me-->
+                                    <div class="row mb-2" v-if="!network.active">
+                                        <label class="col-xl-3 col-form-label mb-1" :for="'wireless'+index+'password'">Пароль для подключения:</label>
+                                        <div class="col-xl-9 col-12 mb-1">
+                                            <input :id="'wireless'+index+'password'" type="password" v-model="network.password"
+                                                   class="form-control" placeholder="Enter password">
+                                        </div>
+                                    </div>
                                     <div class="row mb-3">
                                         <div class="offset-xl-3 offset-0 col-xl-3 col-4">
-                                            <button class="btn btn-block btn-primary">
-                                                Подключение к сети
-                                                <!--Подключение к сети&nbsp;<i class="fa" :class="{'fa-angle-down': !module_elem.detail, 'fa-angle-up': module_elem.detail}"></i>-->
+                                            <button :disabled="network.active || !network.id" class="btn btn-block btn-danger" @click="deleteConnection(network)">
+                                                Забыть подключение
                                             </button>
                                         </div>
                                         <div class="col-xl-3 col-4">
-                                            <button :id="'wirelessParamsButton' + index" :disabled="!network.id" class="btn btn-block btn-primary" v-b-toggle="'wirelessParams' + index">
-                                                Настройка параметров&nbsp;<i class="fa fa-angle-down"></i>
+                                            <button :id="'wirelessParamsButton' + index"
+                                                    :disabled="!network.id"
+                                                    class="btn btn-block btn-primary"
+                                                    v-b-toggle="'wirelessParams' + index"
+                                                    @click="changeCollapseStatus(`wirelessParams${index}`)">
+                                                Настройка параметров&nbsp;
+                                                <i class="fa" :class="{'fa-angle-down': !collapseStatuses[`wirelessParams${index}`],
+                                                'fa-angle-up': collapseStatuses[`wirelessParams${index}`]}"></i>
                                             </button>
                                         </div>
                                         <div class="col-xl-3 col-4">
-                                            <button :disabled="!network.id || !password || network.active" class="btn btn-block btn-primary" @click="connect(network)">
+                                            <button :disabled="(!network.id && !network.password) || network.active"
+                                                    class="btn btn-block btn-success"
+                                                    @click="changeNetworkConfirmation(network)">
                                                 Подключиться
                                             </button>
                                         </div>
@@ -140,13 +157,6 @@
                                             </div>
                                         </div>
                                     </b-collapse>
-                                    <div class="row mb-2" v-if="!network.active">
-                                        <label class="col-xl-3 col-form-label mb-1" :for="'wireless'+index+'password'">Архив с исходниками для обновления:</label>
-                                        <div class="col-xl-9 col-12 mb-1">
-                                            <input :id="'wireless'+index+'password'" type="password" v-model="password"
-                                                   class="form-control" placeholder="Enter password">
-                                        </div>
-                                    </div>
                                 </b-card-body>
                             </b-collapse>
                         </b-card>
@@ -202,8 +212,8 @@
                                     <!--TODO finish me-->
                                     <div class="row mb-3">
                                         <div class="offset-xl-3 offset-0 col-xl-3 col-4">
-                                            <button class="btn btn-block btn-primary">
-                                                Подключение к сети&nbsp;<i class="fa" :class="{'fa-angle-down': !wiredNetwork.active, 'fa-angle-up': wiredNetwork.active}"></i>
+                                            <button :disabled="wiredNetwork.active || !wiredNetwork.id" class="btn btn-block btn-danger">
+                                                Забыть подключение
                                             </button>
                                         </div>
                                         <div class="col-xl-3 col-4">
@@ -211,13 +221,13 @@
                                                     class="btn btn-block btn-primary"
                                                     v-b-toggle="'wiredParams' + index"
                                                     @click="changeCollapseStatus(`wiredParams${index}`)">
-                                                Настройка параметров&nbsp;<i :class="{'fa-angle-down': !collapseStatuses['wiredParams' + index],
-                                                'fa-angle-up': collapseStatuses['wiredParams' + index]}"></i>
-                                                {{collapseStatuses['wiredParams' + index]}}
+                                                Настройка параметров&nbsp;
+                                                <i class="fa" :class="{'fa-angle-down': !collapseStatuses[`wiredParams${index}`],
+                                                'fa-angle-up': collapseStatuses[`wiredParams${index}`]}"></i>
                                             </button>
                                         </div>
                                         <div class="col-xl-3 col-4">
-                                            <button :disabled="!wiredNetwork.id || password" class="btn btn-block btn-primary" @click="connect(wiredNetwork)">
+                                            <button :disabled="(!wiredNetwork.id && !password) || wiredNetwork.active" class="btn btn-block btn-success" @click="connect(wiredNetwork)">
                                                 Подключиться
                                             </button>
                                         </div>
@@ -280,6 +290,23 @@
                 </div>
             </div>
         </div>
+
+        <b-modal ref="change_network_modal"
+                 id="change_network_modal"
+                 size="lg"
+                 title="Переключение сети"
+                 centered
+                 @ok="connect(tempNetwork)"
+        >
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <b>Внимание!</b>
+                        При изменении сети, необходимо будет на клиентском устройстве также переключиться в новую сеть и перейти по новому адресу клиента.
+                    </div>
+                </div>
+            </div>
+        </b-modal>
     </div>
 </template>
 
@@ -302,9 +329,9 @@ export default {
         return {
             wiredNetworks: [],
             wirelessNetworks: [],
-            password: '',
             _loader: null,
-            collapseStatuses: {}
+            collapseStatuses: {},
+            tempNetwork: {}
         }
     },
     components: {
@@ -312,8 +339,8 @@ export default {
     },
     methods: {
         async loadData() {
+            const loader = this.$loading.show();
             try {
-                this._loader = this.$loading.show();
                 const result = await this.$store.state.requestService.getNetworks();
                 this.wiredNetworks = result.wiredNetworks;
                 this.wirelessNetworks = result.wirelessNetworks;
@@ -327,44 +354,24 @@ export default {
                 this.wirelessNetworks = [];
                 this.wiredNetworks = [];
             }
-            this._loader.hide();
-        },
-
-        async switchConnection(network) {
-            const newNetwork = {};
-            // TODO warning modal window + request to connect
-            Logger.info(`connecting to ${newNetwork.name} with password ${this.password}`);
-            try {
-                this._loader = this.$loading.show();
-                const res = await this.$store.state.requestService.createWifiConnection(newNetwork.name, this.password);
-                if (res) {
-                    this.$toaster.success(`Current network is ${newNetwork.name}`);
-                }
-            } catch (err) {
-                if (err instanceof ServerExceptionModel) {
-                    this.$toaster.error(err.message);
-                } else {
-                    this.$toaster.error('Серверная ошибка');
-                    Logger.error(err);
-                }
-            }
-            this._loader.hide();
+            loader.hide();
         },
 
         async connect(network) {
-            // TODO warning modal window + request to connect
-            Logger.info(`connecting to ${network.name} with password ${this.password}`);
+            const loader = this.$loading.show();
             try {
-                this._loader = this.$loading.show();
                 let res = false;
-                if (this.password) {
-                    res = await this.$store.state.requestService.createWifiConnection(network.name, this.password);
+                if (network.password) {
+                    Logger.info(`Connecting to ${network.name} with password ${network.password}`);
+                    res = await this.$store.state.requestService.createWifiConnection(network.name, network.password);
                 } else if (network.id) {
-                    res = await this.$store.state.requestService.connectionUp(network.id)
+                    Logger.info(`Connecting to ${network.name} via known id ${network.id}`);
+                    res = await this.$store.state.requestService.connectionUp(network.id);
                 } else {
                     this.$toaster.error('Не введено никаких данных для подключения к сети');
                 }
                 if (res) {
+                    await this.loadData();
                     this.$toaster.success(`Текущая сеть: ${network.name}`);
                 }
             } catch (err) {
@@ -375,28 +382,65 @@ export default {
                     Logger.error(err);
                 }
             }
-            this.password = '';
-            this._loader.hide();
+            network.password = '';
+            this.tempNetwork = {};
+            loader.hide();
         },
-        async modifyConnectionParams(connection) {
 
+        async deleteConnection(network) {
+            const loader = this.$loading.show();
+            try {
+                const res = this.$store.state.requestService.deleteConnection(network.id);
+                if (res) {
+                    this.$toaster.success(`Соединение ${network.name} успешно удалено`);
+                    network.id = null;
+                } else {
+                    this.$toaster.error(`Ошибка удаления сети ${network.name}`);
+                }
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Серверная ошибка');
+                    Logger.error(err);
+                }
+            }
+            loader.hide();
+        },
+
+        changeNetworkConfirmation(network) {
+            this.tempNetwork = network;
+            this.$refs.change_network_modal.show();
+        },
+
+        async modifyConnectionParams(network) {
+            const loader = this.$loading.show();
+            try {
+                const res = await this.$store.state.requestService.modifyConnectionParams(network.id,
+                    { ...network.requiredParams.toPythonDict(), ...network.additionalParams });
+                if (res) {
+                    this.$toaster.success(`Соединение ${network.name} успешно модифицированно`);
+                    network.id = null;
+                } else {
+                    this.$toaster.error(`Ошибка модификации параметров ${network.name}`);
+                }
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Серверная ошибка');
+                    Logger.error(err);
+                }
+            }
+            loader.hide();
         },
 
         changeCollapseStatus(collapseId) {
             if (this.collapseStatuses[collapseId]) {
                 this.collapseStatuses[collapseId] = !this.collapseStatuses[collapseId]
             } else {
-                this.collapseStatuses[collapseId] = true;
+                this.$set(this.collapseStatuses, collapseId, true);
             }
-        }
-    },
-    watch: {
-        collapseStatuses: {
-            handler: function (oldValue, newValue) {
-                Logger.info(`Changed status of ${newValue}`);
-                this.setValue();
-            },
-            deep: true
         }
     }
 }
