@@ -8,6 +8,7 @@ import Datetime from 'vue-datetime';
 import VueScrollTo from 'vue-scrollto';
 import Loading from 'vue-loading-overlay';
 import Moment from 'vue-moment';
+import VueCookies from 'vue-cookies';
 
 import 'vue-loading-overlay/dist/vue-loading.css';
 import 'vue-datetime/dist/vue-datetime.css';
@@ -16,8 +17,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 import './global_css/styles.scss';
 import 'v-toaster/dist/v-toaster.css'
 import '@fortawesome/fontawesome-free/css/all.css';
-// import { vsDivider } from 'vuesax'
-// import 'vuesax/dist/vuesax.css'
+
 import { LogLevel } from './models/LogModel';
 import Config from './config';
 
@@ -25,6 +25,7 @@ Vue.config.productionTip = true;
 Vue.use(BootstrapVue);
 Vue.use(Moment);
 Vue.use(Datetime);
+Vue.use(VueCookies);
 Vue.use(Toaster, { timeout: 5000 });
 Vue.use(Loading, {
     color: '#93a2f5',

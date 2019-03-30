@@ -19,6 +19,7 @@ export default new Vuex.Store({
     },
     mutations: {
         setAuthToken(ctxt, newToken) {
+            Vue.prototype.$cookies.set('toolBeltAuthToken', newToken, '1d');
             this.state.authToken = newToken;
             this.state.requestService._setAuthHeader(newToken)
         },
@@ -36,7 +37,7 @@ export default new Vuex.Store({
         async authorize(ctxt, password) {
             const token = await this.state.requestService._authorize(password);
             if (token) {
-                this.commit('setAuthToken', token)
+                this.commit('setAuthToken', token);
             } else {
                 // Exception fly away
             }
