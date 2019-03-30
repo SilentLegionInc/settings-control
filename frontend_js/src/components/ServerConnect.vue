@@ -51,6 +51,7 @@ export default {
         async changeHostAddress() {
             this.$store.commit('changeHostAddress', this.url);
             const connectionStatus = await this.$store.state.requestService.getHealth();
+            this.$emit('changedHost');
             if (connectionStatus) {
                 this.$toaster.success('Успешно подключено');
             } else {

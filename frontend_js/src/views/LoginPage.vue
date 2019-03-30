@@ -27,7 +27,7 @@
                         </div>
 
                         <div v-if="serverSettings">
-                            <app-server-connect></app-server-connect>
+                            <app-server-connect @changedHost="login()"></app-server-connect>
                         </div>
                     </b-card>
                 </div>

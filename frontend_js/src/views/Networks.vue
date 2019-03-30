@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="container-fluid">
         <div class="mb-3">
             <h2 align="center">Конфигурация сети</h2>
         </div>
@@ -7,7 +7,7 @@
         <div role="tablist">
             <div v-if="wirelessNetworks.length > 0">
                 <div v-for="(network, index) of wirelessNetworks" v-bind:key="index">
-                    <div class="row">
+                    <div class="row"  style="margin: auto">
                         <div class="col-xl-8 offset-xl-2 offset-0 col-12">
                             <b-card no-body class="mb-1">
                                 <b-card-header header-tag="header" class="p-1" role="tab">
@@ -75,7 +75,8 @@
                                         <div class="row mb-3">
                                             <div class="offset-xl-3 offset-0 col-xl-3 col-4">
                                                 <button class="btn btn-block btn-primary">
-                                                    Подключение к сети&nbsp;<i class="fa" :class="{'fa-angle-down': !module_elem.detail, 'fa-angle-up': module_elem.detail}"></i>
+                                                    Подключение к сети
+                                                    <!--Подключение к сети&nbsp;<i class="fa" :class="{'fa-angle-down': !module_elem.detail, 'fa-angle-up': module_elem.detail}"></i>-->
                                                 </button>
                                             </div>
                                             <div class="col-xl-3 col-4">
@@ -106,8 +107,8 @@
             </div>
         </div>
         <divider text="Проводные соединения"></divider>
-        <div v-if="wiredNetwork.name" role="tablist">
-            <div class="row">
+        <div v-if="wiredNetwork != null && wiredNetwork.name" role="tablist">
+            <div class="row" style="margin: auto">
                 <div class="col-xl-8 offset-xl-2 offset-0 col-12">
                     <b-card no-body class="mb-1">
                         <b-card-header header-tag="header" class="p-1" role="tab">
@@ -129,7 +130,7 @@
                                         Интерфейс:
                                     </div>
                                     <div class="col-xl-9 col-8">
-                                        {{network.device || '-'}}
+                                        {{wiredNetwork.device || '-'}}
                                     </div>
                                 </div>
                                 <div class="row mb-2">
@@ -162,7 +163,7 @@
                                         </button>
                                     </div>
                                     <div class="col-xl-3 col-4">
-                                        <button :disabled="!network.id || password" class="btn btn-block btn-primary" @click="connect(network)">
+                                        <button :disabled="!wiredNetwork.id || password" class="btn btn-block btn-primary" @click="connect(wiredNetwork)">
                                             Подключиться
                                         </button>
                                     </div>
@@ -202,7 +203,7 @@ export default {
             try {
                 this._loader = this.$loading.show();
                 const result = await this.$store.state.requestService.getNetworks();
-                this.wiredNetwork = result.wiredNetwork;
+                this.wiredNetwork = result.wiredNetworks[0];
                 this.wirelessNetworks = result.wirelessNetworks;
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
@@ -220,7 +221,7 @@ export default {
         async switchConnection(network) {
             const newNetwork = {};
             // TODO warning modal window + request to connect
-            Logger.info(`connecting to ${newNetwork.name} with password ${this.password}`)
+            Logger.info(`connecting to ${newNetwork.name} with password ${this.password}`);
             try {
                 this._loader = this.$loading.show();
                 const res = await this.$store.state.requestService.createWifiConnection(newNetwork.name, this.password);
@@ -240,7 +241,7 @@ export default {
 
         async connect(network) {
             // TODO warning modal window + request to connect
-            Logger.info(`connecting to ${network.name} with password ${this.password}`)
+            Logger.info(`connecting to ${network.name} with password ${this.password}`);
             try {
                 this._loader = this.$loading.show();
                 let res = false;

@@ -2,7 +2,7 @@
     <div class="container-fluid">
 
         <div role="tablist">
-            <div class="row">
+            <div class="row" style="margin: auto">
                 <div class="col-xl-8 offset-xl-2 offset-0 col-12">
                     <b-card no-body class="mb-1">
                         <b-card-header header-tag="header" class="p-1" role="tab">
@@ -101,7 +101,7 @@
 
             <div v-if="modules.length > 0">
                 <div v-for="(module_elem, index) of modules" v-bind:key="index">
-                    <div class="row">
+                    <div class="row" style="margin: auto">
                         <div class="col-xl-8 offset-xl-2 offset-0 col-12">
                             <b-card no-body class="mb-1">
                                 <b-card-header header-tag="header" class="p-1" role="tab">
@@ -308,7 +308,7 @@ export default {
         async stopCore() {
             try {
                 this._loader = this.$loading.show();
-                const res = await this.$store.state.requestService.stopCore()
+                const res = await this.$store.state.requestService.stopCore();
                 await this.loadData();
                 if (res) {
                     this.$toaster.success('Ядро остановлено');

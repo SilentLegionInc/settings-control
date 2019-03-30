@@ -87,7 +87,10 @@ export class RequestService {
         const path = this._constructPath('api/network');
         const res = await axios.get(path);
         if (res.status === 200) {
-            return MapperService.mapNetworksResponse(res.data);
+            Logger.info(res.data);
+            const mapped = MapperService.mapNetworksResponse(res.data);
+            Logger.info(mapped);
+            return mapped
         } else {
             Logger.error(res.data.errorInfo);
             throw new ServerExceptionModel(res.data.errorInfo, res.status);
@@ -209,8 +212,8 @@ export class RequestService {
         const path = this._constructPath(`api/monitoring/logs/${robotName}`);
 
         const body = {};
-        body['filter'] = {}
-        body['sort'] = {}
+        body['filter'] = {};
+        body['sort'] = {};
         if (startTime != null) {
             body['filter']['start_time'] = startTime;
             if (typeof body['filter']['start_time'] !== 'string') {
@@ -370,7 +373,7 @@ export class RequestService {
         for (let filterElem in filter) {
             if (filter.hasOwnProperty(filterElem)) {
                 const newName = filterElem.replace(/([A-Z])/g, '_$1').toLowerCase();
-                body['filter'][newName] = filter[filterElem]
+                body['filter'][newName] = filter[filterElem];
                 if (['startTime', 'endTime'].includes(filterElem) && body['filter'][newName] && typeof body['filter'][newName] !== 'string') {
                     body['filter'][newName] = body['filter'][newName].toISOString();
                 }
