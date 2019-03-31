@@ -1,9 +1,14 @@
 <template>
     <div class="container-fluid">
         <div class="mb-3" :ref="'aaa' + 15">
-            <h2 align="center">Конфигурация сети</h2>
+            <h2 align="center">Конфигурация сети &nbsp;<i class="fas fa-sync" @click="loadData()"></i></h2>
         </div>
-        <divider text="Беспроводные соединения"></divider>
+        <divider><h5>
+            <div class="flexbox">
+                <span class="inner-text">Беспроводные соединения &nbsp;</span>
+                <span class="inner-text"><i class="fas fa-times" style="color: #dc3545" @click="dropAllWirelessConfirmation()"></i></span>
+            </div>
+            </h5></divider>
         <div v-if="wirelessNetworks.length > 0" role="tablist">
             <div v-for="(network, index) of wirelessNetworks" v-bind:key="index">
                 <div class="row"  style="margin: auto">
@@ -83,7 +88,7 @@
                                     </div>
                                     <div class="row mb-3">
                                         <div class="offset-xl-3 offset-0 col-xl-3 col-4">
-                                            <button :disabled="network.active || !network.id" class="btn btn-block btn-danger" @click="deleteConnection(network)">
+                                            <button :disabled="network.active || !network.id" class="btn btn-block btn-danger" @click="deleteNetworkConfirmation(network)">
                                                 Забыть подключение
                                             </button>
                                         </div>
@@ -212,7 +217,7 @@
                                     <!--TODO finish me-->
                                     <div class="row mb-3">
                                         <div class="offset-xl-3 offset-0 col-xl-3 col-4">
-                                            <button :disabled="wiredNetwork.active || !wiredNetwork.id" class="btn btn-block btn-danger">
+                                            <button :disabled="wiredNetwork.active || !wiredNetwork.id" class="btn btn-block btn-danger" @click="deleteNetworkConfirmation(wiredNetwork)">
                                                 Забыть подключение
                                             </button>
                                         </div>
@@ -307,6 +312,40 @@
                 </div>
             </div>
         </b-modal>
+
+        <b-modal ref="drop_all_modal"
+                 id="drop_all_modal"
+                 size="lg"
+                 title="Забыть все беспроводные соединения"
+                 centered
+                 @ok="dropAllWirelessConnections()"
+        >
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <b>Внимание!</b>
+                        Будут сброшены все беспроводные соединения
+                    </div>
+                </div>
+            </div>
+        </b-modal>
+
+        <b-modal ref="drop_one_modal"
+                 id="drop_one_modal"
+                 size="lg"
+                 title="Забыть соединение"
+                 centered
+                 @ok="deleteConnection(networkToDelete)"
+        >
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <b>Внимание!</b>
+                        Будет сброшена вся информация об соединении {{networkToDelete.name}}
+                    </div>
+                </div>
+            </div>
+        </b-modal>
     </div>
 </template>
 
@@ -331,7 +370,8 @@ export default {
             wirelessNetworks: [],
             _loader: null,
             collapseStatuses: {},
-            tempNetwork: {}
+            tempNetwork: {},
+            networkToDelete: {}
         }
     },
     components: {
@@ -387,6 +427,11 @@ export default {
             loader.hide();
         },
 
+        deleteNetworkConfirmation(network) {
+            this.networkToDelete = network;
+            this.$refs.drop_one_modal.show();
+        },
+
         async deleteConnection(network) {
             const loader = this.$loading.show();
             try {
@@ -405,6 +450,7 @@ export default {
                     Logger.error(err);
                 }
             }
+            this.networkToDelete = {};
             loader.hide();
         },
 
@@ -435,6 +481,31 @@ export default {
             loader.hide();
         },
 
+        async dropAllWirelessConfirmation() {
+            this.$refs.drop_all_modal.show()
+        },
+
+        async dropAllWirelessConnections() {
+            const loader = this.$loading.show();
+            try {
+                const res = await this.$store.state.requestService.deleteAllWirelessConnections();
+                if (res) {
+                    await this.loadData();
+                    this.$toaster.success(`Все беспроводные соединения успешно стерты`);
+                } else {
+                    this.$toaster.error(`Не удалось очистить беспроводные соединения`);
+                }
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Серверная ошибка');
+                    Logger.error(err);
+                }
+            }
+            loader.hide();
+        },
+
         changeCollapseStatus(collapseId) {
             if (this.collapseStatuses[collapseId]) {
                 this.collapseStatuses[collapseId] = !this.collapseStatuses[collapseId]
@@ -447,5 +518,14 @@ export default {
 </script>
 
 <style scoped>
-
+.flexbox {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+}
+.inner-text {
+    flex-basis: auto;
+}
 </style>

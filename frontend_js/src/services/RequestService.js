@@ -138,6 +138,17 @@ export class RequestService {
         }
     }
 
+    async deleteAllWirelessConnections() {
+        const path = this._constructPath(`api/network/connection/drop_all_wireless`);
+        const res = await axios.delete(path);
+        if (res.status === 200) {
+            return true
+        } else {
+            Logger.error(res.data.errorInfo);
+            throw new ServerExceptionModel(res.data.errorInfo, res.status);
+        }
+    }
+
     async modifyConnectionParams(id, params) {
         const path = this._constructPath(`api/network/connection/${id}`);
         const res = await axios.put(path, params);

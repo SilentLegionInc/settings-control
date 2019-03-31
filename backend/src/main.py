@@ -222,6 +222,24 @@ def api_connection_delete(uuid):
         return jsonify({'ok': True}), status.HTTP_200_OK
 
 
+@app.route('/api/network/connection/drop_all_wireless', methods=['DELETE'])
+@handle_errors
+@api_authorization
+def api_connections_delete_all_wireless():
+    # delete connection
+    if NetworkService().delete_all_wireless_connections():
+        return jsonify({'ok': True}), status.HTTP_200_OK
+
+
+@app.route('/api/network/connection/<string:uuid>', methods=['PUT'])
+@handle_errors
+@api_authorization
+def api_modify_connection(uuid):
+    params = request.get_json()
+    if NetworkService().modify_connection_params(uuid, params):
+        return jsonify({'ok': True}), status.HTTP_200_OK
+
+
 @app.route('/api/core/compile', methods=['POST'])
 @handle_errors
 @api_authorization

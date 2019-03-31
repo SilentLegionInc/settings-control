@@ -1,7 +1,7 @@
 <template>
     <div class="divider ml-2 mr-2">
         <span class="lines"><hr></span>
-        <span class="inner-text ml-2 mr-2"><h5>{{text}}</h5></span>
+        <span class="inner-text ml-2 mr-2"><slot><h5>{{text}}</h5></slot></span>
         <span class="lines"><hr></span>
     </div>
 </template>
@@ -21,7 +21,6 @@ export default {
         flex-wrap: nowrap;
         justify-content: center;
         align-items: center;
-        cursor: default;
     }
     .inner-text {
         flex-basis: auto;
