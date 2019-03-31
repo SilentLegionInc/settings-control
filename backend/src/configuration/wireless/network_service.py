@@ -120,6 +120,9 @@ class NetworkService(metaclass=Singleton):
     def list_of_connections(self, rescan_wifi=True):
         return self._driver.list_of_connections(rescan_wifi)
 
+    def delete_all_wireless_connections(self):
+        return self._driver.delete_all_wireless_connections()
+
 
 # abstract class for all wifi drivers
 class NetworkDriver(metaclass=ABCMeta):
@@ -176,6 +179,10 @@ class NetworkDriver(metaclass=ABCMeta):
     def list_of_connections(self, rescan_wifi=True):
         pass
 
+    @abstractmethod
+    def delete_all_wireless_connections(self):
+        pass
+
 
 # Linux nmcli Driver >= 0.9.9.0 (Actual driver)
 class Nmcli0990(NetworkDriver):
@@ -189,6 +196,7 @@ class Nmcli0990(NetworkDriver):
         self.interface_eth(interface_eth)
         self.ssid_to_uuid = {}
         self._load_connection_map()
+        print(self.ssid_to_uuid)
         self._detail_connection_params = detail_connection_params
         # register destructor method
         # TODO doesn't work
@@ -379,6 +387,15 @@ class Nmcli0990(NetworkDriver):
         if self.ssid_to_uuid.get(ssid):
             del self.ssid_to_uuid[ssid]
             self._save_connection_map()
+        return True
+
+    def delete_all_wireless_connections(self):
+        response = cmd('nmcli con delete {}'.format(' '.join(list(self.ssid_to_uuid))))
+        if self._error_in_response(response):
+            raise ServerException('Не удалось очистить беспроводные соединения {}'.format(response), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        self.ssid_to_uuid = {}
+        self._save_connection_map()
         return True
 
     def current_wifi(self):
