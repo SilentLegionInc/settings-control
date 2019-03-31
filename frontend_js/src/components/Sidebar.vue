@@ -143,7 +143,7 @@ export default {
     components: {
         'divider': Divider
     },
-    data: function () {
+    data() {
         return {
             monitorIsOpen: false
         }

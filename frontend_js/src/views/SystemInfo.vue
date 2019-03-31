@@ -88,7 +88,7 @@ import { ClientExceptionModel } from '../models/ClientExceptionModel';
 export default {
     name: 'SystemInfo',
     components: { CapacityComponent, LineChart },
-    data: function() {
+    data() {
         return {
             diskInfo: [],
             memoryInfo: null,
@@ -169,7 +169,7 @@ export default {
         this._intervalFunction = setInterval(this.loadCpuInfo, 1000);
     },
 
-    destroyed: function () {
+    destroyed() {
         clearInterval(this._intervalFunction);
         delete this._intervalFunction;
     }

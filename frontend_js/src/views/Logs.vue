@@ -101,7 +101,7 @@ export default {
     components: {
         'logs-modal': LogsModal
     },
-    data: function() {
+    data() {
         return {
             logs: [],
             elementsPerPage: 20,
@@ -162,7 +162,7 @@ export default {
         this.currentPage = 1;
     },
     filters: {
-        chopLongMessage: function(str) {
+        chopLongMessage(str) {
             if (str.length > 50) {
                 return str.slice(0, 50) + '...';
             } else {

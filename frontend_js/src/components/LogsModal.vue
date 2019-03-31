@@ -40,7 +40,7 @@
 <script>
 export default {
     name: 'LogsModal',
-    data: function() {
+    data() {
         return {
             logTime: null,
             logType: null,
@@ -49,7 +49,7 @@ export default {
         }
     },
     methods: {
-        showModal: function(logModel) {
+        showModal(logModel) {
             this.logTime = logModel.time;
             this.logType = logModel.type;
             this.logTitle = logModel.title;
@@ -58,7 +58,7 @@ export default {
             this.$refs.logsModal.show();
         },
 
-        hideModal: function() {
+        hideModal() {
             this.$refs.logsModal.hide();
         }
     }

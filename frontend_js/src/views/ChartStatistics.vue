@@ -42,7 +42,7 @@ import { catchErrorsWrapper } from '../helpers';
 export default {
     name: 'ChartStatistics',
     components: { ChartStatisticsComponent },
-    data: function() {
+    data() {
         return {
             dataStructure: [],
             robotName: null,
