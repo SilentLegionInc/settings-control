@@ -3,12 +3,12 @@
         <div class="mb-3" :ref="'aaa' + 15">
             <h2 align="center">Конфигурация сети &nbsp;<i class="fas fa-sync" @click="loadData()"></i></h2>
         </div>
-        <divider><h5>
-            <div class="flexbox">
-                <span class="inner-text">Беспроводные соединения &nbsp;</span>
-                <span class="inner-text"><i class="fas fa-times" style="color: #dc3545" @click="dropAllWirelessConfirmation()"></i></span>
-            </div>
-            </h5></divider>
+        <divider>
+            <h5>
+            Беспроводные соединения &nbsp;
+                <i class="fas fa-eraser" style="color: #dc3545" @click="dropAllWirelessConfirmation()"></i>
+            </h5>
+        </divider>
         <div v-if="wirelessNetworks.length > 0" role="tablist">
             <div v-for="(network, index) of wirelessNetworks" v-bind:key="index">
                 <div class="row"  style="margin: auto">
@@ -518,14 +518,5 @@ export default {
 </script>
 
 <style scoped>
-.flexbox {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: center;
-    align-items: center;
-}
-.inner-text {
-    flex-basis: auto;
-}
+
 </style>

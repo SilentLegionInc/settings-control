@@ -12,10 +12,10 @@
                 <li>
                     <router-link class="clickable" to="/settings" @click.native="close">
                         <div class="row">
-                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 pl-0" align="center">
                                 <i class="fas fa-truck-monster"></i>
                             </div>
-                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11">
                                 Конфигурация ядра
                             </div>
                         </div>
@@ -24,10 +24,10 @@
                 <li>
                     <router-link class="clickable" to="/server_settings" @click.native="close">
                         <div class="row">
-                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 pl-0" align="center">
                                 <i class="fas fa-sliders-h"></i>
                             </div>
-                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11">
                                 Конфигурация сервера
                             </div>
                         </div>
@@ -36,10 +36,10 @@
                 <li>
                     <router-link class="clickable" to="/wifi" @click.native="close">
                         <div class="row">
-                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 pl-0" align="center">
                                 <i class="fas fa-broadcast-tower"></i>
                             </div>
-                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11">
                                 Сети
                             </div>
                         </div>
@@ -48,10 +48,10 @@
                 <li>
                     <router-link class="clickable" to="/modules" @click.native="close">
                         <div class="row">
-                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 pl-0" align="center">
                                 <i class="fa fa-key"></i>
                             </div>
-                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11">
                                 Модули
                             </div>
                         </div>
@@ -65,10 +65,10 @@
                 <li>
                     <router-link class="clickable" to="/system_info" @click.native="close">
                         <div class="row">
-                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 pl-0" align="center">
                                 <i class="fas fa-thermometer"></i>
                             </div>
-                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11">
                                 Нагрузка системы
                             </div>
                         </div>
@@ -77,10 +77,10 @@
                 <li>
                     <router-link class="clickable" to="/monitoring_navigation" @click.native="close">
                         <div class="row">
-                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 pl-0" align="center">
                                 <i class="far fa-chart-bar"></i>
                             </div>
-                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11">
                                 Данные датчиков
                             </div>
                         </div>
@@ -89,10 +89,10 @@
                 <li>
                     <router-link class="clickable" to="/logs" @click.native="close">
                         <div class="row">
-                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 pl-0" align="center">
                                 <i class="fas fa-book"></i>
                             </div>
-                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11">
                                 Логи ядра
                             </div>
                         </div>
@@ -106,10 +106,10 @@
                 <li v-if="!this.$store.getters.isAuthenticated">
                     <router-link class="clickable" to="/login" @click.native="close">
                         <div class="row">
-                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 pl-0" align="center">
                                 <i class="fa fa-key"></i>
                             </div>
-                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11">
                                 Вход
                             </div>
                         </div>
@@ -118,10 +118,10 @@
                 <li v-if="this.$store.getters.isAuthenticated">
                     <router-link class="clickable" to="/" @click.native="logout()">
                         <div class="row">
-                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 p-0" align="center">
+                            <div class="col-1 col-sm-1 col-md-1 col-lg-1 col-xl-1 pl-0" align="center">
                                 <i class="fa fa-lock"></i>
                             </div>
-                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11 p-0">
+                            <div class="col-11 col-sm-11 col-md-11 col-lg-11 col-xl-11">
                                 Выход
                             </div>
                         </div>
@@ -253,13 +253,13 @@ export default {
         }
         @media (min-width:1025px) {
             /* big landscape tablets, laptops, and desktops */
-            min-width: 340px;
+            min-width: 360px;
             width: 30%;
         }
         @media (min-width:1281px) {
             /* hi-res laptops and desktops */
-            min-width: 340px;
-            width: 20%;
+            min-width: 360px;
+            width: 25%;
         }
     }
 
