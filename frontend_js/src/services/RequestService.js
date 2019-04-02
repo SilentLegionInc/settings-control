@@ -3,6 +3,7 @@ import { MapperService } from './MapperService';
 import Logger from '../logger';
 import { ServerExceptionModel } from '../models/ServerExceptionModel';
 import Vue from 'vue';
+import Config from '../config';
 
 export class RequestService {
     constructor(url) {
@@ -79,7 +80,7 @@ export class RequestService {
         try {
             const res = await axios.get(path, { timeout: 1000 });
             if (res.status === 200) {
-                Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+                Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             }
             return res.status === 200 && res.data.code === 0;
         } catch (e) {
@@ -91,7 +92,7 @@ export class RequestService {
         const path = this._constructPath('api/network');
         const res = await axios.get(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return MapperService.mapNetworksResponse(res.data);
         } else {
             Logger.error(res.data.errorInfo);
@@ -103,7 +104,7 @@ export class RequestService {
         const path = this._constructPath('api/modules');
         const res = await axios.get(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return MapperService.mapModulesResponse(res.data);
         } else {
             Logger.error(res.data.errorInfo);
@@ -115,7 +116,7 @@ export class RequestService {
         const path = this._constructPath('api/network/create_wifi_connection');
         const res = await axios.post(path, { name, password });
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return true
         } else {
             Logger.error(res.data.errorInfo);
@@ -127,7 +128,7 @@ export class RequestService {
         const path = this._constructPath(`api/network/connection/up/${id}`);
         const res = await axios.get(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return true
         } else {
             Logger.error(res.data.errorInfo);
@@ -139,7 +140,7 @@ export class RequestService {
         const path = this._constructPath(`api/network/connection/${id}`);
         const res = await axios.delete(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return true
         } else {
             Logger.error(res.data.errorInfo);
@@ -151,7 +152,7 @@ export class RequestService {
         const path = this._constructPath(`api/network/connection/drop_all_wireless`);
         const res = await axios.delete(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return true
         } else {
             Logger.error(res.data.errorInfo);
@@ -163,7 +164,7 @@ export class RequestService {
         const path = this._constructPath(`api/network/connection/${id}`);
         const res = await axios.put(path, params);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return true;
         } else {
             Logger.error(res.data.errorInfo);
@@ -175,7 +176,7 @@ export class RequestService {
         const path = this._constructPath('api/server_config');
         const res = await axios.get(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return MapperService.mapServerSettingsResponse(res.data);
         } else {
             Logger.error(res.data.errorInfo);
@@ -187,7 +188,7 @@ export class RequestService {
         const path = this._constructPath('api/core/run');
         const res = await axios.post(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return res.data.core_status;
         } else {
             Logger.error(res.data.errorInfo);
@@ -198,7 +199,7 @@ export class RequestService {
         const path = this._constructPath('api/core/stop');
         const res = await axios.post(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return !res.data.core_status;
         } else {
             Logger.error(res.data.errorInfo);
@@ -210,7 +211,7 @@ export class RequestService {
         const path = this._constructPath('api/core/status');
         const res = await axios.get(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return res.data.core_status;
         } else {
             Logger.error(res.data.errorInfo);
@@ -223,7 +224,7 @@ export class RequestService {
         const res = await axios.post(path, newConfig);
         if (res.status === 200) {
             // TODO change answer format in backend
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return true;
         } else {
             Logger.error(res.data.errorInfo);
@@ -235,7 +236,7 @@ export class RequestService {
         const path = this._constructPath('api/core_config');
         const res = await axios.get(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return res.data;
         } else {
             Logger.error(res.data.errorInfo);
@@ -248,7 +249,7 @@ export class RequestService {
         const res = await axios.post(path, newConfig);
         if (res.status === 200) {
             // TODO change answer format in backend
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return true;
         } else {
             Logger.error(res.data.errorInfo);
@@ -296,7 +297,7 @@ export class RequestService {
 
         const result = await axios.post(path, body);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return MapperService.mapLogsResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -312,7 +313,7 @@ export class RequestService {
 
         const result = await axios.get(path);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return MapperService.mapDataStructureResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -328,7 +329,7 @@ export class RequestService {
 
         const result = await axios.get(path);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return MapperService.mapDatabasesInfoResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -344,7 +345,7 @@ export class RequestService {
 
         const result = await axios.get(path);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return MapperService.mapInitChartDataResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -373,7 +374,7 @@ export class RequestService {
 
         const result = await axios.post(path, body);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return MapperService.mapFilterChartDataResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -401,7 +402,7 @@ export class RequestService {
 
         const result = await axios.post(path, body);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return MapperService.mapPageChartDataResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -447,7 +448,7 @@ export class RequestService {
 
         const result = await axios.post(path, body);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return MapperService.mapTableDataResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -463,7 +464,7 @@ export class RequestService {
 
         const result = await axios.get(path);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return MapperService.mapSystemInfoResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -502,7 +503,7 @@ export class RequestService {
             result = await axios.post(path, body);
         }
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return MapperService.mapMapsDataResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -518,7 +519,7 @@ export class RequestService {
 
         const result = await axios.post(path, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return true;
         } else {
             Logger.error(`Can't upload file`);
@@ -530,7 +531,7 @@ export class RequestService {
         const path = this._constructPath(`api/clone_module/${moduleName}`);
         const result = await axios.get(path);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return true;
         } else {
             throw new ServerExceptionModel(result.data.errorInfo, result.status);
@@ -541,7 +542,7 @@ export class RequestService {
         const path = this._constructPath(`api/build_module/${moduleName}`);
         const result = await axios.get(path);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return true;
         } else {
             throw new ServerExceptionModel(result.data.errorInfo, result.status);
@@ -553,7 +554,7 @@ export class RequestService {
         const result = await axios.post(path, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         if (result.status === 200) {
             // TODO change answer format in backend
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], '10MIN');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
             return true;
         } else {
             Logger.error(result.data.errorInfo);
