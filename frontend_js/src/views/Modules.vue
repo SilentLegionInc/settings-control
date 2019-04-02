@@ -6,7 +6,6 @@
                 <div class="col-xl-8 offset-xl-2 offset-0 col-12">
                     <b-card no-body class="mb-1">
                         <b-card-header header-tag="header" class="p-1" role="tab">
-                            <!--<div v-b-toggle.accordion_core><p class="card-text">{{core.name}}</p></div>-->
                             <b-button block href="#" v-b-toggle="'accordion_core'" variant="info">{{core.name}}</b-button>
                         </b-card-header>
                         <b-collapse id="accordion_core" visible accordion="my-accordion" role="tabpanel">
@@ -55,8 +54,12 @@
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col-xl-3 col-12 mb-1">
-                                        <button class="btn btn-block btn-primary" @click="switchDetailedCore()">
-                                            Ручное обновление&nbsp;<i class="fa" :class="{'fa-angle-down': !core.detail, 'fa-angle-up': core.detail}"></i>
+                                        <button id="coreUpdateButton"
+                                                class="btn btn-block btn-primary"
+                                                v-b-toggle="'coreUpdate'"
+                                                @click="changeCollapseStatus('coreUpdate')">
+                                            Ручное обновление <i class="fa" :class="{'fa-angle-down': !collapseStatuses[`moduleUpdate${index}`],
+                                                'fa-angle-up': collapseStatuses[`moduleUpdate${index}`]}"></i>
                                         </button>
                                     </div>
                                     <div class="col-xl-3 col-12 mb-1">
@@ -78,9 +81,8 @@
                                             Остановить
                                         </button>
                                     </div>
-
                                 </div>
-                                <div v-if="core.detail">
+                                <b-collapse id="coreUpdate" ref="coreUpdate">
                                     <div class="row mb-2">
                                         <label class="col-xl-3 col-form-label mb-1" for="core_update">Архив с исходниками для обновления:</label>
                                         <div class="col-xl-9 col-12 mb-1">
@@ -99,7 +101,7 @@
                                             <button :disabled="!file" class="btn btn-success btn-block" @click="uploadModuleArchive(module_elem.name)">Обновить</button>
                                         </div>
                                     </div>
-                                </div>
+                                </b-collapse>
                             </b-card-body>
                         </b-collapse>
                     </b-card>
@@ -145,8 +147,12 @@
                                         </div>
                                         <div class="row mb-3">
                                             <div class="offset-xl-3 offset-0 col-xl-3 col-4">
-                                                <button class="btn btn-block btn-primary" @click="switchDetailed(index)">
-                                                    Ручное обновление&nbsp;<i class="fa" :class="{'fa-angle-down': !module_elem.detail, 'fa-angle-up': module_elem.detail}"></i>
+                                                <button :id="'moduleUpdateButton' + index"
+                                                        class="btn btn-block btn-primary"
+                                                        v-b-toggle="'moduleUpdate' + index"
+                                                        @click="changeCollapseStatus(`moduleUpdate${index}`)">
+                                                    Ручное обновление <i class="fa" :class="{'fa-angle-down': !collapseStatuses[`moduleUpdate${index}`],
+                                                'fa-angle-up': collapseStatuses[`moduleUpdate${index}`]}"></i>
                                                 </button>
                                             </div>
                                             <div class="col-xl-3 col-4">
@@ -160,7 +166,7 @@
                                                 </button>
                                             </div>
                                         </div>
-                                        <div v-if="module_elem.detail">
+                                        <b-collapse :id="'moduleUpdate' + index" :ref="'moduleUpdate' + index">
                                             <div class="row mb-1">
                                                 <label class="col-xl-3 col-form-label mb-1" :for="'module'+index+'update'">Архив с исходниками для обновления:</label>
                                                 <div class="col-xl-9 col-12 mb-1">
@@ -179,7 +185,7 @@
                                                     <button :disabled="!file" class="btn btn-success btn-block" @click="uploadModuleArchive(module_elem.name)">Обновить</button>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </b-collapse>
                                     </b-card-body>
                                 </b-collapse>
                             </b-card>
@@ -202,6 +208,7 @@ export default {
             core: {},
             modules: [],
             file: null,
+            collapseStatuses: {},
             _loader: null
         }
     },
@@ -209,12 +216,6 @@ export default {
         await this.loadData();
     },
     methods: {
-        switchDetailedCore() {
-            this.core.detail = !this.core.detail;
-        },
-        switchDetailed(index) {
-            this.modules[index].detail = !this.modules[index].detail;
-        },
         async loadData() {
             const loader = this.$loading.show();
             try {
@@ -339,6 +340,14 @@ export default {
                 }
             }
             this._loader.hide();
+        },
+
+        changeCollapseStatus(collapseId) {
+            if (this.collapseStatuses[collapseId]) {
+                this.collapseStatuses[collapseId] = !this.collapseStatuses[collapseId]
+            } else {
+                this.$set(this.collapseStatuses, collapseId, true);
+            }
         }
     }
 }
