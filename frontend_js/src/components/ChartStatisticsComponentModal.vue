@@ -27,7 +27,7 @@
                         <button type="button" class="btn btn-secondary btn-block" @click="onCancel()">Отмена</button>
                     </div>
                     <div class="col-12 col-sm-6 col-md-5 col-lg-4 col-xl-4">
-                        <button type="button" class="btn btn-primary btn-block" @click="onOk()">Ок</button>
+                        <button type="button" class="btn btn-success btn-block" @click="onOk()">Применить</button>
                     </div>
                 </div>
             </div>

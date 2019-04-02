@@ -1,6 +1,6 @@
 <template>
     <div class="container-fluid">
-        <div class="mb-3" :ref="'aaa' + 15">
+        <div class="mb-3">
             <h2 align="center">Конфигурация сети &nbsp;<i class="fas fa-sync" @click="loadData()"></i></h2>
         </div>
         <divider>

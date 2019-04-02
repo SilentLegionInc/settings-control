@@ -1,20 +1,20 @@
 <template>
     <div class="container-fluid">
-
+        <h2 class="mb-3" align="center">Список модулей {{$store.state.robotName}}</h2>
         <div role="tablist">
             <div class="row" style="margin: auto">
                 <div class="col-xl-8 offset-xl-2 offset-0 col-12">
-                    <b-card no-body class="mb-1">
+                    <b-card no-body>
                         <b-card-header header-tag="header" class="p-1" role="tab">
                             <b-button block href="#" v-b-toggle="'accordion_core'" variant="info">{{core.name}}</b-button>
                         </b-card-header>
                         <b-collapse id="accordion_core" visible accordion="my-accordion" role="tabpanel">
-                            <b-card-body>
+                            <b-card-body class="pt-2 pb-0">
                                 <div class="row mb-1">
-                                    <div class="col-xl-3 col-4">
-                                        Имя конфига:
+                                    <div class="col-xl-3 col-12 mb-1">
+                                        <b>Имя конфига:</b>
                                     </div>
-                                    <div class="col-xl-9 col-8">
+                                    <div class="col-xl-9 col-12">
                                         {{core.configPath || '-'}}
                                     </div>
                                 </div>
@@ -52,27 +52,8 @@
                                         <span v-else>-</span>
                                     </div>
                                 </div>
-                                <div class="row mb-3">
-                                    <div class="col-xl-3 col-12 mb-1">
-                                        <button id="coreUpdateButton"
-                                                class="btn btn-block btn-primary"
-                                                v-b-toggle="'coreUpdate'"
-                                                @click="changeCollapseStatus('coreUpdate')">
-                                            Ручное обновление <i class="fa" :class="{'fa-angle-down': !collapseStatuses[`moduleUpdate${index}`],
-                                                'fa-angle-up': collapseStatuses[`moduleUpdate${index}`]}"></i>
-                                        </button>
-                                    </div>
-                                    <div class="col-xl-3 col-12 mb-1">
-                                        <button class="btn btn-block btn-primary" @click="cloneModule(core.name)">
-                                            Обновить
-                                        </button>
-                                    </div>
-                                    <div class="col-xl-3 col-12 mb-1">
-                                        <button class="btn btn-block btn-primary" @click="buildModule(core.name)">
-                                            Собрать
-                                        </button>
-                                    </div>
-                                    <div class="col-xl-3 col-12 mb-1">
+                                <div class="row">
+                                    <div class="col-xl-4 col-12 mb-1">
                                         <!--TODO change to normal check-->
                                         <button v-if="!core.isActive" :disabled="!core.isBuilt" class="btn btn-block btn-success" @click="runCore()">
                                             Запустить
@@ -81,6 +62,36 @@
                                             Остановить
                                         </button>
                                     </div>
+                                    <div class="col-xl-4 col-12 mb-1">
+                                        <button class="btn btn-block btn-primary" @click="buildModule(core.name)">
+                                            Собрать
+                                        </button>
+                                    </div>
+                                    <div class="col-xl-4 col-12 mb-1">
+                                        <button class="btn btn-block btn-primary">
+                                            Собрать с зависимостями
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="offset-xl-2 col-xl-4 col-12 mb-1">
+                                        <button class="btn btn-block btn-primary" @click="cloneModule(core.name)">
+                                            Обновить
+                                        </button>
+                                    </div>
+                                    <div class="col-xl-4 col-12 mb-1">
+                                        <button id="coreUpdateButton"
+                                                class="btn btn-block btn-primary"
+                                                v-b-toggle="'coreUpdate'"
+                                                @click="changeCollapseStatus('coreUpdate')">
+                                            Ручное обновление
+                                            <i class="fa"
+                                               :class="{'fa-angle-down': !collapseStatuses[`coreUpdate`],
+                                                'fa-angle-up': collapseStatuses[`coreUpdate`]}"
+                                            ></i>
+                                        </button>
+                                    </div>
+
                                 </div>
                                 <b-collapse id="coreUpdate" ref="coreUpdate">
                                     <div class="row mb-2">
@@ -112,12 +123,12 @@
                 <div v-for="(module_elem, index) of modules" v-bind:key="index">
                     <div class="row" style="margin: auto">
                         <div class="col-xl-8 offset-xl-2 offset-0 col-12">
-                            <b-card no-body class="mb-1">
+                            <b-card no-body>
                                 <b-card-header header-tag="header" class="p-1" role="tab">
                                     <b-button block href="#" v-b-toggle="'module' + index" variant="info">{{module_elem.name}}</b-button>
                                 </b-card-header>
                                 <b-collapse :id="'module' + index" accordion="my-accordion" role="tabpanel">
-                                    <b-card-body>
+                                    <b-card-body class="pt-2 pb-0">
                                         <div class="row mb-2">
                                             <div class="col-xl-3 col-4">
                                                 Адрес git:
@@ -145,8 +156,8 @@
                                                 <span v-else>-</span>
                                             </div>
                                         </div>
-                                        <div class="row mb-3">
-                                            <div class="offset-xl-3 offset-0 col-xl-3 col-4">
+                                        <div class="row mb-1">
+                                            <div class="offset-0 col-xl-4 col-12 mb-1">
                                                 <button :id="'moduleUpdateButton' + index"
                                                         class="btn btn-block btn-primary"
                                                         v-b-toggle="'moduleUpdate' + index"
@@ -155,12 +166,12 @@
                                                 'fa-angle-up': collapseStatuses[`moduleUpdate${index}`]}"></i>
                                                 </button>
                                             </div>
-                                            <div class="col-xl-3 col-4">
+                                            <div class="col-xl-4 col-12 mb-1">
                                                 <button class="btn btn-block btn-primary" @click="cloneModule(module_elem.name)">
                                                     Обновить
                                                 </button>
                                             </div>
-                                            <div class="col-xl-3 col-4">
+                                            <div class="col-xl-4 col-12">
                                                 <button class="btn btn-block btn-primary" @click="buildModule(module_elem.name)">
                                                     Собрать
                                                 </button>

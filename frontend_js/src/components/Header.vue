@@ -16,7 +16,7 @@
             <ul class="navbar-nav ml-auto">
                 <li>
                     <router-link class="clickable" to="/">
-                        АМТС
+                        {{$store.state.robotName}}
                     </router-link>
                 </li>
             </ul>

@@ -19,7 +19,7 @@ export default new Vuex.Store({
     },
     mutations: {
         setAuthToken(ctxt, newToken) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', newToken, '1d');
+            Vue.prototype.$cookies.set('toolBeltAuthToken', newToken, '10MIN');
             this.state.authToken = newToken;
             this.state.requestService._setAuthHeader(newToken)
         },

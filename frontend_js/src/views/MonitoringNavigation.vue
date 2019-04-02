@@ -1,13 +1,14 @@
 <template>
     <div class="container-fluid">
-        <div class="row" style="margin: auto;" v-for="elem in databasesInfo" :key="elem.systemName">
+        <h2 class="mb-3" align="center">Группы данных мониторинга</h2>
+        <div class="row" style="margin: auto;" v-for="(elem, index) in databasesInfo" :key="elem.systemName">
             <div class="offset-md-1 offset-lg-2 offset-xl-3 col-12 col-sm-12 col-md-10 col-lg-8 col-xl-6">
                 <b-card no-body>
                     <b-card-header header-tag="header" role="tab">
                         <b-button block href="#" v-b-toggle="elem.systemName" variant="info">{{elem.name}}</b-button>
                         <!--<button class="btn btn-info" :v-b-toggle="elem.systemName" style="width: 100%">{{elem.name}}</button>-->
                     </b-card-header>
-                    <b-collapse :id="elem.systemName" accordion="charts-accordion" role="tabpanel">
+                    <b-collapse :visible="index === 0" :id="elem.systemName" accordion="charts-accordion" role="tabpanel">
                         <b-card-body>
                             <div class="row mb-2">
                                 <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
