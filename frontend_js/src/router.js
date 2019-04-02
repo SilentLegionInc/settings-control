@@ -22,6 +22,13 @@ const ifAuthenticated = (to, from, next) => {
     if (store.getters.isAuthenticated) {
         next();
         return
+    } else {
+        const authToken = Vue.prototype.$cookies.get('toolBeltAuthToken');
+        if (authToken) {
+            store.commit('setAuthToken', authToken);
+            next();
+            return;
+        }
     }
     if (from) {
         Vue.prototype.$toaster.error('Для доступа к этой странице необходима авторизация');

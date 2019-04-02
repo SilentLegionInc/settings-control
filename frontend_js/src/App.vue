@@ -37,11 +37,7 @@ export default {
             this.sidebarIsOpened = false;
         }
     },
-    created: function () {
-        const authToken = this.$cookies.get('toolBeltAuthToken');
-        if (authToken) {
-            this.$store.commit('setAuthToken', authToken);
-        }
+    created() {
         // TODO check that is work as expected.
         axios.interceptors.response.use(undefined, function (err) {
             return new Promise(function (resolve, reject) {
