@@ -93,29 +93,13 @@
             </div>
         </div>
 
-        <b-modal :ref="`${fieldName}_modal`"
-                 :id="`${fieldName}_modal`"
-                 size="md"
-                 title="Изменение интервала"
-                 centered
-                 @ok="onModalOk()"
+        <chart-statistics-component-modal v-model="tempIntervalSize"
+                                          :ref="`${fieldName}_modal`"
+                                          :id="`${fieldName}_modal`"
+                                          @ok="onModalOk()"
         >
-            <div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                        <b>Внимание!</b> Большой интервал может замедлить работу приложения. Рекомендуемый размер - 3 минуты.
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-8 col-sm-7 col-md-7 col-lg-6 col-xl-5">
-                        <b>Интервал в минутах:</b>
-                    </div>
-                    <div class="col-4 col-sm-5 col-md-5 col-lg-6 col-xl-7" align="left">
-                        <input v-model="tempIntervalSize" type="number" class="form-control">
-                    </div>
-                </div>
-            </div>
-        </b-modal>
+
+        </chart-statistics-component-modal>
     </div>
 </template>
 
@@ -123,11 +107,13 @@
 import LineChart from '../views/LineChart.js';
 import { catchErrorsWrapper } from '../helpers';
 import { ClientExceptionModel } from '../models/ClientExceptionModel';
+import ChartStatisticsComponentModal from './ChartStatisticsComponentModal';
 
 export default {
     name: 'ChartStatisticsComponent',
     components: {
-        LineChart
+        LineChart,
+        ChartStatisticsComponentModal
     },
     props: {
         robotName: {
@@ -187,7 +173,7 @@ export default {
             this.filterEndTime = null;
         },
         showModal() {
-            this.$refs[`${this.fieldName}_modal`].show();
+            this.$refs[`${this.fieldName}_modal`].showModal();
         },
         onModalOk() {
             this.intervalSize = Number.parseInt(this.tempIntervalSize);

@@ -296,56 +296,32 @@
             </div>
         </div>
 
-        <b-modal ref="change_network_modal"
-                 id="change_network_modal"
-                 size="lg"
-                 title="Переключение сети"
-                 centered
-                 @ok="connect(tempNetwork)"
+        <networks-modal ref="change_network_modal"
+                        id="change_network_modal"
+                        title="Переключение сети"
+                        @ok="connect(tempNetwork)"
         >
-            <div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                        <b>Внимание!</b>
-                        При изменении сети, необходимо будет на клиентском устройстве также переключиться в новую сеть и перейти по новому адресу клиента.
-                    </div>
-                </div>
-            </div>
-        </b-modal>
+            <b>Внимание!</b>
+            При изменении сети, необходимо будет на клиентском устройстве также переключиться в новую сеть и перейти по новому адресу клиента.
+        </networks-modal>
 
-        <b-modal ref="drop_all_modal"
-                 id="drop_all_modal"
-                 size="lg"
-                 title="Забыть все беспроводные соединения"
-                 centered
-                 @ok="dropAllWirelessConnections()"
+        <networks-modal ref="drop_all_modal"
+                        id="drop_all_modal"
+                        title="Забыть все беспроводные соединения"
+                        @ok="dropAllWirelessConnections()"
         >
-            <div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                        <b>Внимание!</b>
-                        Будут сброшены все беспроводные соединения
-                    </div>
-                </div>
-            </div>
-        </b-modal>
+            <b>Внимание!</b>
+            Будут сброшены все беспроводные соединения.
+        </networks-modal>
 
-        <b-modal ref="drop_one_modal"
-                 id="drop_one_modal"
-                 size="lg"
-                 title="Забыть соединение"
-                 centered
-                 @ok="deleteConnection(networkToDelete)"
+        <networks-modal ref="drop_one_modal"
+                        id="drop_one_modal"
+                        title="Забыть соединение"
+                        @ok="deleteConnection(networkToDelete)"
         >
-            <div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                        <b>Внимание!</b>
-                        Будет сброшена вся информация об соединении {{networkToDelete.name}}
-                    </div>
-                </div>
-            </div>
-        </b-modal>
+            <b>Внимание!</b>
+            Будет сброшена вся информация об соединении {{networkToDelete.name}}.
+        </networks-modal>
     </div>
 </template>
 
@@ -353,9 +329,14 @@
 import { ServerExceptionModel } from '../models/ServerExceptionModel';
 import Logger from '../logger';
 import Divider from '../components/Divider'
+import NetworksModal from '../components/NetworksModal';
 
 export default {
     name: 'Networks',
+    components: {
+        'divider': Divider,
+        'networks-modal': NetworksModal
+    },
     mounted: function() {
         if (this.$store.getters.isAuthenticated) {
             this.loadData();
@@ -373,9 +354,6 @@ export default {
             tempNetwork: {},
             networkToDelete: {}
         }
-    },
-    components: {
-        'divider': Divider
     },
     methods: {
         async loadData() {
@@ -429,7 +407,7 @@ export default {
 
         deleteNetworkConfirmation(network) {
             this.networkToDelete = network;
-            this.$refs.drop_one_modal.show();
+            this.$refs.drop_one_modal.showModal();
         },
 
         async deleteConnection(network) {
@@ -456,7 +434,7 @@ export default {
 
         changeNetworkConfirmation(network) {
             this.tempNetwork = network;
-            this.$refs.change_network_modal.show();
+            this.$refs.change_network_modal.showModal();
         },
 
         async modifyConnectionParams(network) {
@@ -482,7 +460,7 @@ export default {
         },
 
         async dropAllWirelessConfirmation() {
-            this.$refs.drop_all_modal.show()
+            this.$refs.drop_all_modal.showModal();
         },
 
         async dropAllWirelessConnections() {
