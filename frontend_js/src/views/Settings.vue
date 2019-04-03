@@ -6,22 +6,22 @@
             </div>
         </div>
         <div v-if="settings">
-            <div v-if="!rawMode" class="mb-2">
-                <div class="row form-group" v-for="(_, settingKey) in settings" v-bind:key="settingKey">
-                    <label class="offset-xl-2 col-xl-3 col-form-label col-12" :for="settingKey">{{settingKey}}</label>
-                    <div class="col-xl-5 col-12">
-                        <input class="form-control" type="text" :id="settingKey" v-model="settings[settingKey]"
-                               :placeholder="settingKey"/>
-                    </div>
-                </div>
-            </div>
-            <div v-else class="mb-2">
+            <!--<div v-if="!rawMode" class="mb-2">-->
+                <!--<div class="row form-group" v-for="(_, settingKey) in settings" v-bind:key="settingKey">-->
+                    <!--<label class="offset-xl-2 col-xl-3 col-form-label col-12" :for="settingKey">{{settingKey}}</label>-->
+                    <!--<div class="col-xl-5 col-12">-->
+                        <!--<input class="form-control" type="text" :id="settingKey" v-model="settings[settingKey]"-->
+                               <!--:placeholder="settingKey"/>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+            <div class="mb-2">
                 <div class="row" style="margin: auto">
-                    <vue-json-editor class="offset-xl-2 col-xl-8 offset-0 col-12" v-model="settings" :show-btns="false"></vue-json-editor>
+                    <vue-json-editor class="offset-xl-1 col-xl-10 offset-lg-1 col-lg-10 offset-0 col-12" v-model="settings" :show-btns="false"></vue-json-editor>
                 </div>
             </div>
             <div class="row" style="margin: auto">
-                <div class="col-xl-3 offset-xl-4 col-sm-6 offset-0 col-12 mb-2">
+                <div class="col-xl-3 offset-xl-5 col-lg-3 offset-lg-5 col-sm-6 offset-0 col-12 mb-1">
                     <!--<button class="btn btn-default" @click="rawMode = !rawMode">-->
                         <!--Change mode-->
                     <!--</button>-->
@@ -29,7 +29,7 @@
                         Сбросить
                     </button>
                 </div>
-                <div class="col-xl-3 col-12 col-sm-6">
+                <div class="col-xl-3 col-lg-3 col-sm-6 col-12">
                     <button class="btn btn-success btn-block" @click="UpdateConfig()">
                         Обновить
                     </button>
