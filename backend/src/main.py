@@ -402,11 +402,12 @@ def api_get_system_info():
     return jsonify(result), status.HTTP_200_OK
 
 
+# TODO update all machine (aka clone)
+
 @app.route('/api/build_machine', methods=['POST'])
 @handle_errors
 @api_authorization
 def api_build_current_machine():
-    with_update = request.get_json().get('with_update')
     machine_config = SettingsService().current_machine_config
     if not machine_config:
         raise ServerException('Не удалось найти конфигурацию для комплекса: {}'.format(SettingsService().server_config['type']),
@@ -418,16 +419,25 @@ def api_build_current_machine():
         if not dependency_url:
             raise ServerException('Ошибка сборки. Неизвестная зависимость: {}'.format(dependency),
                                   status.HTTP_500_INTERNAL_SERVER_ERROR)
-        if with_update:
-            UpdateService().update_and_upgrade_lib_sync(dependency)
-        else:
-            UpdateService().upgrade_lib_sync(dependency)
+        (is_cloned, _) = UpdateService().cloned_info(dependency)
+        if not is_cloned:
+            UpdateService().update_lib_sync(dependency)
+        (compile_status, compile_output) = UpdateService().upgrade_lib_sync(dependency)
+        if compile_status is not ProcessStatus.SUCCESS:
+            raise ServerException('Ошибка сборки. Статус компиляции: {}. Информация о сборке: {}'
+                                  .format(compile_status, compile_output), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    if with_update:
+    (is_cloned, _) = CoreService().cloned_info()
+    if not is_cloned:
         CoreService().update_core_sync()
-
-    CoreService().compile_core()
-    return jsonify({'code': 0}), status.HTTP_200_OK
+    # TODO refactor move to UpdateService
+    # TODO check that core is not running if it is -> kill them?
+    (compile_status, compile_output) = CoreService().compile_core()
+    if compile_status is ProcessStatus.SUCCESS:
+        return jsonify({'code': 0}), status.HTTP_200_OK
+    else:
+        raise ServerException('Ошибка сборки. Статус компиляции: {}. Информация о сборке: {}'
+                              .format(compile_status, compile_output), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @app.route('/api/modules', methods=['GET'])
@@ -556,6 +566,8 @@ def api_update_server_config():
     return jsonify({'ok': True}), status.HTTP_200_OK
 
 
+
+# TODO rename to update
 @app.route('/api/clone_module/<string:module_name>', methods=['GET'])
 @handle_errors
 @api_authorization
@@ -591,6 +603,7 @@ def api_build_module(module_name):
         raise ServerException('Ошибка сборки. Статус компиляции: {}. Информация о сборке: {}'
                               .format(compile_status, compile_output), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+# TODO rename to update_archive
 
 @app.route('/api/update_module/<string:module_name>', methods=['POST'])
 @handle_errors

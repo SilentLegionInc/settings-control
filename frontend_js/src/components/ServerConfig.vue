@@ -1,62 +1,62 @@
 <template>
     <div class="container-fluid">
         <div class="row mb-2">
-            <label class="col-xl-3 col-form-label" for="sourcesPath">Путь до папки исходников:</label>
-            <div class="col-xl-9 col-12">
+            <label class="col-xl-3 col-lg-3 col-form-label" for="sourcesPath">Путь до папки исходников:</label>
+            <div class="col-xl-9 col-lg-9 col-12">
                 <input class="form-control" type="text" id="sourcesPath" v-model="data.sourcesPath"
                        :placeholder="'...'"/>
             </div>
         </div>
         <div class="row mb-2">
-            <label class="col-xl-3 col-form-label" for="buildsPath">Путь до папки сборки:</label>
-            <div class="col-xl-9 col-12">
+            <label class="col-xl-3 col-lg-3 col-form-label" for="buildsPath">Путь до папки сборки:</label>
+            <div class="col-xl-9 col-lg-9 col-12">
                 <input class="form-control" type="text" id="buildsPath" v-model="data.buildsPath"
                        :placeholder="'...'"/>
             </div>
         </div>
         <div class="row mb-2">
-            <label class="col-xl-3 col-form-label" for="uploadPath">Путь до папки загрузки:</label>
-            <div class="col-xl-9 col-12">
+            <label class="col-xl-3 col-lg-3 col-form-label" for="uploadPath">Путь до папки загрузки:</label>
+            <div class="col-xl-9 col-lg-9 col-12">
                 <input class="form-control" type="text" id="uploadPath" v-model="data.uploadPath"
                        :placeholder="'...'"/>
             </div>
         </div>
         <div class="row mb-2">
-            <label class="col-xl-3 col-form-label" for="qmakePath">Путь до qmake:</label>
-            <div class="col-xl-9 col-12">
+            <label class="col-xl-3 col-lg-3 col-form-label" for="qmakePath">Путь до qmake:</label>
+            <div class="col-xl-9 col-lg-9 col-12">
                 <input class="form-control" type="text" id="qmakePath" v-model="data.qmakePath"
                        :placeholder="'...'"/>
             </div>
         </div>
         <div class="row mb-2">
-            <label class="col-xl-3 col-form-label" for="sshName">Имя файла ssh ключа:</label>
-            <div class="col-xl-9 col-12">
+            <label class="col-xl-3 col-lg-3 col-form-label" for="sshName">Имя файла ssh ключа:</label>
+            <div class="col-xl-9 col-lg-9 col-12">
                 <input class="form-control" type="text" id="sshName" v-model="data.sshName"
                        :placeholder="'...'"/>
             </div>
         </div>
         <div class="row mb-2">
-            <label class="col-xl-3 col-form-label" for="repositoriesPlatform">Платформа git:</label>
-            <div class="col-xl-9 col-12">
+            <label class="col-xl-3 col-lg-3 col-form-label" for="repositoriesPlatform">Платформа git:</label>
+            <div class="col-xl-9 col-lg-9 col-12">
                 <input class="form-control" type="text" id="repositoriesPlatform" v-model="data.repositoriesPlatform"
                        :placeholder="'...'"/>
             </div>
         </div>
         <div class="row mb-2">
-            <label class="col-xl-3 col-form-label" for="machineType">Тип машинки:</label>
-            <div class="col-xl-9 col-12">
+            <label class="col-xl-3 col-lg-3 col-form-label" for="machineType">Тип машинки:</label>
+            <div class="col-xl-9 col-lg-9 col-12">
                 <b-form-select id="machineType" v-model="data.machineType" :options="data.possibleMachinesTypes">
                 </b-form-select>
             </div>
 
         </div>
         <div class="row mb-2">
-            <div class="col-xl-3 offset-xl-6 col-sm-6 offset-0 col-12 mb-2">
+            <div class="col-xl-3 offset-xl-6 col-lg-3 offset-lg-6 col-sm-6 offset-0 col-12 mb-1">
                 <button class="btn btn-danger btn-block" @click="ResetConfig()">
                     Сбросить
                 </button>
             </div>
-            <div class="col-xl-3 col-12 col-sm-6">
+            <div class="col-xl-3 col-lg-3 col-sm-6 col-12">
                 <button class="btn btn-success btn-block" @click="UpdateConfig()">
                     Обновить
                 </button>

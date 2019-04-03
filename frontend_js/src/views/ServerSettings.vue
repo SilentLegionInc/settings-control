@@ -3,84 +3,92 @@
         <div class="row mb-3" style="margin: auto">
             <div class="col-12"  align="center">
                 <h2>Настройки сервера</h2>
-                <hr>
             </div>
         </div>
+        <divider class="mb-2"><h5 align="center">Конфигурация подключения к серверу</h5></divider>
         <div class="row mb-3" style="margin: auto">
-            <div class="col-12" align="center">
-                <h3>Конфигурация подключения к серверу</h3>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-10 offset-lg-1 col-xl-10 offset-xl-1">
+                <app-server-connection></app-server-connection>
             </div>
         </div>
-        <app-server-connection></app-server-connection>
+        <divider class="mb-2"><h5 align="center">Конфигурация сервера</h5></divider>
         <div class="row mb-3" style="margin: auto">
-            <div class="col-12" align="center">
-                <h3>Конфигурация сервера</h3>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-10 offset-lg-1 col-xl-10 offset-xl-1">
+                <app-server-config></app-server-config>
             </div>
         </div>
-        <app-server-config></app-server-config>
-        <div class="row mb-3" style="margin: auto">
-            <div class="col-12" align="center">
-                <h3>Конфигурация ssh ключей</h3>
+        <divider class="mb-2"><h5 align="center">Конфигурация ssh ключей</h5></divider>
+        <div class="container-fluid mb-3">
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-10 offset-lg-1 col-xl-10 offset-xl-1">
+                    <div class="container-fluid">
+                        <div class="row mb-3">
+                            <label class="col-xl-3 col-lg-3 col-form-label" for="ssh">Новые ssh ключи:</label>
+                            <div class="col-xl-9 col-lg-9 col-12 ">
+                                <b-form-file
+                                    id="ssh"
+                                    v-model="file"
+                                    placeholder="Загрузить архив"
+                                    accept=".zip"
+                                    drop-placeholder="Перетащите архив сюда"
+                                />
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-xl-3 offset-xl-6 col-lg-3 offset-lg-6 col-sm-6 offset-0 col-12 mb-1">
+                                <button class="btn btn-danger btn-block" @click="resetSSH()">
+                                    Сбросить
+                                </button>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-sm-6 col-12">
+                                <button class="btn btn-success btn-block" @click="updateSSH()">
+                                    Обновить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="container-fluid">
-            <div class="row mb-3">
-                <label class="col-xl-3 col-form-label" for="ssh">Новые ssh ключи:</label>
-                <div class="col-12 col-xl-9">
-                    <b-form-file
-                        id="ssh"
-                        v-model="file"
-                        placeholder="Загрузить архив"
-                        accept=".zip"
-                        drop-placeholder="Перетащите архив сюда"
-                    />
-                </div>
-            </div>
-            <div class="row mb-2">
-                <div class="offset-xl-9 col-xl-3 col-12">
-                    <button class="btn btn-success btn-block mt-1" @click="updateSSH()">
-                        Обновить
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="row mb-2" style="margin: auto">
-            <div class="col-12" align="center">
-                <h3>Смена пароля</h3>
-            </div>
-        </div>
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <label class="col-xl-3 col-form-label" for="oldPassword">Текущий пароль:</label>
-                <div class="col-xl-9 col-12">
-                    <input class="form-control" type="password" id="oldPassword" v-model="oldPassword"
-                           :placeholder="'Введите текущий пароль'"/>
-                </div>
-            </div>
-            <div class="row mb-2">
-                <label class="col-xl-3 col-form-label" for="newPassword">Новый пароль:</label>
-                <div class="col-xl-9 col-12">
-                    <input class="form-control" type="password" id="newPassword" v-model="newPassword"
-                           :placeholder="'Введите новый пароль'"/>
-                </div>
-            </div>
-            <div class="row mb-2">
-                <label class="col-xl-3 col-form-label" for="newPasswordAgain">Повторно новый пароль:</label>
-                <div class="col-xl-9 col-12">
-                    <input class="form-control" type="password" id="newPasswordAgain" v-model="newPasswordAgain"
-                           :placeholder="'Повторно введите новый пароль'"/>
-                </div>
-            </div>
-            <div class="row mb-2">
-                <div class="offset-xl-6 col-xl-3 col-6 mt-1">
-                    <button class="btn btn-danger btn-block" @click="resetPassword()">
-                        Сбросить
-                    </button>
-                </div>
-                <div class="col-xl-3 col-6 mt-1">
-                    <button class="btn btn-success btn-block" @click="updatePassword()">
-                        Обновить
-                    </button>
+        <divider class="mb-2"><h5 align="center">Смена пароля</h5></divider>
+        <div class="container-fluid mb-3">
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-10 offset-lg-1 col-xl-10 offset-xl-1">
+                    <div class="container-fluid">
+                        <div class="row mb-2">
+                            <label class="col-xl-3 col-lg-3 col-form-label" for="oldPassword">Текущий пароль:</label>
+                            <div class="col-xl-9 col-lg-9 col-12">
+                                <input class="form-control" type="password" id="oldPassword" v-model="oldPassword"
+                                       :placeholder="'Введите текущий пароль'"/>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <label class="col-xl-3 col-lg-3 col-form-label" for="newPassword">Новый пароль:</label>
+                            <div class="col-xl-9 col-lg-9 col-12">
+                                <input class="form-control" type="password" id="newPassword" v-model="newPassword"
+                                       :placeholder="'Введите новый пароль'"/>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <label class="col-xl-3 col-lg-3 col-form-label" for="newPasswordAgain">Повторно новый пароль:</label>
+                            <div class="col-xl-9 col-lg-9 col-12">
+                                <input class="form-control" type="password" id="newPasswordAgain" v-model="newPasswordAgain"
+                                       :placeholder="'Повторно введите новый пароль'"/>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-xl-3 offset-xl-6 col-lg-3 offset-lg-6 col-sm-6 offset-0 col-12 mb-1">
+                                <button class="btn btn-danger btn-block" @click="resetPassword()">
+                                    Сбросить
+                                </button>
+                            </div>
+                            <div class="col-xl-3 col-lg-3 col-sm-6 col-12">
+                                <button class="btn btn-success btn-block" @click="updatePassword()">
+                                    Обновить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -93,10 +101,12 @@ import Logger from '../logger';
 import { ServerExceptionModel } from '../models/ServerExceptionModel'
 import ServerConnect from '../components/ServerConnect'
 import ServerConfig from '../components/ServerConfig'
+import Divider from '../components/Divider'
 
 export default {
     name: 'ServerSettings',
     components: {
+        Divider,
         'app-server-connection': ServerConnect,
         'app-server-config': ServerConfig
     },
@@ -161,8 +171,8 @@ export default {
             }
             this._loader.hide();
         },
-        handleFileUpload(event) {
-            this.file = event.target.files[0];
+        resetSSH() {
+            this.file = null;
         }
     }
 }
