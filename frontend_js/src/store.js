@@ -10,11 +10,14 @@ export default new Vuex.Store({
         authToken: null,
         url: Config.backendUrl,
         requestService: new RequestService(Config.backendUrl),
-        robotName: 'AMTS'
+        robotName: null
     },
     getters: {
         isAuthenticated: state => {
             return !!state.authToken;
+        },
+        isServerConnected: state => {
+            return !!state.robotName;
         }
     },
     mutations: {
@@ -24,12 +27,16 @@ export default new Vuex.Store({
             this.state.requestService._setAuthHeader(newToken)
         },
         deleteAuthToken(ctxt) {
+            Vue.prototype.$cookies.remove('toolBeltAuthToken');
             this.state.authToken = null;
             this.state.requestService._deleteAuthHeader();
         },
         changeHostAddress(ctxt, newUrl) {
             this.state.url = newUrl;
             this.state.requestService._changeHostUrl(this.state.url)
+        },
+        setRobotName(ctxt, robotName) {
+            this.state.robotName = robotName;
         }
     },
     actions: {
@@ -56,6 +63,14 @@ export default new Vuex.Store({
                 this.commit('setAuthToken', token);
             } else {
                 // Exception fly away
+            }
+        },
+        async syncRobotName(ctxt) {
+            const res = await this.state.requestService.getServerInfo();
+            if (res.ok) {
+                this.commit('setRobotName', res.robotType);
+            } else {
+                this.commit('setRobotName', null);
             }
         }
     }

@@ -27,6 +27,13 @@ export class MapperService {
         }
     }
 
+    static mapServerInfoResponse(responseBody) {
+        return {
+            ok: responseBody['ok'],
+            robotType: responseBody['robot_type']
+        }
+    }
+
     static mapModulesResponse(responseBody) {
         const coreInfo = responseBody.core;
         const dependencies = responseBody.dependencies;

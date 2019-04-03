@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Home from './views/Home.vue';
 import Settings from './views/Settings';
 import TableStatistics from './views/TableStatistics';
 import ChartStatistics from './views/ChartStatistics';
@@ -24,7 +23,7 @@ const ifAuthenticated = (to, from, next) => {
         return
     } else {
         const authToken = Vue.prototype.$cookies.get('toolBeltAuthToken');
-        if (authToken) {
+        if (authToken && authToken !== 'undefined') {
             store.commit('setAuthToken', authToken);
             next();
             return;
@@ -39,14 +38,23 @@ const ifAuthenticated = (to, from, next) => {
     }
 };
 
+const isServerConnected = (to, from, next) => {
+    if (store.state.robotName) {
+        next();
+    } else {
+        Vue.prototype.$toaster.error('Для доступа к этой странице необходимо подключиться к серверу');
+        next('/');
+    }
+};
+
 export default new Router({
     mode: 'history',
     base: process.env.BASE_URL,
     routes: [
         {
             path: '/',
-            name: 'home',
-            component: Home
+            name: 'connect-to-server',
+            component: ServerConnect
         },
         {
             path: '/test',
@@ -83,43 +91,44 @@ export default new Router({
         {
             path: '/monitoring_navigation',
             name: 'monitoring-navigation',
-            component: MonitoringNavigation
+            component: MonitoringNavigation,
+            beforeEnter: isServerConnected
         },
         {
             path: '/table_statistics',
             name: 'table-statistics',
-            component: TableStatistics
+            component: TableStatistics,
+            beforeEnter: isServerConnected
         },
         {
             path: '/chart_statistics',
             name: 'chart-statistics',
-            component: ChartStatistics
+            component: ChartStatistics,
+            beforeEnter: isServerConnected
         },
         {
             path: '/maps_statistics',
             name: 'maps-statistics',
-            component: Maps
+            component: Maps,
+            beforeEnter: isServerConnected
         },
         {
             path: '/logs',
             name: 'logs',
-            component: Logs
+            component: Logs,
+            beforeEnter: isServerConnected
         },
         {
             path: '/system_info',
-            name: 'sytem-info',
-            component: SystemInfo
+            name: 'system-info',
+            component: SystemInfo,
+            beforeEnter: isServerConnected
         },
         {
             path: '/change_password',
             name: 'change-password',
             component: ChangePassword,
             beforeEnter: ifAuthenticated
-        },
-        {
-            path: '/connect_to_server',
-            name: 'connect-to-server',
-            component: ServerConnect
         },
         {
             path: '/login',

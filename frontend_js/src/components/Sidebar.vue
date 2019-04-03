@@ -59,7 +59,7 @@
                 </li>
             </ul>
         </div>
-        <div v-if="$store.getters.isAuthenticated">
+        <div v-if="$store.getters.isServerConnected">
             <divider text="Мониторинг"></divider>
             <ul>
                 <li>

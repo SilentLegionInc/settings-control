@@ -38,7 +38,6 @@ export class RequestService {
     async _authorize(password) {
         const path = this._constructPath(`api/login`);
         const result = await axios.post(path, { password });
-        console.log(result.status);
         if (result.status === 200) {
             const body = result.data;
             return body.token;
@@ -54,7 +53,6 @@ export class RequestService {
     async _deauthorize() {
         const path = this._constructPath(`api/logout`);
         const result = await axios.get(path);
-        console.log(result.status);
         if (result.status === 200) {
             return true;
         } else {
@@ -75,16 +73,15 @@ export class RequestService {
         }
     }
 
-    async getHealth(url = null) {
-        const path = this._constructPath('api/utils/health', url);
-        try {
-            const res = await axios.get(path, { timeout: 1000 });
-            if (res.status === 200) {
-                Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
-            }
-            return res.status === 200 && res.data.code === 0;
-        } catch (e) {
-            return false;
+    async getServerInfo(url = null) {
+        const path = this._constructPath('api/utils/info', url);
+        const res = await axios.get(path, { timeout: 1000 });
+        if (res.status === 200) {
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            return MapperService.mapServerInfoResponse(res.data);
+        } else {
+            Logger.error(res.data.errorInfo);
+            throw new ServerExceptionModel(res.data.errorInfo, res.status);
         }
     }
 

@@ -158,7 +158,6 @@ export default {
         }
     },
     mounted() {
-        console.log(this.$isWideScreen());
         this.currentPage = 1;
     },
     filters: {

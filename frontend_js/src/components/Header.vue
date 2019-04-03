@@ -16,7 +16,7 @@
             <ul class="navbar-nav ml-auto">
                 <li>
                     <router-link class="clickable" to="/">
-                        {{$store.state.robotName}}
+                        {{robotName}}
                     </router-link>
                 </li>
             </ul>
@@ -31,6 +31,14 @@ export default {
         onHamburgerClicked() {
             this.$emit('onHamburger');
         }
+    },
+    computed: {
+        robotName() {
+            return this.$store.state.robotName ? this.$store.state.robotName : 'KEK';
+        }
+    },
+    async mounted() {
+        await this.$store.dispatch('syncRobotName');
     }
 }
 </script>

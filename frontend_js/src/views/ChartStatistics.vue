@@ -52,7 +52,6 @@ export default {
     },
     methods: {
         selectMobileTab(tabName) {
-            console.log(tabName);
             if (this.activeTab === tabName) {
                 this.activeTab = null;
             } else {

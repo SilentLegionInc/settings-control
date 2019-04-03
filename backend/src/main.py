@@ -514,10 +514,14 @@ def api_update_ssh():
     return jsonify({'code': 0}), status.HTTP_200_OK
 
 
-@app.route('/api/utils/health', methods=['GET'])
+@app.route('/api/utils/info', methods=['GET'])
 @handle_errors
-def api_get_server_health():
-    return jsonify({'code': 0}), status.HTTP_200_OK
+def api_get_server_info():
+    response_body = {
+        'robot_type': SettingsService().server_config['type'],
+        'ok': True
+    }
+    return jsonify(response_body), status.HTTP_200_OK
 
 
 @app.route('/api/utils/machine_types', methods=['GET'])

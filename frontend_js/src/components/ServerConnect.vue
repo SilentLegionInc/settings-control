@@ -29,6 +29,8 @@
 </template>
 
 <script>
+import { catchErrorsWrapper } from '../helpers';
+
 export default {
     name: 'ServerConnect',
     data() {
@@ -39,21 +41,26 @@ export default {
     methods: {
         async checkConnectionStatus() {
             const loader = this.$loading.show();
-            const connectionStatus = await this.$store.state.requestService.getHealth(this.url);
-            if (connectionStatus) {
-                this.$toaster.info(`Сервер ${this.url} доступен`);
-            } else {
-                this.$toaster.error(`Сервер ${this.url} недоступен`);
-            }
+
+            await catchErrorsWrapper(this.$toaster, async () => {
+                const connectionStatus = await this.$store.state.requestService.getServerInfo(this.url);
+                if (connectionStatus.ok) {
+                    this.$toaster.info(`Сервер ${this.url} доступен`);
+                } else {
+                    this.$toaster.error(`Сервер ${this.url} недоступен`);
+                }
+            });
+
             loader.hide();
         },
 
         async changeHostAddress() {
             this.$store.commit('changeHostAddress', this.url);
-            const connectionStatus = await this.$store.state.requestService.getHealth();
+            const connectionStatus = await this.$store.state.requestService.getServerInfo();
             this.$emit('changedHost');
-            if (connectionStatus) {
+            if (connectionStatus.ok) {
                 this.$toaster.success('Успешно подключено');
+                this.$store.commit('setRobotName', connectionStatus.robotType);
             } else {
                 this.$toaster.error('Некорректный адрес');
             }

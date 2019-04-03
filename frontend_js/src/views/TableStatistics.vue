@@ -71,7 +71,7 @@
                 </thead>
 
                 <tbody class="custom-table-body">
-                <tr v-for="(dataElement, dataElementIndex) in dataElements" :key="dataElementIndex" @click="selectElement(dataElementIndex)">
+                <tr v-for="(dataElement, dataElementIndex) in dataElements" :key="dataElementIndex">
                     <td>{{ (_currentPage - 1) * elementsPerPage + dataElementIndex + 1 }}</td>
                     <td>{{ dataElement.time | moment("DD.MM.YYYY HH:mm:ss.SSS") }}</td>
                     <td>{{ dataElement.latitude }}</td>
@@ -186,10 +186,6 @@ export default {
             });
 
             this.loader.hide();
-        },
-
-        selectElement(index) {
-            console.log(`Selected ${index} element`);
         }
     },
     mounted() {
