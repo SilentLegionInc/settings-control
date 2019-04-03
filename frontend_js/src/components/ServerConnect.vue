@@ -1,24 +1,24 @@
 <template>
     <div class="container-fluid">
         <div class="row mb-2">
-            <label class="col-xl-3 col-form-label" for="hostAddress">Адрес сервера: </label>
-            <div class="col-xl-9 col-12">
+            <label class="col-xl-3 col-lg-3 col-form-label" for="hostAddress">Адрес сервера: </label>
+            <div class="col-xl-9 col-lg-9 col-12">
                 <input class="form-control" type="text" id="hostAddress" v-model="url"
                        :placeholder="'Введите адрес сервера host:port'"/>
             </div>
         </div>
         <div class="row mb-2">
-            <div class="offset-xl-3 col-xl-3 col-12 col-md-4 mt-1">
+            <div class="offset-xl-3 col-xl-3 col-12 offset-lg-3 col-lg-3 col-md-4 mt-1">
                 <button class="btn btn-primary btn-block" @click="setClientUrl()">
                     Ввести адрес клиента
                 </button>
             </div>
-            <div class="col-xl-3 col-12 col-md-4 mt-1">
+            <div class="col-xl-3 col-lg-3 col-12 col-md-4 mt-1">
                 <button class="btn btn-info btn-block" @click="checkConnectionStatus()">
                     Проверить адрес
                 </button>
             </div>
-            <div class="col-xl-3 col-12 col-md-4 mt-1">
+            <div class="col-xl-3 col-lg-3 col-12 col-md-4 mt-1">
                 <button class="btn btn-success btn-block" @click="changeHostAddress()">
                     Подключить
                 </button>
