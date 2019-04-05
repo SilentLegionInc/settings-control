@@ -8,27 +8,33 @@
                         <h2>Авторизация</h2>
                         <div class="container-fluid">
                             <div class="row mb-3">
-                                <label class="col-form-label col-xl-3 col-12" for="password">Пароль:</label>
-                                <div class="col-xl-9 col-12">
-                                    <input class="form-control" id="password" type="password" v-model="password" name="password" autocomplete="password"/>
+                                <label class="col-form-label col-xl-3 col-lg-3 col-12" for="password">Пароль:</label>
+                                <div class="col-xl-9 col-lg-9 col-12">
+                                    <input class="form-control" id="password"
+                                           type="password" v-model="password"
+                                           name="password" autocomplete="password"
+                                           @keypress.enter="login()"
+                                    />
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="offset-xl-6 col-xl-3 mb-3">
-                                    <button class="btn btn-secondary btn-block" @click="serverSettings = !serverSettings">
-                                        Выбрать сервер
+                            <div class="row mb-3">
+                                <div class="col-xl-3 offset-xl-6 col-lg-4 offset-lg-4 offset-md-0 col-md-6 col-sm-12 offset-0 col-12 mb-1">
+                                    <button class="btn btn-secondary btn-block"
+                                            v-b-toggle.serverSettingsCollapse
+                                            @click="serverSettings = !serverSettings">
+                                        Выбор сервера
                                         <i class="fa" :class="{'fa-angle-down': !serverSettings, 'fa-angle-up': serverSettings}"></i>
                                     </button>
                                 </div>
-                                <div class="col-xl-3">
-                                    <button class="btn btn-primary btn-block" @click="login()">Войти</button>
+                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 col-12">
+                                    <button class="btn btn-success btn-block" @click="login()">Войти</button>
                                 </div>
                             </div>
                         </div>
 
-                        <div v-if="serverSettings">
-                            <app-server-connect @changedHost="login()"></app-server-connect>
-                        </div>
+                        <b-collapse id="serverSettingsCollapse">
+                                <app-server-connect @changedHost="login()"></app-server-connect>
+                        </b-collapse>
                     </b-card>
                 </div>
             </div>
