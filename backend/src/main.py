@@ -1,5 +1,5 @@
 from configuration.modules_service import ModulesService
-from flask import Flask
+from flask import Flask, flash
 from flask_cors import CORS
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
@@ -8,7 +8,7 @@ from support.helper import allowed_file_extension
 from support.logger import Logger
 from configuration.settings_service import SettingsService
 from flask_login import login_user, login_required, logout_user, current_user
-from flask import request, redirect, url_for, jsonify, render_template
+from flask import request, redirect, url_for, jsonify, render_template, g, session
 from werkzeug.urls import url_parse
 from support.forms import LoginForm
 from support.models import User
@@ -23,6 +23,7 @@ from configuration.wireless import NetworkService
 from monitoring.system_monitoring_service import SystemMonitoringService
 from werkzeug.utils import secure_filename
 import os
+import datetime
 from configuration.authoriztaion_service import AuthorizationService
 
 # Init flask application
@@ -116,9 +117,18 @@ def index():
     return render_template('index.html')
 
 
+@app.context_processor
+def set_is_auth():
+    # TODO refactored to g?
+    return dict(is_auth=session.get('is_logged', False),
+                user_timestamp=session.get('timestamp', None),
+                g_is_auth=g.is_logged)
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
+        Logger().info_message('Already logged')
         return redirect(url_for('index'))
 
     form = LoginForm()
@@ -133,6 +143,10 @@ def login():
         # if we here then out credentials is valid
         login_user(User(), remember=form.remember_me.data)
         next_page = request.args.get('next')
+        session['is_logged'] = True
+        session['timestamp'] = datetime.datetime.utcnow()
+        g.is_logged = True
+        Logger().debug_message('set login to {}'.format(getattr(g, '_is_login', False)))
 
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
@@ -144,6 +158,8 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
+    session['is_logged'] = False
+    g.is_logged = False
     return redirect(url_for('index'))
 
 
@@ -178,7 +194,8 @@ def modules():
 @login_required
 def run_core():
     if ModulesService().run_core():
-        return jsonify({'ok': True}), status.HTTP_200_OK
+        flash('Ядро успешно запущено')
+        return redirect(url_for('modules'))
     else:
         raise ServerException('Не удалось запустить ядро', status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -188,7 +205,8 @@ def run_core():
 @login_required
 def stop_core():
     if ModulesService().stop_core():
-        return jsonify({'ok': True}), status.HTTP_200_OK
+        flash('Ядро успешно остановлено')
+        return redirect(url_for('modules'))
     else:
         raise ServerException('Не удалось остановить ядро', status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -198,7 +216,8 @@ def stop_core():
 @login_required
 def pull_current_machine():
     if ModulesService().pull_machine():
-        return jsonify({'ok': True}), status.HTTP_200_OK
+        flash('Текущая конфигурация успешно обвнолена')
+        return redirect(url_for('modules'))
     else:
         raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -208,7 +227,8 @@ def pull_current_machine():
 @login_required
 def build_current_machine():
     if ModulesService().build_machine():
-        return jsonify({'ok': True}), status.HTTP_200_OK
+        flash('Текущая конфигурация успешно собрана')
+        return redirect(url_for('modules'))
     else:
         raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -218,7 +238,8 @@ def build_current_machine():
 @login_required
 def pull_module(module_name):
     if ModulesService().pull_module(module_name):
-        return jsonify({'ok': True}), status.HTTP_200_OK
+        flash('Модуль {} успешно обновлен'.format(module_name))
+        return redirect(url_for('modules'))
     else:
         raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -228,7 +249,8 @@ def pull_module(module_name):
 @login_required
 def build_module(module_name):
     if ModulesService().build_module(module_name):
-        return jsonify({'ok': True}), status.HTTP_200_OK
+        flash('Модуль {} успешно собран'.format(module_name))
+        return redirect(url_for('modules'))
     else:
         raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -255,7 +277,8 @@ def manual_update_module(module_name):
     file.save(file_path)
 
     if ModulesService().manual_module_update(file_path, module_name):
-        return jsonify({'ok': True}), status.HTTP_200_OK
+        flash('Модуль {} успешно обновлен из архива'.format(module_name))
+        return redirect(url_for('modules'))
     else:
         raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
 
