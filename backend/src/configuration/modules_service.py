@@ -38,7 +38,7 @@ class ModulesService(metaclass=Singleton):
             dependency_info['is_built'] = build_info[0]
             dependency_info['build_modify_time'] = build_info[1]
 
-            clone_info = self._dependencies_service.cloned_info(dependency)
+            clone_info = self._dependencies_service.pull_info(dependency)
             dependency_info['is_cloned'] = clone_info[0]
             dependency_info['src_modify_time'] = clone_info[1]
             mapped_dependencies.append(dependency_info)
@@ -55,7 +55,7 @@ class ModulesService(metaclass=Singleton):
         core_info['is_built'] = core_build_info[0]
         core_info['build_modify_time'] = core_build_info[1]
 
-        core_clone_info = self._core_service.cloned_info()
+        core_clone_info = self._core_service.pull_info()
         core_info['is_cloned'] = core_clone_info[0]
         core_info['src_modify_time'] = core_clone_info[1]
 
@@ -94,7 +94,7 @@ class ModulesService(metaclass=Singleton):
             if not dependency_url:
                 raise ServerException('Ошибка сборки. Неизвестная зависимость: {}'.format(dependency),
                                       status.HTTP_500_INTERNAL_SERVER_ERROR)
-            (is_cloned, _) = self._dependencies_service.cloned_info(dependency)
+            (is_cloned, _) = self._dependencies_service.pull_info(dependency)
             if not is_cloned:
                 self._dependencies_service.update_lib_sync(dependency)
             (compile_status, compile_output) = self._dependencies_service.upgrade_lib_sync(dependency)
@@ -102,7 +102,7 @@ class ModulesService(metaclass=Singleton):
                 raise ServerException('Ошибка сборки. Статус компиляции: {}. Информация о сборке: {}'
                                       .format(compile_status, compile_output), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        (is_cloned, _) = self._core_service.cloned_info()
+        (is_cloned, _) = self._core_service.pull_info()
         if not is_cloned:
             self._core_service.update_core_sync()
         # TODO check that core is not running if it is -> kill them?
@@ -116,12 +116,12 @@ class ModulesService(metaclass=Singleton):
     def build_module(self, module_name):
         (compile_status, compile_output) = (ProcessStatus.DEFAULT, None)
         if module_name in self._settings_service.libraries['dependencies']:
-            (is_cloned, _) = self._dependencies_service.cloned_info(module_name)
+            (is_cloned, _) = self._dependencies_service.pull_info(module_name)
             if not is_cloned:
                 self._dependencies_service.update_lib_sync(module_name)
             (compile_status, compile_output) = self._dependencies_service.upgrade_lib_sync(module_name)
         elif module_name in self._settings_service.libraries['cores']:
-            (is_cloned, _) = self._core_service.cloned_info()
+            (is_cloned, _) = self._core_service.pull_info()
             if not is_cloned:
                 self._core_service.update_core_sync()
             (compile_status, compile_output) = self._core_service.compile_core()
