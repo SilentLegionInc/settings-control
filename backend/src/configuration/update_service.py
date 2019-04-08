@@ -11,6 +11,8 @@ import os
 import re
 import shutil
 import datetime
+import glob
+from dateutil import tz
 
 
 class UpdateService(metaclass=Singleton):
@@ -82,11 +84,13 @@ class UpdateService(metaclass=Singleton):
         # TODO implement if you want
         pass
 
-    def cloned_info(self, lib_name):
+    def pull_info(self, lib_name):
         lib_path = os.path.join(self.sources_path, lib_name)
         is_cloned = os.path.isdir(lib_path) and os.listdir(lib_path)
         if is_cloned:
-            mtime = datetime.datetime.fromtimestamp(os.path.getmtime(lib_path))
+            all_files = glob.iglob('{}/*'.format(lib_path), recursive=True)
+            pull_time = max([os.path.getmtime(file_path) for file_path in all_files])
+            mtime = datetime.datetime.fromtimestamp(pull_time).replace(tzinfo=tz.tzlocal())
             return True, mtime
         return False, None
 
@@ -94,7 +98,9 @@ class UpdateService(metaclass=Singleton):
         build_path = os.path.join(self.build_path, lib_name)
         is_built = os.path.isdir(build_path) and os.listdir(build_path)
         if is_built:
-            mtime = datetime.datetime.fromtimestamp(os.path.getmtime(build_path))
+            all_files = glob.iglob('{}/*'.format(build_path), recursive=True)
+            build_time = max([os.path.getmtime(file_path) for file_path in all_files])
+            mtime = datetime.datetime.fromtimestamp(build_time).replace(tzinfo=tz.tzlocal())
             return True, mtime
         return False, None
 

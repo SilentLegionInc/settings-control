@@ -1,3 +1,6 @@
+import glob
+
+from dateutil import tz
 from support.server_exception import ServerException
 from support.singleton import Singleton
 from support.logger import Logger
@@ -38,17 +41,21 @@ class CoreService(metaclass=Singleton):
         self.compile_output = None
         self.compile_thread = None
 
-    def cloned_info(self):
+    def pull_info(self):
         is_cloned = os.path.isdir(self.sources_path) and os.listdir(self.sources_path)
         if is_cloned:
-            mtime = datetime.datetime.fromtimestamp(os.path.getmtime(self.sources_path))
+            all_files = glob.iglob('{}/*'.format(self.sources_path), recursive=True)
+            pull_time = max([os.path.getmtime(file_path) for file_path in all_files])
+            mtime = datetime.datetime.fromtimestamp(pull_time).replace(tzinfo=tz.tzlocal())
             return True, mtime
         return False, None
 
     def built_info(self):
         is_built = os.path.isdir(self.build_path) and os.listdir(self.build_path)
         if is_built:
-            mtime = datetime.datetime.fromtimestamp(os.path.getmtime(self.build_path))
+            all_files = glob.iglob('{}/*'.format(self.build_path), recursive=True)
+            built_time = max([os.path.getmtime(file_path) for file_path in all_files])
+            mtime = datetime.datetime.fromtimestamp(built_time).replace(tzinfo=tz.tzlocal())
             return True, mtime
         return False, None
 
