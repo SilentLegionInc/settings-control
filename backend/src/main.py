@@ -449,7 +449,30 @@ def api_get_system_info():
     return jsonify(result), status.HTTP_200_OK
 
 
-# TODO update all machine (aka clone)
+@app.route('/api/clone_machine', methods=['POST'])
+@handle_errors
+@api_authorization
+def api_clone_current_machine():
+    machine_config = SettingsService().current_machine_config
+    if not machine_config:
+        raise ServerException(
+            'Не удалось найти конфигурацию для комплекса: {}'.format(SettingsService().server_config['type']),
+            status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    dependencies = dict(OrderedDict(sorted(machine_config['dependencies'].items(), key=lambda x: x[1])))
+    for dependency in dependencies:
+        dependency_url = SettingsService().libraries['dependencies'].get(dependency)
+        if not dependency_url:
+            raise ServerException('Ошибка обновления. Неизвестная зависимость: {}'.format(dependency),
+                                  status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        UpdateService().update_lib_sync(dependency)
+
+    CoreService().update_core_sync()
+    # TODO refactor move to UpdateService
+    # TODO check that core is not running if it is -> kill them?
+    return jsonify({'ok': True}), status.HTTP_200_OK
+
 
 @app.route('/api/build_machine', methods=['POST'])
 @handle_errors
@@ -613,7 +636,6 @@ def api_update_server_config():
     return jsonify({'ok': True}), status.HTTP_200_OK
 
 
-
 # TODO rename to update
 @app.route('/api/clone_module/<string:module_name>', methods=['GET'])
 @handle_errors
@@ -651,6 +673,7 @@ def api_build_module(module_name):
                               .format(compile_status, compile_output), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # TODO rename to update_archive
+
 
 @app.route('/api/update_module/<string:module_name>', methods=['POST'])
 @handle_errors

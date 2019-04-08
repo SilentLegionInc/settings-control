@@ -89,6 +89,9 @@ export default {
             const loader = this.$loading.show();
             try {
                 this.data = await this.$store.state.requestService.getServerConfig();
+                if (this.data.machineType !== this.$store.state.robotName) {
+                    this.$store.commit('setRobotName', this.data.machineType);
+                }
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
@@ -104,6 +107,9 @@ export default {
             const loader = this.$loading.show();
             try {
                 await this.$store.state.requestService.setServerConfig(this.data.toPythonDict());
+                if (this.data.machineType !== this.$store.state.robotName) {
+                    this.$store.commit('setRobotName', this.data.machineType);
+                }
                 this.$toaster.success('Успешно обновлено');
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {

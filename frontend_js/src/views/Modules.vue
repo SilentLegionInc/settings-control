@@ -3,7 +3,7 @@
         <h2 class="mb-3" align="center">Список модулей {{$store.state.robotName}}</h2>
         <div role="tablist">
             <div class="row" style="margin: auto">
-                <div class="col-xl-8 offset-xl-2 offset-0 col-12">
+                <div class="col-xl-8 offset-xl-2 offset-lg-1 col-lg-10 offset-md-0 col-md-12 offset-0 col-12">
                     <b-card no-body>
                         <b-card-header header-tag="header" class="p-1" role="tab">
                             <b-button block href="#" v-b-toggle="'accordion_core'" variant="info">{{core.name}}</b-button>
@@ -11,50 +11,49 @@
                         <b-collapse id="accordion_core" visible accordion="my-accordion" role="tabpanel">
                             <b-card-body class="pt-2 pb-0">
                                 <div class="row mb-1">
-                                    <div class="col-xl-3 col-12 mb-1">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 mb-1">
                                         <b>Имя конфига:</b>
                                     </div>
-                                    <div class="col-xl-9 col-12">
-                                        {{core.configPath || '-'}}
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
+                                        <span class="ml-1">{{core.configPath || '-'}}</span>
                                     </div>
                                 </div>
                                 <div class="row mb-1">
-                                    <div class="col-xl-3 col-4">
-                                        Имя исполняемого:
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 mb-1">
+                                        <b>Имя исполняемого:</b>
                                     </div>
-                                    <div class="col-xl-9 col-8">
-                                        {{core.executeName || '-'}}
-                                    </div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col-xl-3 col-4">
-                                        Адрес git:
-                                    </div>
-                                    <div class="col-xl-9 col-8">
-                                        {{core.url || '-'}}
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
+                                        <span class="ml-1">{{core.executeName || '-'}}</span>
                                     </div>
                                 </div>
                                 <div class="row mb-2">
-                                    <div class="col-xl-3 col-4">
-                                        Время последней сборки:
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 mb-1">
+                                        <b>Адрес git:</b>
                                     </div>
-                                    <div class="col-xl-9 col-8">
-                                        <span v-if="core.isBuilt">{{core.buildModifyTime | moment("DD.MM.YYYY HH:mm:ss")}}</span>
-                                        <span v-else>-</span>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
+                                        <span class="ml-1">{{core.url || '-'}}</span>
                                     </div>
                                 </div>
                                 <div class="row mb-2">
-                                    <div class="col-xl-3 col-4">
-                                        Время последнего пула:
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 mb-1">
+                                        <b>Время последней сборки:</b>
                                     </div>
-                                    <div class="col-xl-9 col-8">
-                                        <span v-if="core.isCloned">{{core.srcModifyTime | moment("DD.MM.YYYY HH:mm:ss")}}</span>
-                                        <span v-else>-</span>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
+                                        <span v-if="core.isBuilt" class="ml-1">{{core.buildModifyTime | moment("DD.MM.YYYY HH:mm:ss")}}</span>
+                                        <span v-else class="ml-1">Не был собран</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 mb-1">
+                                        <b>Время последнего пула:</b>
+                                    </div>
+                                    <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
+                                        <span v-if="core.isCloned" class="ml-1">{{core.srcModifyTime | moment("DD.MM.YYYY HH:mm:ss")}}</span>
+                                        <span v-else class="ml-1">Не был склонирован</span>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-xl-4 col-12 mb-1">
-                                        <!--TODO change to normal check-->
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 mb-1">
                                         <button v-if="!core.isActive" :disabled="!core.isBuilt" class="btn btn-block btn-success" @click="runCore()">
                                             Запустить
                                         </button>
@@ -62,24 +61,29 @@
                                             Остановить
                                         </button>
                                     </div>
-                                    <div class="col-xl-4 col-12 mb-1">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 mb-1">
                                         <button class="btn btn-block btn-primary" @click="buildModule(core.name)">
                                             Собрать
                                         </button>
                                     </div>
-                                    <div class="col-xl-4 col-12 mb-1">
-                                        <button class="btn btn-block btn-primary">
-                                            Собрать с зависимостями
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 mb-1">
+                                        <button class="btn btn-block btn-primary" @click="buildMachine()">
+                                            Собрать всё
                                         </button>
                                     </div>
                                 </div>
-                                <div class="row mb-1">
-                                    <div class="offset-xl-2 col-xl-4 col-12 mb-1">
+                                <div class="row mb-2">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 mb-1">
                                         <button class="btn btn-block btn-primary" @click="cloneModule(core.name)">
                                             Обновить
                                         </button>
                                     </div>
-                                    <div class="col-xl-4 col-12 mb-1">
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 mb-1">
+                                        <button class="btn btn-block btn-primary" @click="cloneMachine()">
+                                            Обновить все
+                                        </button>
+                                    </div>
+                                    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 mb-1">
                                         <button id="coreUpdateButton"
                                                 class="btn btn-block btn-primary"
                                                 v-b-toggle="'coreUpdate'"
@@ -95,8 +99,10 @@
                                 </div>
                                 <b-collapse id="coreUpdate" ref="coreUpdate">
                                     <div class="row mb-2">
-                                        <label class="col-xl-3 col-form-label mb-1" for="core_update">Архив с исходниками для обновления:</label>
-                                        <div class="col-xl-9 col-12 mb-1">
+                                        <label class="col-xl-12 col-lg-12 col-form-label mb-1" for="core_update">
+                                            <b>Архив с исходниками для обновления:</b>
+                                        </label>
+                                        <div class="col-xl-12 col-lg-12 col-12 mb-1">
                                             <b-form-file
                                                 v-model="file"
                                                 placeholder="..."
@@ -104,11 +110,11 @@
                                                 drop-placeholder="Перетащите архив сюда"
                                                 id="core_update"
                                             />
-                                            <p class="card-text" style="font-size: 0.75rem; color: rgba(16,8,13,0.54)">Внутри архива должна быть папка, с именем модуля, например, fomodel</p>
+                                            <p class="card-text ml-1" style="font-size: 0.75rem; color: rgba(16,8,13,0.54)">Внутри архива должна быть папка, с именем модуля, например, fomodel</p>
                                         </div>
                                     </div>
                                     <div class="row mb-2">
-                                        <div class="offset-xl-9 offset-md-8 offset-0 col-xl-3 col-md-4 col-12">
+                                        <div class="offset-xl-8 offset-lg-8 offset-md-8 offset-sm-6 offset-0 col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12">
                                             <button :disabled="!file" class="btn btn-success btn-block" @click="uploadModuleArchive(module_elem.name)">Обновить</button>
                                         </div>
                                     </div>
@@ -122,7 +128,7 @@
             <div v-if="modules.length > 0">
                 <div v-for="(module_elem, index) of modules" v-bind:key="index">
                     <div class="row" style="margin: auto">
-                        <div class="col-xl-8 offset-xl-2 offset-0 col-12">
+                        <div class="col-xl-8 offset-xl-2 offset-lg-1 col-lg-10 offset-md-0 col-md-12 offset-0 col-12">
                             <b-card no-body>
                                 <b-card-header header-tag="header" class="p-1" role="tab">
                                     <b-button block href="#" v-b-toggle="'module' + index" variant="info">{{module_elem.name}}</b-button>
@@ -130,34 +136,44 @@
                                 <b-collapse :id="'module' + index" accordion="my-accordion" role="tabpanel">
                                     <b-card-body class="pt-2 pb-0">
                                         <div class="row mb-2">
-                                            <div class="col-xl-3 col-4">
-                                                Адрес git:
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 mb-1">
+                                                <b>Адрес git:</b>
                                             </div>
-                                            <div class="col-xl-9 col-8">
-                                                {{module_elem.url || '-'}}
+                                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
+                                                <span class="ml-1">{{module_elem.url || '-'}}</span>
                                             </div>
                                         </div>
                                         <!--<vs-divider>Обновление</vs-divider>-->
                                         <div class="row mb-2">
-                                            <div class="col-xl-3 col-4">
-                                                Время последней сборки:
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 mb-1">
+                                                <b>Время последней сборки:</b>
                                             </div>
-                                            <div class="col-xl-9 col-8">
-                                                <span v-if="module_elem.isBuilt">{{module_elem.buildModifyTime | moment("DD.MM.YYYY HH:mm:ss")}}</span>
-                                                <span v-else>-</span>
+                                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
+                                                <span v-if="module_elem.isBuilt" class="ml-1">{{module_elem.buildModifyTime | moment("DD.MM.YYYY HH:mm:ss")}}</span>
+                                                <span v-else class="ml-1">Не был собран</span>
                                             </div>
                                         </div>
                                         <div class="row mb-2">
-                                            <div class="col-xl-3 col-4">
-                                                Время последнего пула:
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 mb-1">
+                                                <b>Время последнего пула:</b>
                                             </div>
-                                            <div class="col-xl-9 col-8">
-                                                <span v-if="module_elem.isCloned">{{module_elem.srcModifyTime | moment("DD.MM.YYYY HH:mm:ss")}}</span>
-                                                <span v-else>-</span>
+                                            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
+                                                <span v-if="module_elem.isCloned" class="ml-1">{{module_elem.srcModifyTime | moment("DD.MM.YYYY HH:mm:ss")}}</span>
+                                                <span v-else class="ml-1">Не был склонирован</span>
                                             </div>
                                         </div>
-                                        <div class="row mb-1">
-                                            <div class="offset-0 col-xl-4 col-12 mb-1">
+                                        <div class="row mb-2">
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 mb-1">
+                                                <button class="btn btn-block btn-primary" @click="buildModule(module_elem.name)">
+                                                    Собрать
+                                                </button>
+                                            </div>
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 mb-1">
+                                                <button class="btn btn-block btn-primary" @click="cloneModule(module_elem.name)">
+                                                    Обновить
+                                                </button>
+                                            </div>
+                                            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 mb-1">
                                                 <button :id="'moduleUpdateButton' + index"
                                                         class="btn btn-block btn-primary"
                                                         v-b-toggle="'moduleUpdate' + index"
@@ -166,21 +182,13 @@
                                                 'fa-angle-up': collapseStatuses[`moduleUpdate${index}`]}"></i>
                                                 </button>
                                             </div>
-                                            <div class="col-xl-4 col-12 mb-1">
-                                                <button class="btn btn-block btn-primary" @click="cloneModule(module_elem.name)">
-                                                    Обновить
-                                                </button>
-                                            </div>
-                                            <div class="col-xl-4 col-12">
-                                                <button class="btn btn-block btn-primary" @click="buildModule(module_elem.name)">
-                                                    Собрать
-                                                </button>
-                                            </div>
                                         </div>
                                         <b-collapse :id="'moduleUpdate' + index" :ref="'moduleUpdate' + index">
                                             <div class="row mb-1">
-                                                <label class="col-xl-3 col-form-label mb-1" :for="'module'+index+'update'">Архив с исходниками для обновления:</label>
-                                                <div class="col-xl-9 col-12 mb-1">
+                                                <label class="col-xl-12 col-lg-12 col-12 col-form-label mb-1" :for="'module'+index+'update'">
+                                                    <b>Архив с исходниками для обновления:</b>
+                                                </label>
+                                                <div class="col-xl-12 col-lg-12 col-12 mb-1">
                                                     <b-form-file
                                                         v-model="file"
                                                         placeholder="..."
@@ -192,7 +200,7 @@
                                                 </div>
                                             </div>
                                             <div class="row mb-2">
-                                                <div class="offset-xl-9 offset-md-8 offset-0 col-xl-3 col-md-4 col-12">
+                                                <div class="offset-xl-8 offset-lg-8 offset-md-8 offset-sm-6 offset-0 col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12">
                                                     <button :disabled="!file" class="btn btn-success btn-block" @click="uploadModuleArchive(module_elem.name)">Обновить</button>
                                                 </div>
                                             </div>
@@ -233,13 +241,6 @@ export default {
                 const answer = await this.$store.state.requestService.getModules();
                 this.modules = answer.dependencies;
                 this.core = answer.core;
-                // this.core.detail = false;
-                this.core.active = false;
-                this.modules = this.modules.map(moduleElem => {
-                    moduleElem.active = false;
-                    // moduleElem.detail = false;
-                    return moduleElem;
-                });
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
@@ -342,6 +343,40 @@ export default {
                 } else {
                     this.$toaster.error('Не удалось остановить ядро');
                 }
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Серверная ошибка');
+                    Logger.error(err);
+                }
+            }
+            this._loader.hide();
+        },
+
+        async cloneMachine() {
+            try {
+                this._loader = this.$loading.show();
+                await this.$store.state.requestService.cloneMachine();
+                await this.loadData();
+                this.$toaster.success(`Текущая конфигурация была успешно обновлена`);
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Серверная ошибка');
+                    Logger.error(err);
+                }
+            }
+            this._loader.hide();
+        },
+
+        async buildMachine() {
+            try {
+                this._loader = this.$loading.show();
+                await this.$store.state.requestService.buildMachine();
+                await this.loadData();
+                this.$toaster.success(`Текущая конфигурация была успешно собрана`);
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
