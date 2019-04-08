@@ -51,6 +51,17 @@ def handle_errors(func):
         try:
             return func(*args, **kwargs)
         except Exception as ex:
+            # TODO handle exception for flask and jinja (flush or redirect)
+            pass
+    return wrapper
+
+
+def handle_api_errors(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as ex:
             if isinstance(ex, ServerException):
                 Logger().error_message('Got an exception')
                 Logger().error_message('Message: {}. Code: {}'.format(ex.message, ex.status_code))
@@ -155,15 +166,103 @@ def config():
 
 
 @app.route('/modules', methods=['GET'])
+@handle_errors
 @login_required
 def modules():
     res = ModulesService().get_modules_list()
     return render_template('modules.html', core=res['core'], dependencies=res['dependencies'])
 
 
+@app.route('/core/run', methods=['POST'])
+@handle_errors
+@login_required
+def run_core():
+    if ModulesService().run_core():
+        return jsonify({'ok': True}), status.HTTP_200_OK
+    else:
+        raise ServerException('Не удалось запустить ядро', status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.route('/core/stop', methods=['POST'])
+@handle_errors
+@login_required
+def stop_core():
+    if ModulesService().stop_core():
+        return jsonify({'ok': True}), status.HTTP_200_OK
+    else:
+        raise ServerException('Не удалось остановить ядро', status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.route('/pull_machine', methods=['POST'])
+@handle_errors
+@login_required
+def pull_current_machine():
+    if ModulesService().pull_machine():
+        return jsonify({'ok': True}), status.HTTP_200_OK
+    else:
+        raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.route('/build_machine', methods=['POST'])
+@handle_errors
+@login_required
+def build_current_machine():
+    if ModulesService().build_machine():
+        return jsonify({'ok': True}), status.HTTP_200_OK
+    else:
+        raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.route('/pull_module/<string:module_name>', methods=['POST'])
+@handle_errors
+@login_required
+def pull_module(module_name):
+    if ModulesService().pull_module(module_name):
+        return jsonify({'ok': True}), status.HTTP_200_OK
+    else:
+        raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.route('/build_module/<string:module_name>', methods=['POST'])
+@handle_errors
+@login_required
+def build_module(module_name):
+    if ModulesService().build_module(module_name):
+        return jsonify({'ok': True}), status.HTTP_200_OK
+    else:
+        raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.route('/manual_module_update/<string:module_name>', methods=['POST'])
+@handle_errors
+@login_required
+def manual_update_module(module_name):
+    allowed_extensions = {'zip'}
+
+    if 'file' not in request.files:
+        raise ServerException('В форме отсутсвтвуют файлы', status.HTTP_400_BAD_REQUEST)
+
+    file = request.files['file']
+    if not file or not file.filename:
+        raise ServerException('Не найден файл', status.HTTP_400_BAD_REQUEST)
+
+    if not allowed_file_extension(file.filename, allowed_extensions):
+        raise ServerException('Некорректный формат файла. Разрешены только: {}'.format(allowed_extensions),
+                              status.HTTP_406_NOT_ACCEPTABLE)
+
+    file_name = secure_filename(file.filename)
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+    file.save(file_path)
+
+    if ModulesService().manual_module_update(file_path, module_name):
+        return jsonify({'ok': True}), status.HTTP_200_OK
+    else:
+        raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 # ---------------------API endpoints-------------------------------
 @app.route('/api/core_config', methods=['GET', 'POST'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_config():
     if request.method == 'GET':
@@ -175,14 +274,14 @@ def api_config():
 
 
 @app.route('/api/network', methods=['GET'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_get_wifi_list():
     return jsonify(NetworkService().list_of_connections()), status.HTTP_200_OK
 
 
 @app.route('/api/network/create_wifi_connection', methods=['POST'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_connect_to_new_wifi():
     params = request.get_json()
@@ -193,7 +292,7 @@ def api_connect_to_new_wifi():
 
 
 @app.route('/api/network/connection/up/<string:uuid>', methods=['GET'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_connection_up(uuid):
     # This is connect to known connection
@@ -202,7 +301,7 @@ def api_connection_up(uuid):
 
 
 @app.route('/api/network/connection/down/<string:uuid>', methods=['GET'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_connection_down(uuid):
     # This is connect to known connection
@@ -211,7 +310,7 @@ def api_connection_down(uuid):
 
 
 @app.route('/api/network/connection/<string:uuid>', methods=['POST'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_connection_modify(uuid):
     # modify connection
@@ -221,7 +320,7 @@ def api_connection_modify(uuid):
 
 
 @app.route('/api/network/connection/<string:uuid>', methods=['DELETE'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_connection_delete(uuid):
     # delete connection
@@ -230,7 +329,7 @@ def api_connection_delete(uuid):
 
 
 @app.route('/api/network/connection/drop_all_wireless', methods=['DELETE'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_connections_delete_all_wireless():
     # delete connection
@@ -239,7 +338,7 @@ def api_connections_delete_all_wireless():
 
 
 @app.route('/api/network/connection/<string:uuid>', methods=['PUT'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_modify_connection(uuid):
     params = request.get_json()
@@ -250,7 +349,7 @@ def api_modify_connection(uuid):
 
 
 @app.route('/api/login', methods=['POST'])
-@handle_errors
+@handle_api_errors
 def api_login():
     info = request.get_json()
     result = AuthorizationService().check_password(info.get('password', ''), True)
@@ -259,7 +358,7 @@ def api_login():
 
 
 @app.route('/api/logout', methods=['GET'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_logout():
     if AuthorizationService().delete_token():
@@ -267,7 +366,7 @@ def api_logout():
 
 
 @app.route('/api/password', methods=['POST'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_change_password():
     info = request.get_json()
@@ -280,21 +379,21 @@ def api_change_password():
 
 
 @app.route('/api/monitoring/structure/<string:robot_name>/<string:db_name>', methods=['GET'])
-@handle_errors
+@handle_api_errors
 def api_get_monitoring_data_structure(robot_name, db_name):
     result = MonitoringDataService.get_data_structure(robot_name, db_name)
     return jsonify(Mapper.map_get_monitoring_data_structure_response(result)), status.HTTP_200_OK
 
 
 @app.route('/api/monitoring/databases_info/<string:robot_name>', methods=['GET'])
-@handle_errors
+@handle_api_errors
 def api_get_monitoring_databases_info(robot_name):
     result = MonitoringDataService.get_databases_info(robot_name)
     return jsonify(Mapper.map_get_monitoring_databases_info_response(result)), status.HTTP_200_OK
 
 
 @app.route('/api/monitoring/chart_data/<string:robot_name>/<string:db_name>/<string:field_name>', methods=['GET', 'POST'])
-@handle_errors
+@handle_api_errors
 def api_get_monitoring_chart_data(robot_name, db_name, field_name):
     if request.method == 'POST':
         if request.args.get('page') == 'true':
@@ -316,7 +415,7 @@ def api_get_monitoring_chart_data(robot_name, db_name, field_name):
 
 
 @app.route('/api/monitoring/table_data/<string:robot_name>/<string:db_name>', methods=['POST'])
-@handle_errors
+@handle_api_errors
 def api_get_monitoring_table_data(robot_name, db_name):
     body = request.get_json()
     result = MonitoringDataService().get_table_data(robot_name, db_name, **Mapper.map_get_monitoring_table_data_request(robot_name, db_name, body))
@@ -324,7 +423,7 @@ def api_get_monitoring_table_data(robot_name, db_name):
 
 
 @app.route('/api/monitoring/maps_data/<string:robot_name>/<string:db_name>', methods=['GET', 'POST'])
-@handle_errors
+@handle_api_errors
 def api_get_monitoring_maps_data(robot_name, db_name):
     if request.method == 'GET':
         result = MonitoringDataService().get_numeric_fields(robot_name, db_name)
@@ -338,7 +437,7 @@ def api_get_monitoring_maps_data(robot_name, db_name):
 
 
 @app.route('/api/monitoring/logs/<string:robot_name>', methods=['POST'])
-@handle_errors
+@handle_api_errors
 def api_get_monitoring_logs(robot_name):
     body = request.get_json()
     result = MonitoringDataService().get_logs(robot_name, **Mapper.map_get_monitoring_logs_request(body))
@@ -346,7 +445,7 @@ def api_get_monitoring_logs(robot_name):
 
 
 @app.route('/api/monitoring/system_info', methods=['GET'])
-@handle_errors
+@handle_api_errors
 def api_get_system_info():
     if request.args.get('extended') == 'true':
         result = {
@@ -361,7 +460,7 @@ def api_get_system_info():
 
 
 @app.route('/api/utils/info', methods=['GET'])
-@handle_errors
+@handle_api_errors
 def api_get_server_info():
     response_body = {
         'robot_type': SettingsService().server_config['type'],
@@ -379,7 +478,7 @@ def api_get_machine_types():
 
 
 @app.route('/api/server_config', methods=['GET'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_get_server_config():
     import copy
@@ -391,7 +490,7 @@ def api_get_server_config():
 
 
 @app.route('/api/server_config', methods=['POST'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_update_server_config():
     new_server_config = request.get_json()
@@ -407,9 +506,9 @@ def api_update_server_config():
 
 
 @app.route('/api/pull_machine', methods=['POST'])
-@handle_errors
+@handle_api_errors
 @api_authorization
-def api_clone_current_machine():
+def api_pull_current_machine():
     if ModulesService().pull_machine():
         return jsonify({'ok': True}), status.HTTP_200_OK
     else:
@@ -417,7 +516,7 @@ def api_clone_current_machine():
 
 
 @app.route('/api/build_machine', methods=['POST'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_build_current_machine():
     if ModulesService().build_machine():
@@ -427,7 +526,7 @@ def api_build_current_machine():
 
 
 @app.route('/api/modules', methods=['GET'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_get_modules():
     result = ModulesService().get_modules_list()
@@ -435,7 +534,7 @@ def api_get_modules():
 
 
 @app.route('/api/update_ssh', methods=['POST'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_update_ssh():
     allowed_extensions = {'zip'}
@@ -461,7 +560,7 @@ def api_update_ssh():
 
 
 @app.route('/api/core/run', methods=['POST'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_run_core():
     if ModulesService().run_core():
@@ -471,7 +570,7 @@ def api_run_core():
 
 
 @app.route('/api/core/status', methods=['GET'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_core_status():
     is_active = ModulesService().core_is_active()
@@ -479,7 +578,7 @@ def api_core_status():
 
 
 @app.route('/api/core/stop', methods=['POST'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_stop_core():
     if ModulesService().stop_core():
@@ -489,7 +588,7 @@ def api_stop_core():
 
 
 @app.route('/api/pull_module/<string:module_name>', methods=['GET'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_pull_module(module_name):
     if ModulesService().pull_module(module_name):
@@ -499,7 +598,7 @@ def api_pull_module(module_name):
 
 
 @app.route('/api/build_module/<string:module_name>', methods=['GET'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_build_module(module_name):
     if ModulesService().build_module(module_name):
@@ -509,7 +608,7 @@ def api_build_module(module_name):
 
 
 @app.route('/api/manual_module_update/<string:module_name>', methods=['POST'])
-@handle_errors
+@handle_api_errors
 @api_authorization
 def api_manual_module_update(module_name):
     allowed_extensions = {'zip'}
