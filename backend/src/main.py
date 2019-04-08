@@ -158,7 +158,7 @@ def config():
 @login_required
 def modules():
     res = ModulesService().get_modules_list()
-    return render_template('modules.html', core=res['core_info'], dependencies=res['mapped_dependencies'])
+    return render_template('modules.html', core=res['core'], dependencies=res['dependencies'])
 
 
 # ---------------------API endpoints-------------------------------
