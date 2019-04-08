@@ -10,7 +10,6 @@ from flask_api import status
 from support.helper import cmd
 from support.server_exception import ServerException
 from support.singleton import Singleton
-from main import app
 
 
 class ModulesService(metaclass=Singleton):
@@ -141,6 +140,7 @@ class ModulesService(metaclass=Singleton):
         return True
 
     def manual_module_update(self, file_path, module_name):
+        from main import app
         zip_archive = zipfile.ZipFile(file_path, 'r')
         zip_archive.extractall(app.config['UPLOAD_FOLDER'])
         zip_archive.close()
@@ -169,6 +169,7 @@ class ModulesService(metaclass=Singleton):
                                   .format(compile_status, compile_output), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def update_ssh_key(self, file_path):
+        from main import app
         zip_archive = zipfile.ZipFile(file_path, 'r')
         zip_archive.extractall(app.config['UPLOAD_FOLDER'])
         zip_archive.close()
