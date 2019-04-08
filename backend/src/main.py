@@ -10,7 +10,6 @@ from configuration.settings_service import SettingsService
 from flask_login import login_user, login_required, logout_user, current_user
 from flask import request, redirect, url_for, jsonify, render_template
 from werkzeug.urls import url_parse
-from logs_service import LogsService
 from support.forms import LoginForm
 from support.models import User
 from functools import wraps
@@ -146,7 +145,7 @@ def config():
         result = SettingsService().get_core_config(reload_from_disk=True)
         for key in request.form:
             result[key] = request.form.get(key)
-        if SettingsService().save_core_config(result)['code'] == 0:
+        if SettingsService().save_core_config(result):
             Logger().info_message('Saved')
         else:
             Logger().info_message('Error')
@@ -158,47 +157,8 @@ def config():
 @app.route('/modules', methods=['GET'])
 @login_required
 def modules():
-    machine_config = SettingsService().current_machine_config
-    if not machine_config:
-        raise ServerException(
-            'Не удалось найти конфигурацию для комплекса: {}'.format(SettingsService().server_config['type']),
-            status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    mapped_dependencies = []
-    dependencies = dict(OrderedDict(sorted(machine_config['dependencies'].items(), key=lambda x: x[1])))
-    for dependency in dependencies:
-        dependency_url = SettingsService().libraries['dependencies'].get(dependency)
-        dependency_info = {
-            'name': dependency,
-            'url': dependency_url,
-            'index': dependencies[dependency]
-        }
-        build_info = UpdateService().built_info(dependency)
-        dependency_info['is_built'] = build_info[0]
-        dependency_info['build_modify_time'] = build_info[1]
-
-        clone_info = UpdateService().cloned_info(dependency)
-        dependency_info['is_cloned'] = clone_info[0]
-        dependency_info['src_modify_time'] = clone_info[1]
-        mapped_dependencies.append(dependency_info)
-
-    core_info = {
-        'name': machine_config['core']['repo_name'],
-        'execute': machine_config['core']['executable_name'],
-        'config_path': machine_config['core']['config_path'],
-        'url': SettingsService().libraries['cores'].get(machine_config['core']['repo_name']),
-        'is_active': CoreService().core_is_active()
-    }
-
-    core_build_info = CoreService().built_info()
-    core_info['is_built'] = core_build_info[0]
-    core_info['build_modify_time'] = core_build_info[1]
-
-    core_clone_info = CoreService().cloned_info()
-    core_info['is_cloned'] = core_clone_info[0]
-    core_info['src_modify_time'] = core_clone_info[1]
-
-    return render_template('modules.html', core=core_info, dependencies=mapped_dependencies)
+    res = ModulesService().get_modules_list()
+    return render_template('modules.html', core=res['core_info'], dependencies=res['mapped_dependencies'])
 
 
 # ---------------------API endpoints-------------------------------
@@ -303,7 +263,7 @@ def api_login():
 @api_authorization
 def api_logout():
     if AuthorizationService().delete_token():
-        return jsonify({'code': 0}), status.HTTP_200_OK
+        return jsonify({'ok': True}), status.HTTP_200_OK
 
 
 @app.route('/api/password', methods=['POST'])
@@ -317,11 +277,6 @@ def api_change_password():
     return jsonify({'token': new_token}), status.HTTP_200_OK
 
 # MONITORING API #
-
-
-@app.route('/api/logs', methods=['GET'])
-def api_logs():
-    return jsonify(LogsService().get_logs(request.args.get('limit', 1), request.args.get('offset', 0))), status.HTTP_200_OK
 
 
 @app.route('/api/monitoring/structure/<string:robot_name>/<string:db_name>', methods=['GET'])

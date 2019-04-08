@@ -1,3 +1,5 @@
+from flask_api import status
+from support.server_exception import ServerException
 from support.singleton import Singleton
 from support.logger import Logger
 import json
@@ -35,8 +37,7 @@ class SettingsService(metaclass=Singleton):
 
     def get_core_config(self, reload_from_disk=False):
         if reload_from_disk:
-            res = self.load_core_config()
-            if not (res['code'] == 0):
+            if not self.load_core_config():
                 return {}
         return self._core_config
 
@@ -48,10 +49,11 @@ class SettingsService(metaclass=Singleton):
             self._server_config = json.loads(config_file.read())
             config_file.close()
         except Exception as ex:
-            Logger().error_message('Loading server config error: {}'.format(str(ex)))
-            return {'code': 1, 'error': str(ex)}
+            error_text = 'Ошибка загрузки конфигурации сервера: {}'.format(str(ex))
+            Logger().error_message(error_text)
+            raise ServerException(error_text, status.HTTP_500_INTERNAL_SERVER_ERROR)
         Logger().info_message('Server config successfully loaded')
-        return {'code': 0}
+        return True
 
     # save config file for python server
     def save_server_config(self):
@@ -61,10 +63,11 @@ class SettingsService(metaclass=Singleton):
             config_file.write(json.dumps(self._server_config))
             config_file.close()
         except Exception as ex:
-            Logger().error_message('Loading server config error: {}'.format(str(ex)))
-            return {'code': 1, 'error': str(ex)}
+            error_text = 'Ошибка загрузки конфигурации сервера: {}'.format(str(ex))
+            Logger().error_message(error_text)
+            raise ServerException(error_text, status.HTTP_500_INTERNAL_SERVER_ERROR)
         Logger().info_message('Server config successfully saved')
-        return {'code': 0}
+        return True
 
     # load config file for c++ core
     def load_core_config(self):
@@ -77,14 +80,15 @@ class SettingsService(metaclass=Singleton):
             Logger().info_message(
                 'Loading core config for {} from {}'.format(self.server_config['type'], path_to_current_core_config))
             if not os.path.exists(path_to_current_core_config):
-                raise Exception('Core config does not exists on {}'.format(path_to_current_core_config))
+                raise ServerException('Файл конфигурации ядра не найден в: {}'.format(path_to_current_core_config))
             config_file = open(path_to_current_core_config, 'r')
             self._core_config = json.loads(config_file.read())
             config_file.close()
         except Exception as ex:
-            Logger().error_message('Loading core config error: {}'.format(str(ex)))
-            return {'code': 1, 'error': str(ex)}
-        return {'code': 0}
+            error_text = 'Ошибка загрузки конфигурации ядра: {}'.format(str(ex))
+            Logger().error_message(error_text)
+            raise ServerException(error_text, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return True
 
     # save config to file for c++ core
     def save_core_config(self, config):
@@ -97,15 +101,16 @@ class SettingsService(metaclass=Singleton):
             Logger().info_message('Saving core config for {} to {}'.format(self.server_config['type'],
                                                                            path_to_current_core_config))
             if not os.path.exists(path_to_current_core_config):
-                raise Exception('Core config does not exists on {}'.format(path_to_current_core_config))
+                raise Exception('Файл конфигурации ядра не найден в: {}'.format(path_to_current_core_config))
             self._core_config = config
             config_file = open(path_to_current_core_config, 'w')
             config_file.write(json.dumps(self._core_config))
             config_file.close()
         except Exception as ex:
-            Logger().error_message('Saving core config error: {}'.format(str(ex)))
-            return {'code': 1, 'error': str(ex)}
+            error_text = 'Ошибка сохранения конфигурации ядра: {}'.format(str(ex))
+            Logger().error_message(error_text)
+            raise ServerException(error_text, status.HTTP_500_INTERNAL_SERVER_ERROR)
         Logger().info_message('Core config successfully saved')
-        return {'code': 0}
+        return True
 
 
