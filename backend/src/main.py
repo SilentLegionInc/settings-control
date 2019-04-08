@@ -1,8 +1,10 @@
+from configuration.modules_service import ModulesService
 from flask import Flask
 from flask_cors import CORS
 from flask_login import LoginManager
 from flask_bootstrap import Bootstrap
 from flask_bcrypt import Bcrypt
+from support.helper import allowed_file_extension
 from support.logger import Logger
 from configuration.settings_service import SettingsService
 from flask_login import login_user, login_required, logout_user, current_user
@@ -11,8 +13,6 @@ from werkzeug.urls import url_parse
 from logs_service import LogsService
 from support.forms import LoginForm
 from support.models import User
-from configuration.update_service import UpdateService
-from configuration.core_service import CoreService
 from functools import wraps
 from monitoring.monitoring_data_service import MonitoringDataService
 from flask_api import status
@@ -20,15 +20,11 @@ from werkzeug.exceptions import HTTP_STATUS_CODES
 from support.server_exception import ServerException
 import traceback
 from support.mapper import Mapper
-from configuration.wireless import NetworkService, cmd
+from configuration.wireless import NetworkService
 from monitoring.system_monitoring_service import SystemMonitoringService
 from werkzeug.utils import secure_filename
 import os
-import zipfile
-import shutil
 from configuration.authoriztaion_service import AuthorizationService
-from collections import OrderedDict
-from configuration.core_service import ProcessStatus
 
 # Init flask application
 app = Flask(__name__)
@@ -156,6 +152,8 @@ def config():
             Logger().info_message('Error')
         return render_template('config.html', config=SettingsService().get_core_config(reload_from_disk=True))
 
+# HERE STARTS API ENDPOINTS #
+
 
 @app.route('/api/core_config', methods=['GET', 'POST'])
 @handle_errors
@@ -165,6 +163,8 @@ def api_config():
         return jsonify(SettingsService().get_core_config(reload_from_disk=True))
     elif request.method == 'POST':
         return jsonify(SettingsService().save_core_config(request.get_json()))
+
+# NETWORKS API #
 
 
 @app.route('/api/network', methods=['GET'])
@@ -239,58 +239,7 @@ def api_modify_connection(uuid):
     if NetworkService().modify_connection_params(uuid, params):
         return jsonify({'ok': True}), status.HTTP_200_OK
 
-
-@app.route('/api/core/compile', methods=['POST'])
-@handle_errors
-@api_authorization
-def api_compile_core():
-    import time
-    params = request.get_json()
-    if params.get('with_dependencies', False):
-        dependencies = SettingsService().current_machine_config.get('dependencies', [])
-        for dep in dependencies:
-            Logger().info_message('Updating lib: {}'.format(dep), 'Compile Core: ')
-            UpdateService().update_and_upgrade_lib_sync(dep)
-
-    CoreService().compile_core()
-    while CoreService().compile_status is None:
-        time.sleep(1)
-
-    return jsonify({'code': 0, 'compile_status': CoreService().compile_status.value}), status.HTTP_200_OK
-
-
-@app.route('/api/core/run', methods=['POST'])
-@handle_errors
-@api_authorization
-def api_run_core():
-    CoreService().run_core()
-    is_active = CoreService().core_is_active()
-    if is_active:
-        return jsonify({'ok': True, 'core_status': is_active}), status.HTTP_200_OK
-    else:
-        raise ServerException('Не удалось запустить ядро', status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@app.route('/api/core/status', methods=['GET'])
-@handle_errors
-@api_authorization
-def api_core_status():
-    is_active = CoreService().core_is_active()
-    return jsonify({'ok': True, 'core_status': is_active}), status.HTTP_200_OK
-
-
-@app.route('/api/core/stop', methods=['POST'])
-@handle_errors
-@api_authorization
-def api_stop_core():
-    CoreService().stop_core()
-    is_active = CoreService().core_is_active()
-    return jsonify({'ok': True, 'core_status': is_active}), status.HTTP_200_OK
-
-
-@app.route('/api/logs', methods=['GET'])
-def api_logs():
-    return jsonify(LogsService().get_logs(request.args.get('limit', 1), request.args.get('offset', 0))), status.HTTP_200_OK
+# AUTH API #
 
 
 @app.route('/api/login', methods=['POST'])
@@ -319,6 +268,13 @@ def api_change_password():
     new_password = info.get('newPassword', '')
     new_token = AuthorizationService().change_password(old_password, new_password)
     return jsonify({'token': new_token}), status.HTTP_200_OK
+
+# MONITORING API #
+
+
+@app.route('/api/logs', methods=['GET'])
+def api_logs():
+    return jsonify(LogsService().get_logs(request.args.get('limit', 1), request.args.get('offset', 0))), status.HTTP_200_OK
 
 
 @app.route('/api/monitoring/structure/<string:robot_name>/<string:db_name>', methods=['GET'])
@@ -402,151 +358,6 @@ def api_get_system_info():
     return jsonify(result), status.HTTP_200_OK
 
 
-@app.route('/api/clone_machine', methods=['POST'])
-@handle_errors
-@api_authorization
-def api_clone_current_machine():
-    machine_config = SettingsService().current_machine_config
-    if not machine_config:
-        raise ServerException(
-            'Не удалось найти конфигурацию для комплекса: {}'.format(SettingsService().server_config['type']),
-            status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    dependencies = dict(OrderedDict(sorted(machine_config['dependencies'].items(), key=lambda x: x[1])))
-    for dependency in dependencies:
-        dependency_url = SettingsService().libraries['dependencies'].get(dependency)
-        if not dependency_url:
-            raise ServerException('Ошибка обновления. Неизвестная зависимость: {}'.format(dependency),
-                                  status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        UpdateService().update_lib_sync(dependency)
-
-    CoreService().update_core_sync()
-    # TODO refactor move to UpdateService
-    # TODO check that core is not running if it is -> kill them?
-    return jsonify({'ok': True}), status.HTTP_200_OK
-
-
-@app.route('/api/build_machine', methods=['POST'])
-@handle_errors
-@api_authorization
-def api_build_current_machine():
-    machine_config = SettingsService().current_machine_config
-    if not machine_config:
-        raise ServerException('Не удалось найти конфигурацию для комплекса: {}'.format(SettingsService().server_config['type']),
-                              status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    dependencies = dict(OrderedDict(sorted(machine_config['dependencies'].items(), key=lambda x: x[1])))
-    for dependency in dependencies:
-        dependency_url = SettingsService().libraries['dependencies'].get(dependency)
-        if not dependency_url:
-            raise ServerException('Ошибка сборки. Неизвестная зависимость: {}'.format(dependency),
-                                  status.HTTP_500_INTERNAL_SERVER_ERROR)
-        (is_cloned, _) = UpdateService().cloned_info(dependency)
-        if not is_cloned:
-            UpdateService().update_lib_sync(dependency)
-        (compile_status, compile_output) = UpdateService().upgrade_lib_sync(dependency)
-        if compile_status is not ProcessStatus.SUCCESS:
-            raise ServerException('Ошибка сборки. Статус компиляции: {}. Информация о сборке: {}'
-                                  .format(compile_status, compile_output), status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    (is_cloned, _) = CoreService().cloned_info()
-    if not is_cloned:
-        CoreService().update_core_sync()
-    # TODO refactor move to UpdateService
-    # TODO check that core is not running if it is -> kill them?
-    (compile_status, compile_output) = CoreService().compile_core()
-    if compile_status is ProcessStatus.SUCCESS:
-        return jsonify({'code': 0}), status.HTTP_200_OK
-    else:
-        raise ServerException('Ошибка сборки. Статус компиляции: {}. Информация о сборке: {}'
-                              .format(compile_status, compile_output), status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-@app.route('/api/modules', methods=['GET'])
-@handle_errors
-@api_authorization
-def api_get_modules():
-    machine_config = SettingsService().current_machine_config
-    if not machine_config:
-        raise ServerException('Не удалось найти конфигурацию для комплекса: {}'.format(SettingsService().server_config['type']),
-                              status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    mapped_dependencies = []
-    dependencies = dict(OrderedDict(sorted(machine_config['dependencies'].items(), key=lambda x: x[1])))
-    for dependency in dependencies:
-        dependency_url = SettingsService().libraries['dependencies'].get(dependency)
-        dependency_info = {
-            'name': dependency,
-            'url': dependency_url,
-            'index': dependencies[dependency]
-        }
-        build_info = UpdateService().built_info(dependency)
-        dependency_info['is_built'] = build_info[0]
-        dependency_info['build_modify_time'] = build_info[1]
-
-        clone_info = UpdateService().cloned_info(dependency)
-        dependency_info['is_cloned'] = clone_info[0]
-        dependency_info['src_modify_time'] = clone_info[1]
-        mapped_dependencies.append(dependency_info)
-
-    core_info = {
-        'name': machine_config['core']['repo_name'],
-        'execute': machine_config['core']['executable_name'],
-        'config_path': machine_config['core']['config_path'],
-        'url': SettingsService().libraries['cores'].get(machine_config['core']['repo_name']),
-        'is_active': CoreService().core_is_active()
-    }
-
-    core_build_info = CoreService().built_info()
-    core_info['is_built'] = core_build_info[0]
-    core_info['build_modify_time'] = core_build_info[1]
-
-    core_clone_info = CoreService().cloned_info()
-    core_info['is_cloned'] = core_clone_info[0]
-    core_info['src_modify_time'] = core_clone_info[1]
-
-    return jsonify({'core': core_info, 'dependencies': mapped_dependencies}), status.HTTP_200_OK
-
-
-@app.route('/api/update_ssh', methods=['POST'])
-@handle_errors
-@api_authorization
-def api_update_ssh():
-    allowed_extensions = {'zip'}
-
-    def allowed_file(filename):
-        return '.' in filename and \
-               filename.rsplit('.', 1)[1].lower() in allowed_extensions
-
-    if 'file' not in request.files:
-        raise ServerException('В форме отсутсвтвуют файлы', status.HTTP_400_BAD_REQUEST)
-
-    file = request.files['file']
-    if not file or not file.filename:
-        raise ServerException('Не найден файл', status.HTTP_400_BAD_REQUEST)
-
-    if not allowed_file(file.filename):
-        raise ServerException('Некорректный формат файла. Разрешены только: {}'.format(allowed_extensions),
-                              status.HTTP_406_NOT_ACCEPTABLE)
-
-    file_name = secure_filename(file.filename)
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
-    file.save(file_path)
-    zip_archive = zipfile.ZipFile(file_path, 'r')
-    zip_archive.extractall(app.config['UPLOAD_FOLDER'])
-    zip_archive.close()
-    # TODO check
-    ssh_path = os.path.expanduser('~/.ssh')
-    # TODO need to remove ssh folder?
-    cmd('cp -Rf {}/* {}'.format(file_path, ssh_path))
-    hosts_file_name = os.path.join(ssh_path, 'known_hosts')
-    if os.path.isfile(hosts_file_name):
-        os.remove(hosts_file_name)
-    os.system('ssh-keyscan ' + SettingsService().server_config['repositories_platform'] + ' >> ' + hosts_file_name)
-    return jsonify({'code': 0}), status.HTTP_200_OK
-
-
 @app.route('/api/utils/info', methods=['GET'])
 @handle_errors
 def api_get_server_info():
@@ -555,6 +366,8 @@ def api_get_server_info():
         'ok': True
     }
     return jsonify(response_body), status.HTTP_200_OK
+
+# CONFIG API #
 
 
 @app.route('/api/utils/machine_types', methods=['GET'])
@@ -588,55 +401,42 @@ def api_update_server_config():
     SettingsService().save_server_config()
     return jsonify({'ok': True}), status.HTTP_200_OK
 
+# MODULES API #
 
-# TODO rename to update
-@app.route('/api/clone_module/<string:module_name>', methods=['GET'])
+
+@app.route('/api/pull_machine', methods=['POST'])
 @handle_errors
 @api_authorization
-def api_clone_module(module_name):
-    if module_name in SettingsService().libraries['dependencies']:
-        UpdateService().update_lib_sync(module_name)
-    elif module_name in SettingsService().libraries['cores']:
-        CoreService().update_core_sync()
-
-    return jsonify({'code': 0}), status.HTTP_200_OK
-
-
-@app.route('/api/build_module/<string:module_name>', methods=['GET'])
-@handle_errors
-@api_authorization
-def api_build_module(module_name):
-    (compile_status, compile_output) = (ProcessStatus.DEFAULT, None)
-    if module_name in SettingsService().libraries['dependencies']:
-        (is_cloned, _) = UpdateService().cloned_info(module_name)
-        if not is_cloned:
-            UpdateService().update_lib_sync(module_name)
-        (compile_status, compile_output) = UpdateService().upgrade_lib_sync(module_name)
-    elif module_name in SettingsService().libraries['cores']:
-        (is_cloned, _) = CoreService().cloned_info()
-        if not is_cloned:
-            CoreService().update_core_sync()
-        # TODO refactor move to UpdateService
-        (compile_status, compile_output) = CoreService().compile_core()
-
-    if compile_status is ProcessStatus.SUCCESS:
-        return jsonify({'code': 0}), status.HTTP_200_OK
+def api_clone_current_machine():
+    if ModulesService().pull_machine():
+        return jsonify({'ok': True}), status.HTTP_200_OK
     else:
-        raise ServerException('Ошибка сборки. Статус компиляции: {}. Информация о сборке: {}'
-                              .format(compile_status, compile_output), status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-# TODO rename to update_archive
+        raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@app.route('/api/update_module/<string:module_name>', methods=['POST'])
+@app.route('/api/build_machine', methods=['POST'])
 @handle_errors
 @api_authorization
-def api_update_module(module_name):
-    allowed_extensions = {'zip'}
+def api_build_current_machine():
+    if ModulesService().build_machine():
+        return jsonify({'ok': True}), status.HTTP_200_OK
+    else:
+        raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def allowed_file(filename):
-        return '.' in filename and \
-               filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+@app.route('/api/modules', methods=['GET'])
+@handle_errors
+@api_authorization
+def api_get_modules():
+    result = ModulesService().get_modules_list()
+    return jsonify(result), status.HTTP_200_OK
+
+
+@app.route('/api/update_ssh', methods=['POST'])
+@handle_errors
+@api_authorization
+def api_update_ssh():
+    allowed_extensions = {'zip'}
 
     if 'file' not in request.files:
         raise ServerException('В форме отсутсвтвуют файлы', status.HTTP_400_BAD_REQUEST)
@@ -645,38 +445,92 @@ def api_update_module(module_name):
     if not file or not file.filename:
         raise ServerException('Не найден файл', status.HTTP_400_BAD_REQUEST)
 
-    if not allowed_file(file.filename):
+    if not allowed_file_extension(file.filename, allowed_extensions):
         raise ServerException('Некорректный формат файла. Разрешены только: {}'.format(allowed_extensions),
                               status.HTTP_406_NOT_ACCEPTABLE)
 
     file_name = secure_filename(file.filename)
-
-    # TODO refactor, move to separate manager?
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
     file.save(file_path)
-    zip_archive = zipfile.ZipFile(file_path, 'r')
-    zip_archive.extractall(app.config['UPLOAD_FOLDER'])
-    zip_archive.close()
-
-    lib_name = module_name
-    target_lib_path = os.path.join(
-        os.path.expanduser(SettingsService().server_config['sources_path']),
-        lib_name
-    )
-    source_lib_path = os.path.join(app.config['UPLOAD_FOLDER'], lib_name)
-    if not os.path.isdir(target_lib_path):
-        shutil.rmtree(target_lib_path, ignore_errors=True)
-        os.makedirs(target_lib_path)
-    cmd('cp -Rf {}/* {}'.format(source_lib_path, target_lib_path))
-    # TODO get module name from post request
-    if lib_name in SettingsService().libraries['dependencies']:
-        UpdateService().upgrade_lib_sync(lib_name)
-    elif lib_name in SettingsService().libraries['cores']:
-        # TODO check
-        CoreService().compile_core()
+    if ModulesService().update_ssh_key:
+        return jsonify({'ok': True}), status.HTTP_200_OK
     else:
-        raise ServerException('Неизвестный модуль {}'.format(lib_name), status.HTTP_400_BAD_REQUEST)
-    return jsonify({'code': 0}), status.HTTP_200_OK
+        raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.route('/api/core/run', methods=['POST'])
+@handle_errors
+@api_authorization
+def api_run_core():
+    if ModulesService().run_core():
+        return jsonify({'ok': True}), status.HTTP_200_OK
+    else:
+        raise ServerException('Не удалось запустить ядро', status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.route('/api/core/status', methods=['GET'])
+@handle_errors
+@api_authorization
+def api_core_status():
+    is_active = ModulesService().core_is_active()
+    return jsonify({'ok': True, 'core_status': is_active}), status.HTTP_200_OK
+
+
+@app.route('/api/core/stop', methods=['POST'])
+@handle_errors
+@api_authorization
+def api_stop_core():
+    if ModulesService().stop_core():
+        return jsonify({'ok': True}), status.HTTP_200_OK
+    else:
+        raise ServerException('Не удалось остановить ядро', status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.route('/api/pull_module/<string:module_name>', methods=['GET'])
+@handle_errors
+@api_authorization
+def api_pull_module(module_name):
+    if ModulesService().pull_module(module_name):
+        return jsonify({'ok': True}), status.HTTP_200_OK
+    else:
+        raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.route('/api/build_module/<string:module_name>', methods=['GET'])
+@handle_errors
+@api_authorization
+def api_build_module(module_name):
+    if ModulesService().build_module(module_name):
+        return jsonify({'ok': True}), status.HTTP_200_OK
+    else:
+        raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.route('/api/manual_module_update/<string:module_name>', methods=['POST'])
+@handle_errors
+@api_authorization
+def api_manual_module_update(module_name):
+    allowed_extensions = {'zip'}
+
+    if 'file' not in request.files:
+        raise ServerException('В форме отсутсвтвуют файлы', status.HTTP_400_BAD_REQUEST)
+
+    file = request.files['file']
+    if not file or not file.filename:
+        raise ServerException('Не найден файл', status.HTTP_400_BAD_REQUEST)
+
+    if not allowed_file_extension(file.filename, allowed_extensions):
+        raise ServerException('Некорректный формат файла. Разрешены только: {}'.format(allowed_extensions),
+                              status.HTTP_406_NOT_ACCEPTABLE)
+
+    file_name = secure_filename(file.filename)
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+    file.save(file_path)
+
+    if ModulesService().manual_module_update(file_path, module_name):
+        return jsonify({'ok': True}), status.HTTP_200_OK
+    else:
+        raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
