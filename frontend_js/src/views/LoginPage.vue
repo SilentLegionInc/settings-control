@@ -5,7 +5,7 @@
                 <div class="offset-0 offset-sm-2"></div>
                 <div class="col-12 col-sm-8">
                     <b-card>
-                        <h2>Авторизация</h2>
+                        <h2 align="center">Авторизация</h2>
                         <div class="container-fluid">
                             <div class="row mb-3">
                                 <label class="col-form-label col-xl-3 col-lg-3 col-12" for="password">Пароль:</label>

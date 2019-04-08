@@ -11,9 +11,9 @@ import ChangePassword from './views/ChangePassword';
 import store from './store';
 import MonitoringNavigation from './views/MonitoringNavigation';
 import SystemInfo from './views/SystemInfo';
-import ServerSettings from './views/ServerSettings'
-import ServerConnect from './components/ServerConnect'
+import ServerSettings from './views/ServerSettings';
 import LoginPage from './views/LoginPage';
+import Home from './views/Home';
 
 Vue.use(Router);
 
@@ -53,8 +53,8 @@ export default new Router({
     routes: [
         {
             path: '/',
-            name: 'connect-to-server',
-            component: ServerConnect
+            name: 'home',
+            component: Home
         },
         {
             path: '/test',
