@@ -546,6 +546,28 @@ export class RequestService {
         }
     }
 
+    async buildMachine() {
+        const path = this._constructPath(`api/build_machine`);
+        const result = await axios.post(path);
+        if (result.status === 200) {
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            return true;
+        } else {
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+        }
+    }
+
+    async cloneMachine() {
+        const path = this._constructPath(`api/clone_machine`);
+        const result = await axios.post(path);
+        if (result.status === 200) {
+            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            return true;
+        } else {
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+        }
+    }
+
     async uploadSSHArchive(formData) {
         const path = this._constructPath(`api/update_ssh`);
         const result = await axios.post(path, formData, { headers: { 'Content-Type': 'multipart/form-data' } });

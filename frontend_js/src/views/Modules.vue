@@ -67,7 +67,7 @@
                                         </button>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 mb-1">
-                                        <button class="btn btn-block btn-primary">
+                                        <button class="btn btn-block btn-primary" @click="buildMachine()">
                                             Собрать всё
                                         </button>
                                     </div>
@@ -79,8 +79,7 @@
                                         </button>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 mb-1">
-                                        <!--TODO implement me-->
-                                        <button class="btn btn-block btn-primary">
+                                        <button class="btn btn-block btn-primary" @click="cloneMachine()">
                                             Обновить все
                                         </button>
                                     </div>
@@ -151,7 +150,7 @@
                                             </div>
                                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
                                                 <span v-if="module_elem.isBuilt" class="ml-1">{{module_elem.buildModifyTime | moment("DD.MM.YYYY HH:mm:ss")}}</span>
-                                                <span v-else class="ml-1">-</span>
+                                                <span v-else class="ml-1">Не был собран</span>
                                             </div>
                                         </div>
                                         <div class="row mb-2">
@@ -160,7 +159,7 @@
                                             </div>
                                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-12">
                                                 <span v-if="module_elem.isCloned" class="ml-1">{{module_elem.srcModifyTime | moment("DD.MM.YYYY HH:mm:ss")}}</span>
-                                                <span v-else class="ml-1">-</span>
+                                                <span v-else class="ml-1">Не был склонирован</span>
                                             </div>
                                         </div>
                                         <div class="row mb-2">
@@ -242,13 +241,6 @@ export default {
                 const answer = await this.$store.state.requestService.getModules();
                 this.modules = answer.dependencies;
                 this.core = answer.core;
-                // this.core.detail = false;
-                this.core.active = false;
-                this.modules = this.modules.map(moduleElem => {
-                    moduleElem.active = false;
-                    // moduleElem.detail = false;
-                    return moduleElem;
-                });
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
@@ -351,6 +343,40 @@ export default {
                 } else {
                     this.$toaster.error('Не удалось остановить ядро');
                 }
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Серверная ошибка');
+                    Logger.error(err);
+                }
+            }
+            this._loader.hide();
+        },
+
+        async cloneMachine() {
+            try {
+                this._loader = this.$loading.show();
+                await this.$store.state.requestService.cloneMachine();
+                await this.loadData();
+                this.$toaster.success(`Текущая конфигурация была успешно обновлена`);
+            } catch (err) {
+                if (err instanceof ServerExceptionModel) {
+                    this.$toaster.error(err.message);
+                } else {
+                    this.$toaster.error('Серверная ошибка');
+                    Logger.error(err);
+                }
+            }
+            this._loader.hide();
+        },
+
+        async buildMachine() {
+            try {
+                this._loader = this.$loading.show();
+                await this.$store.state.requestService.buildMachine();
+                await this.loadData();
+                this.$toaster.success(`Текущая конфигурация была успешно собрана`);
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
