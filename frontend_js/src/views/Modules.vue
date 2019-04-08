@@ -74,12 +74,12 @@
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 mb-1">
-                                        <button class="btn btn-block btn-primary" @click="cloneModule(core.name)">
+                                        <button class="btn btn-block btn-primary" @click="pullModule(core.name)">
                                             Обновить
                                         </button>
                                     </div>
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 mb-1">
-                                        <button class="btn btn-block btn-primary" @click="cloneMachine()">
+                                        <button class="btn btn-block btn-primary" @click="pullMachine()">
                                             Обновить все
                                         </button>
                                     </div>
@@ -115,7 +115,7 @@
                                     </div>
                                     <div class="row mb-2">
                                         <div class="offset-xl-8 offset-lg-8 offset-md-8 offset-sm-6 offset-0 col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12">
-                                            <button :disabled="!file" class="btn btn-success btn-block" @click="uploadModuleArchive(module_elem.name)">Обновить</button>
+                                            <button :disabled="!file" class="btn btn-success btn-block" @click="ManualUpdateModule(module_elem.name)">Обновить</button>
                                         </div>
                                     </div>
                                 </b-collapse>
@@ -169,7 +169,7 @@
                                                 </button>
                                             </div>
                                             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12 mb-1">
-                                                <button class="btn btn-block btn-primary" @click="cloneModule(module_elem.name)">
+                                                <button class="btn btn-block btn-primary" @click="pullModule(module_elem.name)">
                                                     Обновить
                                                 </button>
                                             </div>
@@ -201,7 +201,7 @@
                                             </div>
                                             <div class="row mb-2">
                                                 <div class="offset-xl-8 offset-lg-8 offset-md-8 offset-sm-6 offset-0 col-xl-4 col-lg-4 col-md-4 col-sm-6 col-12">
-                                                    <button :disabled="!file" class="btn btn-success btn-block" @click="uploadModuleArchive(module_elem.name)">Обновить</button>
+                                                    <button :disabled="!file" class="btn btn-success btn-block" @click="ManualUpdateModule(module_elem.name)">Обновить</button>
                                                 </div>
                                             </div>
                                         </b-collapse>
@@ -254,12 +254,12 @@ export default {
             loader.hide();
         },
 
-        async uploadModuleArchive(moduleName) {
+        async ManualUpdateModule(moduleName) {
             const formData = new FormData();
             formData.append('file', this.file);
             try {
                 this._loader = this.$loading.show();
-                await this.$store.state.requestService.uploadModuleArchive(formData, moduleName);
+                await this.$store.state.requestService.ManualUpdateModule(formData, moduleName);
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
@@ -274,10 +274,10 @@ export default {
         },
         // TODO may be pass index\object to not loadData(), may be add status instead of is_built, is_cloned
         //  to change color while build/clone in process
-        async cloneModule(moduleName) {
+        async pullModule(moduleName) {
             try {
                 this._loader = this.$loading.show();
-                await this.$store.state.requestService.cloneModule(moduleName);
+                await this.$store.state.requestService.pullModule(moduleName);
                 await this.loadData();
                 this.$toaster.success(`Модуль ${moduleName} успешно обновлен`);
             } catch (err) {
@@ -354,10 +354,10 @@ export default {
             this._loader.hide();
         },
 
-        async cloneMachine() {
+        async pullMachine() {
             try {
                 this._loader = this.$loading.show();
-                await this.$store.state.requestService.cloneMachine();
+                await this.$store.state.requestService.pullMachine();
                 await this.loadData();
                 this.$toaster.success(`Текущая конфигурация была успешно обновлена`);
             } catch (err) {

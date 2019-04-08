@@ -186,7 +186,7 @@ export class RequestService {
         const res = await axios.post(path);
         if (res.status === 200) {
             Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
-            return res.data.core_status;
+            return res.data.ok;
         } else {
             Logger.error(res.data.errorInfo);
             throw new ServerExceptionModel(res.data.errorInfo, res.status);
@@ -197,19 +197,7 @@ export class RequestService {
         const res = await axios.post(path);
         if (res.status === 200) {
             Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
-            return !res.data.core_status;
-        } else {
-            Logger.error(res.data.errorInfo);
-            throw new ServerExceptionModel(res.data.errorInfo, res.status);
-        }
-    }
-
-    async getCoreIsActive() {
-        const path = this._constructPath('api/core/status');
-        const res = await axios.get(path);
-        if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
-            return res.data.core_status;
+            return !res.data.ok;
         } else {
             Logger.error(res.data.errorInfo);
             throw new ServerExceptionModel(res.data.errorInfo, res.status);
@@ -508,8 +496,8 @@ export class RequestService {
         }
     }
 
-    async uploadModuleArchive(formData, moduleName) {
-        const path = this._constructPath(`api/update_module/${moduleName}`);
+    async ManualUpdateModule(formData, moduleName) {
+        const path = this._constructPath(`api/manual_module_update/${moduleName}`);
 
         Logger.debug('POST request: upload file');
         Logger.debug(`Path: ${path}`);
@@ -524,8 +512,8 @@ export class RequestService {
         }
     }
 
-    async cloneModule(moduleName) {
-        const path = this._constructPath(`api/clone_module/${moduleName}`);
+    async pullModule(moduleName) {
+        const path = this._constructPath(`api/pull_module/${moduleName}`);
         const result = await axios.get(path);
         if (result.status === 200) {
             Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
@@ -557,8 +545,8 @@ export class RequestService {
         }
     }
 
-    async cloneMachine() {
-        const path = this._constructPath(`api/clone_machine`);
+    async pullMachine() {
+        const path = this._constructPath(`api/pull_machine`);
         const result = await axios.post(path);
         if (result.status === 200) {
             Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);

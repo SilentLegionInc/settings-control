@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 import subprocess
 from time import sleep
 from packaging import version
+from support.helper import cmd
 from support.singleton import Singleton
 from support.server_exception import ServerException
 from configuration.settings_service import SettingsService
@@ -15,11 +16,6 @@ import re
 
 
 # send a command to the shell and return the result
-def cmd(command):
-    return subprocess.Popen(
-        command, shell=True,
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-    ).stdout.read().decode()
 
 
 # abstracts class of Wifi configurator

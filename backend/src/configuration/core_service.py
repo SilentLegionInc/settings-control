@@ -1,5 +1,7 @@
+from support.server_exception import ServerException
 from support.singleton import Singleton
 from support.logger import Logger
+from main import status
 from enum import Enum
 from subprocess import Popen
 from subprocess import check_output
@@ -55,16 +57,16 @@ class CoreService(metaclass=Singleton):
             run_file_name = SettingsService().current_machine_config['core']['executable_name']
             run_file_path = os.path.expanduser(os.path.join(self.build_path, run_file_name))
             self.main_proc = Popen(run_file_path, stdout=exec_output, stderr=exec_output)
-            return {'code': 0}
+            return True
         else:
             Logger().error_message('Core is already running. You can\'t run more than one per time.')
-            return {'code': 1}
+            raise ServerException('Нельзя запустить ядро, когда оно уже запущено', status.HTTP_400_BAD_REQUEST)
 
     def stop_core(self):
         if self.core_is_active():
             # if it will not die. Use kill()
             self.main_proc.terminate()
-        return {'code': 0}
+        return True
 
     def core_is_active(self):
         return bool(self.main_proc and self.main_proc.poll() is None)
@@ -100,13 +102,18 @@ class CoreService(metaclass=Singleton):
             self.compile_status = ProcessStatus.ERROR
 
     def compile_core_sync(self):
+        # if self.core_is_active():
+        #     Logger().error_message('Can\'t compile core while it\'s running.')
+        #     raise ServerException('Невозможно собрать ядро когда оно запущено', status.HTTP_406_NOT_ACCEPTABLE)
+
         self._compile_core()
         return self.compile_status, self.compile_output
 
     def compile_core(self):
-        if self.core_is_active():
-            Logger().error_message('Can\'t compile core while it\'s running.')
-            return {'code': 1}
+        # if self.core_is_active():
+        #     Logger().error_message('Can\'t compile core while it\'s running.')
+        #     raise ServerException('Невозможно собрать ядро когда оно запущено', status.HTTP_406_NOT_ACCEPTABLE)
+
         self.compile_thread = Thread(name='compile_core', target=self._compile_core)
         self.compile_thread.start()
 
