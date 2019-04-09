@@ -8,7 +8,7 @@ from support.helper import allowed_file_extension
 from support.logger import Logger
 from configuration.settings_service import SettingsService
 from flask_login import login_user, login_required, logout_user, current_user
-from flask import request, redirect, url_for, render_template, g, session
+from flask import request, redirect, url_for, render_template, session
 from werkzeug.urls import url_parse
 from support.forms import LoginForm
 from support.models import User
@@ -73,8 +73,7 @@ def index():
 def set_is_auth():
     # TODO refactored to g?
     return dict(is_auth=session.get('is_logged', False),
-                user_timestamp=session.get('timestamp', None),
-                g_is_auth=g.is_logged)
+                user_timestamp=session.get('timestamp', None))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -97,8 +96,6 @@ def login():
         next_page = request.args.get('next')
         session['is_logged'] = True
         session['timestamp'] = datetime.datetime.utcnow()
-        g.is_logged = True
-        Logger().debug_message('set login to {}'.format(getattr(g, '_is_login', False)))
 
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
@@ -111,7 +108,6 @@ def login():
 def logout():
     logout_user()
     session['is_logged'] = False
-    g.is_logged = False
     return redirect(url_for('index'))
 
 
