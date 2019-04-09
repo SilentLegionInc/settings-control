@@ -1,3 +1,68 @@
 {% extends 'base.html' %}
 {% block content %}
+    <h3 align="center" class="mb-3">Настройки сервера</h3>
+    <div class="row mt-3">
+        <div class="col-xs-12 col-sm-12 col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1">
+            <div class="container-fluid">
+                <form action="/server_config" method="post">
+                    <div class="row mb-2">
+                        <label class="col-lg-3 col-md-3 col-form-label" for="sourcesPath">Путь до папки исходников:</label>
+                        <div class="col-lg-9 col-md-9 col-xs-12">
+                            <input class="form-control" type="text" id="sourcesPath" value="{{ settings_dict.sources_path }}"/>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <label class="col-lg-3 col-md-3 col-form-label" for="buildsPath">Путь до папки сборки:</label>
+                        <div class="col-lg-9 col-md-9 col-xs-12">
+                            <input class="form-control" type="text" id="buildsPath" value="{{ settings_dict.builds_path }}"/>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <label class="col-lg-3 col-md-3 col-form-label" for="uploadPath">Путь до папки загрузки:</label>
+                        <div class="col-lg-9 col-md-9 col-xs-12">
+                            <input class="form-control" type="text" id="uploadPath" value="{{ settings_dict.upload_path }}"/>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <label class="col-lg-3 col-md-3 col-form-label" for="qmakePath">Путь до qmake:</label>
+                        <div class="col-lg-9 col-md-9 col-xs-12">
+                            <input class="form-control" type="text" id="qmakePath" value="{{ settings_dict.qmake_path }}"/>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <label class="col-lg-3 col-md-3 col-form-label" for="sshName">Имя файла ssh ключа:</label>
+                        <div class="col-lg-9 col-md-9 col-xs-12">
+                            <input class="form-control" type="text" id="sshName" value="{{ settings_dict.ssh_key_name }}"/>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <label class="col-lg-3 col-md-3 col-form-label" for="repositoriesPlatform">Платформа git:</label>
+                        <div class="col-lg-9 col-md-9 col-xs-12">
+                            <input class="form-control" type="text" id="repositoriesPlatform" value="{{ settings_dict.repositories_platform }}"/>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <label class="col-lg-3 col-md-3 col-form-label" for="machineType">Тип машинки:</label>
+                        <div class="col-lg-9 col-md-9 col-xs-12">
+        {#                    <b-form-select id="machineType" :options="data.possibleMachinesTypes">#}
+        {#                    </b-form-select>#}
+                        </div>
+
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-lg-3 col-lg-offset-6 col-md-offset-6 col-md-3 col-sm-6 col-xs-offset-0 col-xs-12 mb-1">
+                            <button type="reset" class="btn btn-danger btn-block">
+                                Сбросить
+                            </button>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                            <button type="submit" class="btn btn-success btn-block">
+                                Обновить
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock %}

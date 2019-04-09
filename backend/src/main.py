@@ -227,3 +227,29 @@ def manual_update_module(module_name):
         return redirect(url_for('modules'))
     else:
         raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.route('/server_config', methods=['GET'])
+@handle_errors
+@login_required
+def server_config():
+    import copy
+    server_config_obj = copy.copy(SettingsService().server_config)
+    del server_config_obj['need_to_auth']
+    del server_config_obj['password']
+    server_config_obj['possible_machines_types'] = list(SettingsService().machines_configs.keys())
+    return render_template('server_settings.html', settings_dict=server_config_obj)
+
+
+@app.route('/server_config', methods=['POST'])
+@handle_errors
+@login_required
+def update_server_config():
+    new_server_config = request.get_json()
+    machine_type = new_server_config.get('type')
+    if machine_type:
+        if machine_type not in SettingsService().machines_configs.keys():
+            raise ServerException('Недопустимый тип робота {}'.format(machine_type), status.HTTP_400_BAD_REQUEST)
+    SettingsService().server_config.update(new_server_config)
+    SettingsService().save_server_config()
+    return redirect(url_for('server_config'))
