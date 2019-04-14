@@ -13,8 +13,7 @@ exclude README*
 include requirements*.*
 exclude requirements-dev.*
 recursive-include toolbelt/ *.py
-recursive-include toolbelt/monitoring/monitoring_config.json
-include toolbelt/config.conf
+include config.conf
 
 prune .git
 prune venv
