@@ -1,5 +1,5 @@
 from toolbelt.support.singleton import Singleton
-from toolbelt.configuration.settings_service import SettingsService
+from toolbelt.support.settings_service import SettingsService
 from flask import flash
 import base64
 from flask_api import status

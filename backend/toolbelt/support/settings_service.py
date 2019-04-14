@@ -35,6 +35,18 @@ class SettingsService(metaclass=Singleton):
     def libraries(self):
         return self._server_config.get('libraries', {})
 
+    def get_monitoring_robots_list(self):
+        return list(self._server_config.get('monitoring_config', {}).keys())
+
+    def get_monitoring_logs_data_config(self, robot_name):
+        return self._server_config.get('monitoring_config', {}).get(robot_name, {}).get("logs_data")
+
+    def get_monitoring_sensors_data_config(self, robot_name):
+        return self._server_config.get('monitoring_config', {}).get(robot_name, {}).get("sensors_data")
+
+    def get_monitoring_full_config(self, robot_name):
+        return self._server_config.get('monitoring_config', {}).get(robot_name, None)
+
     def get_core_config(self, reload_from_disk=False):
         if reload_from_disk:
             if not self.load_core_config():

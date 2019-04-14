@@ -10,7 +10,7 @@ from subprocess import Popen
 from subprocess import check_output
 from subprocess import DEVNULL
 from threading import Thread
-from toolbelt.configuration.settings_service import SettingsService
+from toolbelt.support.settings_service import SettingsService
 from git import Repo
 from multiprocessing import Process
 import os

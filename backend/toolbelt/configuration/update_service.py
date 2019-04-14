@@ -4,7 +4,7 @@ from cryptography.hazmat.backends import default_backend as crypto_default_backe
 from toolbelt.support.singleton import Singleton
 from toolbelt.configuration.core_service import ProcessStatus
 from multiprocessing import Process
-from toolbelt.configuration.settings_service import SettingsService
+from toolbelt.support.settings_service import SettingsService
 from git import Repo
 from subprocess import check_output
 import os

@@ -16,7 +16,7 @@ from toolbelt.configuration.authoriztaion_service import AuthorizationService
 from toolbelt.api_routes import api_blueprint as api_endpoints
 from toolbelt.support.helper import allowed_file_extension
 from toolbelt.support.logger import Logger
-from toolbelt.configuration.settings_service import SettingsService
+from toolbelt.support.settings_service import SettingsService
 from toolbelt.configuration.modules_service import ModulesService
 from toolbelt.support.forms import LoginForm
 from toolbelt.support.models import User
@@ -94,7 +94,7 @@ def login():
             return redirect(url_for('index'))
 
         # if we here then out credentials is valid
-        login_user(User(), remember=form.remember_me.data)
+        login_user(User())
         next_page = request.args.get('next')
         session['is_logged'] = True
         session['timestamp'] = datetime.datetime.utcnow()
@@ -110,7 +110,7 @@ def login():
 def logout():
     logout_user()
     session['is_logged'] = False
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 
 @app.route('/config', methods=['GET', 'POST'])
@@ -127,6 +127,12 @@ def config():
         else:
             Logger().info_message('Error')
         return render_template('config.html', config=SettingsService().get_core_config(reload_from_disk=True))
+
+
+@app.route('/networks', methods=['GET'])
+@login_required
+def networks():
+    return render_template('networks.html')
 
 
 @app.route('/modules', methods=['GET'])
