@@ -48,8 +48,8 @@ setup(
         'tox==3.5.3',
         'virtualenv==16.1.0',
         'visitor==0.1.3',
+        'waitress==1.2.1',
         'Werkzeug==0.14.1',
-        'wifi==0.3.8',
-        'WTForms==2.2.1'
+        'WTForms==2.2.1',
     ]
 )
