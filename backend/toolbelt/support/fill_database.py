@@ -5,7 +5,7 @@ import sqlite3
 
 from dateutil import parser
 
-from toolbelt.monitoring.monitoring_config_service import MonitoringConfigService
+from toolbelt.support.settings_service import SettingsService
 from toolbelt.monitoring.monitoring_data_service import ValueTypes
 from toolbelt.support.logger import Logger
 
@@ -22,8 +22,8 @@ base_string_value = 'sousage'
 base_time_value = '2018-11-15T12:00:00'
 records_count = 5000
 
-monitoring_config_path = os.path.join(os.getcwd(), '../monitoring/monitoring_config.json')
-sensors_config = MonitoringConfigService(monitoring_config_path).get_sensors_data_config(robot_name)
+monitoring_config_path = os.path.join(os.getcwd(), '../../../config.conf')
+sensors_config = SettingsService(monitoring_config_path).get_monitoring_sensors_data_config(robot_name)
 for key, table_config in sensors_config.items():
     id_column_name = table_config['id_column']
     time_column_name = table_config['time_column']

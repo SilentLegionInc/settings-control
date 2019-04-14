@@ -3,7 +3,7 @@ from enum import Enum
 import toolbelt.support.helper as helper
 from toolbelt.support.singleton import Singleton
 from toolbelt.support.logger import Logger
-from toolbelt.monitoring.monitoring_config_service import MonitoringConfigService
+from toolbelt.support.settings_service import SettingsService
 import copy
 import sqlite3
 import datetime
@@ -21,7 +21,7 @@ class MonitoringDataService(metaclass=Singleton):
 
     def __init__(self):
         self.connections = {}
-        robot_names = MonitoringConfigService().get_robots_list()
+        robot_names = SettingsService().get_monitoring_robots_list()
 
         try:
             for robot_name in robot_names:
@@ -30,12 +30,12 @@ class MonitoringDataService(metaclass=Singleton):
                     'sensors': {}
                 }
 
-                logs_db_file_path = MonitoringConfigService().get_logs_data_config(robot_name)['file_path']
-                logs_collection_name = MonitoringConfigService().get_logs_data_config(robot_name)['collection_name']
+                logs_db_file_path = SettingsService().get_monitoring_logs_data_config(robot_name)['file_path']
+                logs_collection_name = SettingsService().get_monitoring_logs_data_config(robot_name)['collection_name']
                 self.connections[robot_name]['logs']['file_path'] = logs_db_file_path
                 self.connections[robot_name]['logs']['collection_name'] = logs_collection_name
 
-                sensors_dbs = MonitoringConfigService().get_sensors_data_config(robot_name)
+                sensors_dbs = SettingsService().get_monitoring_sensors_data_config(robot_name)
                 for key, value in sensors_dbs.items():
                     sensors_db_file_path = value['file_path']
                     sensors_collection_name = value['collection_name']
@@ -48,7 +48,7 @@ class MonitoringDataService(metaclass=Singleton):
     @staticmethod
     def get_data_structure(robot_name, db_name):
         try:
-            structure = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
+            structure = SettingsService().get_monitoring_sensors_data_config(robot_name)[db_name]
             fields_descr = structure['fields_to_retrieve']
             result = []
             for field_key, field_value in fields_descr.items():
@@ -64,7 +64,7 @@ class MonitoringDataService(metaclass=Singleton):
     @staticmethod
     def get_databases_info(robot_name):
         try:
-            sensors_dbs = MonitoringConfigService().get_sensors_data_config(robot_name)
+            sensors_dbs = SettingsService().get_monitoring_sensors_data_config(robot_name)
             result = {}
             for db_key, db_value in sensors_dbs.items():
                 result[db_key] = {
@@ -93,7 +93,7 @@ class MonitoringDataService(metaclass=Singleton):
         collection_name = self.connections[robot_name]['sensors'][db_name]['collection_name']
 
         try:
-            sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
+            sensors_config = SettingsService().get_monitoring_sensors_data_config(robot_name)[db_name]
             needed_column_name = sensors_config['fields_to_retrieve'][field_name]["column_name"]
             id_column_name = sensors_config['id_column']
             time_column_name = sensors_config['time_column']
@@ -178,7 +178,7 @@ class MonitoringDataService(metaclass=Singleton):
         collection_name = self.connections[robot_name]['sensors'][db_name]['collection_name']
 
         try:
-            sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
+            sensors_config = SettingsService().get_monitoring_sensors_data_config(robot_name)[db_name]
             needed_column_name = sensors_config['fields_to_retrieve'][field_name]["column_name"]
             id_column_name = sensors_config['id_column']
             time_column_name = sensors_config['time_column']
@@ -268,7 +268,7 @@ class MonitoringDataService(metaclass=Singleton):
         collection_name = self.connections[robot_name]['sensors'][db_name]['collection_name']
 
         try:
-            sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
+            sensors_config = SettingsService().get_monitoring_sensors_data_config(robot_name)[db_name]
             needed_column_name = sensors_config['fields_to_retrieve'][field_name]["column_name"]
             id_column_name = sensors_config['id_column']
             time_column_name = sensors_config['time_column']
@@ -439,7 +439,7 @@ class MonitoringDataService(metaclass=Singleton):
         collection_name = self.connections[robot_name]['sensors'][db_name]['collection_name']
 
         try:
-            sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
+            sensors_config = SettingsService().get_monitoring_sensors_data_config(robot_name)[db_name]
             latitude_column_name = sensors_config['latitude_field']
             longitude_column_name = sensors_config['longitude_field']
             time_column_name = sensors_config['time_column']
@@ -519,7 +519,7 @@ class MonitoringDataService(metaclass=Singleton):
             raise ServerException('Error while preparing and executing query', status.HTTP_500_INTERNAL_SERVER_ERROR, ex)
 
     def get_numeric_fields(self, robot_name, db_name):
-        sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
+        sensors_config = SettingsService().get_monitoring_sensors_data_config(robot_name)[db_name]
         numeric_fields = list(filter(lambda elem: elem[1]['type'] == 'number', sensors_config['fields_to_retrieve'].items()))
         return list(map(lambda elem: {'name': elem[1]['name'], 'system_name': elem[0]}, numeric_fields))
 
@@ -552,7 +552,7 @@ class MonitoringDataService(metaclass=Singleton):
         collection_name = self.connections[robot_name]['sensors'][db_name]['collection_name']
 
         try:
-            sensors_config = MonitoringConfigService().get_sensors_data_config(robot_name)[db_name]
+            sensors_config = SettingsService().get_monitoring_sensors_data_config(robot_name)[db_name]
             time_column_name = sensors_config['time_column']
             latitude_column_name = sensors_config['latitude_field']
             longitude_column_name = sensors_config['longitude_field']

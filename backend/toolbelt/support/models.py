@@ -1,4 +1,4 @@
-from toolbelt.configuration.settings_service import SettingsService
+from toolbelt.support.settings_service import SettingsService
 
 
 # mocked user model

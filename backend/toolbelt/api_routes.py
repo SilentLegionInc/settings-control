@@ -12,7 +12,7 @@ from toolbelt.configuration.authoriztaion_service import AuthorizationService
 from toolbelt.configuration.modules_service import ModulesService
 from toolbelt.support.helper import allowed_file_extension
 from toolbelt.support.logger import Logger
-from toolbelt.configuration.settings_service import SettingsService
+from toolbelt.support.settings_service import SettingsService
 from toolbelt.support.server_exception import ServerException
 from toolbelt.support.mapper import Mapper
 from toolbelt.configuration.network_service import NetworkService

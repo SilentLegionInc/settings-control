@@ -4,7 +4,7 @@ from packaging import version
 from toolbelt.support.helper import cmd
 from toolbelt.support.singleton import Singleton
 from toolbelt.support.server_exception import ServerException
-from toolbelt.configuration.settings_service import SettingsService
+from toolbelt.support.settings_service import SettingsService
 from flask_api import status
 import atexit
 import json

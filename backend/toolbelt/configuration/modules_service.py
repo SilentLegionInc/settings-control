@@ -4,7 +4,7 @@ import zipfile
 from collections import OrderedDict
 
 from toolbelt.configuration.core_service import CoreService, ProcessStatus
-from toolbelt.configuration.settings_service import SettingsService
+from toolbelt.support.settings_service import SettingsService
 from toolbelt.configuration.update_service import UpdateService
 from flask_api import status
 from flask import current_app as app
