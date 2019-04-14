@@ -15,7 +15,7 @@ from toolbelt.support.logger import Logger
 from toolbelt.support.settings_service import SettingsService
 from toolbelt.support.server_exception import ServerException
 from toolbelt.support.mapper import Mapper
-from toolbelt.configuration.wireless import NetworkService
+from toolbelt.configuration.network_service import NetworkService
 from toolbelt.monitoring.system_monitoring_service import SystemMonitoringService
 from toolbelt.monitoring.monitoring_data_service import MonitoringDataService
 
