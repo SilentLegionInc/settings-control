@@ -1,5 +1,4 @@
 from abc import ABCMeta, abstractmethod
-import subprocess
 from time import sleep
 from packaging import version
 from toolbelt.support.helper import cmd
@@ -11,11 +10,6 @@ import atexit
 import json
 import os
 import re
-# set static ip:  nmcli con modify wireless_clone ipv4.addresses 192.168.1.100/24 ipv4.method manual
-# ipv4.gateway 192.168.1.1 ipv4.dns 8.8.4.4 && nmcli con down wireless_clone && nmcli con up wireless_clone
-
-
-# send a command to the shell and return the result
 
 
 # abstracts class of Wifi configurator
@@ -521,22 +515,3 @@ class Nmcli0990(NetworkDriver):
             else:
                 return False
 
-
-if __name__ == '__main__':
-    test_connection_uuid = 'e6d4847b-ce3f-466b-9cd5-bd3f31d94891'
-    params = {
-        'ipv4.addresses': '192.168.1.100/24',
-        'ipv4.method': 'manual',
-        'ipv4.gateway': '192.168.1.1',
-        'ipv4.dns': '8.8.4.4'
-    }
-    print(NetworkService().list_of_connections())
-    # print('Changed connection static params result: {}'.format(NetworkService().modify_connection_params(test_connection_uuid, params)))
-    # params = {
-    #     'ipv4.method': 'auto'
-    # }
-    # print('Changed connection dynamic params result: {}'.format(NetworkService().modify_connection_params(test_connection_uuid, params)))
-    # print('Changed connection empty params result: {}'.format(NetworkService().modify_connection_params(test_connection_uuid, {})))
-    # NetworkService().delete_connection('370a8d53-a80c-42e1-b82c-63ded0db8581')
-    # NetworkService().create_wifi_connection('Silencium', 'KeepSilence')
-    # NetworkService().create_wifi_connection('Silencium', 'KeepSilence')
