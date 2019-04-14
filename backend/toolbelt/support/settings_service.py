@@ -7,7 +7,7 @@ import os
 
 
 class SettingsService(metaclass=Singleton):
-    def __init__(self, server_config_path=os.getcwd() + '/config.conf'):
+    def __init__(self, server_config_path=os.path.join(os.getcwd(), 'config.conf')):
         self._server_config_path = server_config_path
         self._server_config = {}  # server it is me
         self._core_config = {}  # core is c++ core

@@ -19,10 +19,10 @@ robot_name = 'AMTS'
 table_names_prefix = ''
 base_number_value = 245.6
 base_string_value = 'sousage'
-base_time_value = '2018-11-15T12:00:00'
+base_time_value = '2019-04-10T12:00:00'
 records_count = 5000
 
-monitoring_config_path = os.path.join(os.getcwd(), '../../../config.conf')
+monitoring_config_path = os.path.join(os.getcwd(), 'config.conf')
 sensors_config = SettingsService(monitoring_config_path).get_monitoring_sensors_data_config(robot_name)
 for key, table_config in sensors_config.items():
     id_column_name = table_config['id_column']
