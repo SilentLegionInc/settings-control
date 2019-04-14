@@ -1,0 +1,24 @@
+graft wheelhouse
+
+recursive-exclude pycache  *.pyc *.pyo *.orig
+
+exclude *.js*
+exclude *.git*
+exclude *.coveragerc
+exclude *.sh
+exclude proc*
+exclude pylint*
+exclude README*
+
+include requirements*.*
+exclude requirements-dev.*
+recursive-include toolbelt/ *.py
+recursive-include toolbelt/monitoring/monitoring_config.json
+include toolbelt/config.conf
+
+prune .git
+prune venv
+prune test*
+
+recursive-include toolbelt/templates *
+recursive-include toolbelt/static *
