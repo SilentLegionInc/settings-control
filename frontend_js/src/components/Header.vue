@@ -10,7 +10,7 @@
             </ul>
 
             <div class="navbar-brand">
-                Settings tool
+                ToolBelt
             </div>
 
             <ul class="navbar-nav ml-auto">
