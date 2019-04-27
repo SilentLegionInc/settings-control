@@ -359,7 +359,7 @@ def api_update_ssh():
     file_name = secure_filename(file.filename)
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
     file.save(file_path)
-    if ModulesService().update_ssh_key:
+    if ModulesService().update_ssh_key(file_path):
         return jsonify({'ok': True}), status.HTTP_200_OK
     else:
         raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)

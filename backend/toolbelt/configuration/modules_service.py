@@ -3,6 +3,7 @@ import shutil
 import zipfile
 from collections import OrderedDict
 
+from toolbelt.support.logger import Logger
 from toolbelt.configuration.core_service import CoreService, ProcessStatus
 from toolbelt.support.settings_service import SettingsService
 from toolbelt.configuration.update_service import UpdateService
@@ -172,15 +173,15 @@ class ModulesService(metaclass=Singleton):
         zip_archive = zipfile.ZipFile(file_path, 'r')
         zip_archive.extractall(app.config['UPLOAD_FOLDER'])
         zip_archive.close()
-        # TODO check, may be a problem with root user
+        file_path = file_path.replace('.zip', '')
         ssh_path = os.path.expanduser('~/.ssh')
-        # TODO need to remove ssh folder?
-        cmd('cp -Rf {}/* {}'.format(file_path, ssh_path))
+        if os.path.exists(ssh_path):
+            cmd('sudo rm -rf {}'.format(ssh_path))
+        os.makedirs(ssh_path)
+        cmd('sudo mv -f {}/*.pub {}/id_rsa.pub'.format(file_path, ssh_path))
+        cmd('sudo mv -f {}/* {}/id_rsa'.format(file_path, ssh_path))
         hosts_file_name = os.path.join(ssh_path, 'known_hosts')
-        if os.path.isfile(hosts_file_name):
-            os.remove(hosts_file_name)
-        os.system('ssh-keyscan {} >> {}'
-                  .format(self._settings_service.server_config['repositories_platform'], hosts_file_name))
+        cmd('ssh-keyscan {} >> {}'.format(self._settings_service.server_config['repositories_platform'], hosts_file_name))
         return True
 
     def run_core(self):

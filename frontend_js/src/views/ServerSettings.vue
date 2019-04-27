@@ -32,6 +32,8 @@
                                     accept=".zip"
                                     drop-placeholder="Перетащите архив сюда"
                                 />
+                                <p class="card-text" style="font-size: 0.75rem; color: rgba(16,8,13,0.54)">Передайте файл ssh.zip, внутри которого будет папка ssh, содержащая ssh-ключи.
+                                    Все имеющиеся на удаленной машине ключи будут удалены</p>
                             </div>
                         </div>
                         <div class="row mb-2">
