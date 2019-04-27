@@ -34,7 +34,7 @@ export default {
     },
     computed: {
         robotName() {
-            return this.$store.state.robotName ? this.$store.state.robotName : 'KEK';
+            return this.$store.state.robotLabel ? this.$store.state.robotLabel : 'UNK';
         }
     },
     async mounted() {

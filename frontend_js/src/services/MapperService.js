@@ -30,7 +30,8 @@ export class MapperService {
     static mapServerInfoResponse(responseBody) {
         return {
             ok: responseBody['ok'],
-            robotType: responseBody['robot_type']
+            robotType: responseBody['robot_type'],
+            robotName: responseBody['robot_name']
         }
     }
 

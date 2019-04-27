@@ -1,6 +1,6 @@
 <template>
     <div class="container-fluid">
-        <h2 class="mb-3" align="center">Список модулей {{$store.state.robotName}}</h2>
+        <h2 class="mb-3" align="center">Список модулей {{$store.state.robotLabel}}</h2>
         <div role="tablist">
             <div class="row" style="margin: auto">
                 <div class="col-xl-8 offset-xl-2 offset-lg-1 col-lg-10 offset-md-0 col-md-12 offset-0 col-12">

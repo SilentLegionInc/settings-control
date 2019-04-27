@@ -190,6 +190,8 @@ export default {
             this.$router.push(`/table_statistics?dbName=${this.databaseName}&latitude=${latitude}&longitude=${longitude}`);
         },
         placemarkClicked(event, markerIndex) {
+            this.centerLatitude = this.elements[markerIndex].latitude;
+            this.centerLongitude = this.elements[markerIndex].longitude;
             this.selectedIndex = markerIndex;
         },
         getBalloon(latitude, longitude, count) {
