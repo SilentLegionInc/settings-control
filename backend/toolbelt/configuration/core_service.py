@@ -1,4 +1,5 @@
 import glob
+import shutil
 
 from dateutil import tz
 from toolbelt.support.server_exception import ServerException
@@ -30,8 +31,6 @@ class CoreService(metaclass=Singleton):
         # We need this to handle when config changed
         repo_name = SettingsService().current_machine_config['core']['repo_name']
         self.build_path = os.path.expanduser(os.path.join(SettingsService().server_config['builds_path'], repo_name))
-        if not os.path.exists(self.build_path):
-            os.makedirs(self.build_path)
         self.qmake_path = os.path.expanduser(SettingsService().server_config['qmake_path'])
         self.sources_path = os.path.join(
             os.path.expanduser(SettingsService().server_config['sources_path']), repo_name)
@@ -40,8 +39,6 @@ class CoreService(metaclass=Singleton):
     def __init__(self):
         repo_name = SettingsService().current_machine_config['core']['repo_name']
         self.build_path = os.path.expanduser(os.path.join(SettingsService().server_config['builds_path'], repo_name))
-        if not os.path.exists(self.build_path):
-            os.makedirs(self.build_path)
         self.qmake_path = os.path.expanduser(SettingsService().server_config['qmake_path'])
         self.sources_path = os.path.join(
             os.path.expanduser(SettingsService().server_config['sources_path']), repo_name)
@@ -100,6 +97,8 @@ class CoreService(metaclass=Singleton):
         self.compile_status = None
         self.compile_output = None
         try:
+            shutil.rmtree(self.build_path, ignore_errors=True)
+            os.makedirs(self.build_path)
             self.compile_output = check_output('{} {} -o {}'.format(self.qmake_path,
                                                                     os.path.join(self.sources_path, '*.pro'),
                                                                     self.build_path), shell=True).decode('ascii')
@@ -111,6 +110,7 @@ class CoreService(metaclass=Singleton):
                 'ascii')
         except Exception as e:
             self.compile_status = ProcessStatus.ERROR
+            Logger().error_message('Exception while core building: {}'.format(e))
             return self.compile_status, self.compile_output
 
         regex = re.compile('(error)+', re.IGNORECASE)

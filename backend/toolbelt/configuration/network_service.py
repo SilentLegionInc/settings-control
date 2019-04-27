@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from time import sleep
 from packaging import version
+from toolbelt.support.logger import Logger
 from toolbelt.support.helper import cmd
 from toolbelt.support.singleton import Singleton
 from toolbelt.support.server_exception import ServerException
@@ -453,10 +454,13 @@ class Nmcli0990(NetworkDriver):
             return True
 
     def list_of_connections(self, rescan_wifi=True):
+        # TODO move to get_wifi_list
         if rescan_wifi and self.interface_wifi() is not None:
+            Logger().debug_message('Lauching rescan for inteface {}'.format(self.interface_wifi()))
             res = ''
             while 'immediately' not in res:
                 res = cmd('nmcli dev wifi rescan')
+                Logger().debug_message('Result of rescan command: {}'.format(res))
                 sleep(0.5)
             sleep(1)
 
@@ -468,7 +472,7 @@ class Nmcli0990(NetworkDriver):
 
     def interfaces_wifi(self):
         # grab list of interfaces
-        response = cmd('nmcli -t dev | grep wifi')
+        response = cmd('nmcli -t -f DEVICE,TYPE,STATE dev | grep wifi')
 
         # parse response
         interfaces = []
@@ -481,7 +485,7 @@ class Nmcli0990(NetworkDriver):
 
     def interfaces_eth(self):
         # grab list of interfaces
-        response = cmd('nmcli -t dev | grep ethernet')
+        response = cmd('nmcli -t -f DEVICE,TYPE,STATE dev | grep ethernet | grep connected')
 
         # parse response
         interfaces = []

@@ -13,12 +13,15 @@ class LogLevel(Enum):
 
 class Logger(metaclass=Singleton):
     def __init__(self, log_level=LogLevel.DEBUG.value):
-        logging.basicConfig(level=log_level, format='%(asctime)s %(processName)s: %(levelname)s: %(message)s')
+        self.log_level = log_level
+        logging.basicConfig(level=self.log_level, format='%(asctime)s %(processName)s: %(levelname)s: %(message)s')
         self.logger = logging.getLogger('settings-tool')
+        self.logger.setLevel(self.log_level)
 
     def add_log_handler(self, handler):
         fmt = logging.Formatter('%(asctime)s %(processName)s: %(name)s %(levelname)s: %(message)s', None, "%")
         handler.setFormatter(fmt)
+        
         self.logger.addHandler(handler)
 
     def critical_message(self, message, prefix=''):

@@ -44,7 +44,6 @@ login.login_view = 'login'
 # registering api endpoints
 app.register_blueprint(api_endpoints, url_prefix='/api')
 
-
 def handle_errors(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
