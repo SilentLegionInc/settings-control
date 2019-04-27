@@ -15,8 +15,11 @@
         <template slot="modal-footer">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="offset-0 offset-sm-6 offset-md-8 offset-lg-9 offset-xl-10 col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
-                        <button type="button" class="btn btn-primary btn-block" @click="hideModal()">Ок</button>
+                    <div class="offset-0 offset-sm-0 offset-md-4 offset-lg-6 offset-xl-8 col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2 mb-1">
+                        <button type="button" class="btn btn-danger btn-block" @click="hideModal()">Отмена</button>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">
+                        <button type="button" class="btn btn-success btn-block" @click="onOk()">Принять</button>
                     </div>
                 </div>
             </div>

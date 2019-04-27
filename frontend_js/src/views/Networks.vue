@@ -169,6 +169,13 @@
                 </div>
             </div>
         </div>
+        <div v-else>
+            <div class="row"  style="margin: auto">
+                <div class="col-xl-8 offset-xl-2 offset-0 col-12">
+                    Нет доступных беспроводных сетей или не подключен адаптер
+                </div>
+            </div>
+        </div>
         <divider text="Проводные соединения"></divider>
         <div v-if="wiredNetworks.length > 0" role="tablist">
             <div v-for="(wiredNetwork, index) of wiredNetworks" v-bind:key="index">
@@ -292,6 +299,13 @@
                             </b-collapse>
                         </b-card>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div v-else>
+            <div class="row"  style="margin: auto">
+                <div class="col-xl-8 offset-xl-2 offset-0 col-12">
+                    Нет доступных проводных сетей или не подключен адаптер
                 </div>
             </div>
         </div>
@@ -433,6 +447,7 @@ export default {
         },
 
         changeNetworkConfirmation(network) {
+            // TODO add timeout to change network then redirect to login
             this.tempNetwork = network;
             this.$refs.change_network_modal.showModal();
         },

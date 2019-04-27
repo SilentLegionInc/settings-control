@@ -187,14 +187,14 @@ class Nmcli0990(NetworkDriver):
         self.interface_eth(interface_eth)
         self.ssid_to_uuid = {}
         self._load_connection_map()
-        print(self.ssid_to_uuid)
+        Logger().debug_message(self.ssid_to_uuid)
         self._detail_connection_params = detail_connection_params
         # register destructor method
         # TODO doesn't work
         atexit.register(self._save_connection_map)
 
     def _save_connection_map(self):
-        print('saving connections map')
+        Logger().info_message('saving connections map')
         with open('settings_tool_backend_connection_map', 'w') as f:
             f.write(json.dumps(self.ssid_to_uuid))
         return True
@@ -246,10 +246,11 @@ class Nmcli0990(NetworkDriver):
         response = cmd('nmcli -t -f NAME,UUID,AUTOCONNECT,TYPE con show | grep {} | grep -w {}'
                        .format(connection_type, search_str))
         if self._error_in_response(response):
-            print('Error in get detailed info {}'.format(response))
+            Logger().error_message('Error in get detailed info {}'.format(response))
             return result
 
         if response:
+            Logger().debug_message('detail {} ({}): {}'.format(search_str, connection_type, response))
             splitted = response.split(':')
             result['id'] = splitted[1]
             result['autoconnect'] = splitted[2] == 'yes'
@@ -257,7 +258,7 @@ class Nmcli0990(NetworkDriver):
                 fields = ','.join(self._detail_connection_params)
                 detail_response = cmd('nmcli -t -f {} con show {}'.format(fields, result['id']))
                 if self._error_in_response(detail_response):
-                    print('Cant find detail fields {} of connection {}. Response: {}'.format(fields, result['id'], detail_response))
+                    Logger().error_message('Cant find detail fields {} of connection {}. Response: {}'.format(fields, result['id'], detail_response))
                     return result
                 params_fields = detail_response.splitlines()
                 result['params'] = {}
@@ -268,13 +269,18 @@ class Nmcli0990(NetworkDriver):
                     result['params'][field_key] = field_value
 
         else:
-            print('Cant find connection by {}'.format(search_str))
+            Logger().error_message('Cant find connection by {}'.format(search_str))
             return result
         return result
 
-    def _get_wifi_list(self):
+    def _get_wifi_list(self, need_to_rescan):
         if self.interface_wifi() is None:
             return []
+
+        if need_to_rescan:
+            Logger().debug_message('Launching rescan for interface {}'.format(self.interface_wifi()))
+            cmd('nmcli dev wifi rescan')
+
         response = cmd('nmcli -t -f SSID,MODE,CHAN,FREQ,RATE,SIGNAL,SECURITY,DEVICE,ACTIVE dev wifi list')
         if self._error_in_response(response):
             raise ServerException('Не удалось получить список беспроводных соеденений. Ответ команды: {}'
@@ -297,6 +303,9 @@ class Nmcli0990(NetworkDriver):
                 'device': splitted_array[7],
                 'active': splitted_array[8] == 'yes',
             }
+            if record['name'] == '--':
+                # Exclude hidden networks
+                continue
 
             search_str = record['id'] if record['id'] else record['name']
             detail_record_info = self._get_detailed_record_info(search_str, 'wireless')
@@ -349,7 +358,7 @@ class Nmcli0990(NetworkDriver):
             elif 'device could not be readied' in response:
                 raise ServerException('Не удалось активировать соединение. Девайс недоступен', status.HTTP_500_INTERNAL_SERVER_ERROR)
             else:
-                # TODO add logger
+                Logger().error_message('Неизвестная ошибка при поднятии {}: {}'.format(connection_uuid, response))
                 raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
         return True
 
@@ -363,7 +372,7 @@ class Nmcli0990(NetworkDriver):
                 raise ServerException('Не удалось активировать соединение. Девайс недоступен',
                                       status.HTTP_500_INTERNAL_SERVER_ERROR)
             else:
-                # TODO add logger
+                Logger().error_message('Неизвестная ошибка при выключении {}: {}'.format(connection_uuid, response))
                 raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
         return True
 
@@ -374,7 +383,7 @@ class Nmcli0990(NetworkDriver):
                 raise ServerException('Неизвестный идентификатор соединения {}'.format(connection_uuid),
                                       status.HTTP_400_BAD_REQUEST)
             else:
-                # TODO add logger
+                Logger().error_message('Неизвестная ошибка при удалении {}: {}'.format(connection_uuid, response))
                 raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         name_regex = r".*'(?P<name>.*)'.*"
@@ -443,7 +452,7 @@ class Nmcli0990(NetworkDriver):
         # TODO if error need to up old connection or autoconnect?
         if self._error_in_response(response):
             # TODO check error type invalid password or smth another
-            print(response)
+            Logger().debug_message(response)
             raise ServerException(response, status.HTTP_400_BAD_REQUEST)
         else:
             # trying to fetch uuid from response from nmcli
@@ -454,19 +463,9 @@ class Nmcli0990(NetworkDriver):
             return True
 
     def list_of_connections(self, rescan_wifi=True):
-        # TODO move to get_wifi_list
-        if rescan_wifi and self.interface_wifi() is not None:
-            Logger().debug_message('Lauching rescan for inteface {}'.format(self.interface_wifi()))
-            res = ''
-            while 'immediately' not in res:
-                res = cmd('nmcli dev wifi rescan')
-                Logger().debug_message('Result of rescan command: {}'.format(res))
-                sleep(0.5)
-            sleep(1)
-
         answer = {
             'wired': self._get_eth_list(),
-            'wireless': self._get_wifi_list()
+            'wireless': self._get_wifi_list(rescan_wifi)
         }
         return answer
 

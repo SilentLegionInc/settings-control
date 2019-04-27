@@ -13,8 +13,8 @@ import { MemoryInfoModel } from '../models/MemoryInfoModel';
 import { SystemInfoModel } from '../models/SystemInfoModel';
 import { InitChartDataResponse } from '../models/InitChartDataResponse';
 import { FilterChartDataResponse } from '../models/FilterChartDataResponse';
-import { WiredNetworkModel } from '../models/WiredNetworkModel'
-import { WirelessNetworkModel } from '../models/WirelessNetworkModel'
+import { WiredNetworkModel } from '../models/WiredNetworkModel';
+import { WirelessNetworkModel } from '../models/WirelessNetworkModel';
 
 export class MapperService {
     static mapNetworksResponse(responseBody) {

@@ -11,7 +11,7 @@ export default new Vuex.Store({
         url: Config.backendUrl,
         requestService: new RequestService(Config.backendUrl),
         robotName: null,
-        robotLabel: null
+        robotLabel: 'UNK'
     },
     getters: {
         isAuthenticated: state => {
@@ -76,6 +76,7 @@ export default new Vuex.Store({
                 this.commit('setRobotLabel', res.robotName);
             } else {
                 this.commit('setRobotName', null);
+                this.commit('setRobotLabel', 'UNK');
             }
         }
     }

@@ -119,6 +119,8 @@ class CoreService(metaclass=Singleton):
         else:
             self.compile_status = ProcessStatus.ERROR
 
+        return self.compile_status, self.compile_output
+
     def compile_core_sync(self):
         # if self.core_is_active():
         #     Logger().error_message('Can\'t compile core while it\'s running.')

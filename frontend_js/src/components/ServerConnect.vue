@@ -56,13 +56,18 @@ export default {
 
         async changeHostAddress() {
             this.$store.commit('changeHostAddress', this.url);
-            const connectionStatus = await this.$store.state.requestService.getServerInfo();
-            this.$emit('changedHost');
-            if (connectionStatus.ok) {
-                this.$toaster.success('Успешно подключено');
-                this.$store.commit('setRobotName', connectionStatus.robotType);
-            } else {
-                this.$toaster.error('Некорректный адрес');
+            try {
+                const connectionStatus = await this.$store.state.requestService.getServerInfo();
+                this.$emit('changedHost');
+                if (connectionStatus.ok) {
+                    this.$store.commit('setRobotName', connectionStatus.robotType);
+                    this.$store.commit('setRobotLabel', connectionStatus.robotName);
+                    this.$toaster.success('Успешно подключено');
+                }
+            } catch (err) {
+                this.$store.commit('setRobotName', null);
+                this.$store.commit('setRobotLabel', 'UNK')
+                this.$toaster.error('Не удалось подключиться');
             }
         },
 
