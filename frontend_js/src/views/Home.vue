@@ -59,10 +59,12 @@ export default {
             const loader = this.$loading.show();
 
             await catchErrorsWrapper(this.$toaster, async () => {
-                const connectionStatus = await this.$store.state.requestService.getServerInfo(this.url);
-                if (connectionStatus.ok) {
-                    this.$toaster.info(`Сервер ${this.url} доступен`);
-                } else {
+                try {
+                    const connectionStatus = await this.$store.state.requestService.getServerInfo(this.url);
+                    if (connectionStatus.ok) {
+                        this.$toaster.info(`Сервер ${this.url} доступен`);
+                    }
+                } catch (exception) {
                     this.$toaster.error(`Сервер ${this.url} недоступен`);
                 }
             });
