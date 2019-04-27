@@ -29,13 +29,8 @@ const ifAuthenticated = (to, from, next) => {
             return;
         }
     }
-    if (from) {
-        Vue.prototype.$toaster.error('Для доступа к этой странице необходима авторизация');
-        next('/login');
-    } else {
-        Vue.prototype.$toaster.error('Для доступа к этой странице необходима авторизация');
-        next('/login');
-    }
+    Vue.prototype.$toaster.error('Для доступа к этой странице необходима авторизация');
+    next('/login');
 };
 
 const isServerConnected = (to, from, next) => {

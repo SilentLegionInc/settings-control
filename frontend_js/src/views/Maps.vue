@@ -1,114 +1,119 @@
 <template>
-    <div class="container-fluid">
-        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-            <div class="row">
-                <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-xl-8">
-                    <div class="row">
-                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 pl-1 pr-1">
-                            <span>Нач. время:</span>
-                            <datetime v-model="filter.startTime" type="datetime" zone="UTC" value-zone="UTC" input-class="form-control"></datetime>
-                        </div>
+    <div v-if="available">
+        <div class="container-fluid">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="row">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-10 col-xl-8">
+                        <div class="row">
+                            <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 pl-1 pr-1">
+                                <span>Нач. время:</span>
+                                <datetime v-model="filter.startTime" type="datetime" zone="UTC" value-zone="UTC" input-class="form-control"></datetime>
+                            </div>
 
-                        <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 pl-1 pr-1">
-                            <span>Кон. время:</span>
-                            <datetime v-model="filter.endTime" type="datetime" zone="UTC" value-zone="UTC" input-class="form-control" :class="{'mb-3': !$isWideScreen()}"></datetime>
-                        </div>
+                            <div class="col-12 col-sm-6 col-md-4 col-lg-4 col-xl-4 pl-1 pr-1">
+                                <span>Кон. время:</span>
+                                <datetime v-model="filter.endTime" type="datetime" zone="UTC" value-zone="UTC" input-class="form-control" :class="{'mb-3': !$isWideScreen()}"></datetime>
+                            </div>
 
-                        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 pl-1 pr-1">
-                            <span v-if="$isWideScreen()">&nbsp;</span>
-                            <button type="button" class="btn btn-success btn-block" :class="{'mb-1': !$isWideScreen()}" @click="loadData()">Применить</button>
-                        </div>
-                        <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 pl-1 pr-1">
-                            <span v-if="$isWideScreen()">&nbsp;</span>
-                            <button type="button" class="btn btn-secondary btn-block" @click="clearFilters()">Очистить</button>
+                            <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 pl-1 pr-1">
+                                <span v-if="$isWideScreen()">&nbsp;</span>
+                                <button type="button" class="btn btn-success btn-block" :class="{'mb-1': !$isWideScreen()}" @click="loadData()">Применить</button>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-2 col-lg-2 col-xl-2 pl-1 pr-1">
+                                <span v-if="$isWideScreen()">&nbsp;</span>
+                                <button type="button" class="btn btn-secondary btn-block" @click="clearFilters()">Очистить</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <hr>
+            <hr>
 
-        <div class="row" style="margin: auto;">
-            <div class="col-12 col-sm-12 col-md-6 col-lg-7 col-xl-8">
-                <yandex-map
-                    :coords="[centerLatitude, centerLongitude]"
-                    zoom="3"
-                    class="maps-size mb-2"
-                    :cluster-options="{openBalloonOnClick: false}"
-                    :behaviors="['drag', 'multiTouch', 'scrollZoom', 'dblClickZoom', 'rightMouseButtonMagnifier']"
-                    :controls="['fullscreenControl', 'zoomControl', 'typeSelector', 'rulerControl']"
-                    :placemarks="placemarks"
-                >
-                </yandex-map>
-            </div>
+            <div class="row" style="margin: auto;">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-7 col-xl-8">
+                    <yandex-map
+                        :coords="[centerLatitude, centerLongitude]"
+                        zoom="3"
+                        class="maps-size mb-2"
+                        :cluster-options="{openBalloonOnClick: false}"
+                        :behaviors="['drag', 'multiTouch', 'scrollZoom', 'dblClickZoom', 'rightMouseButtonMagnifier']"
+                        :controls="['fullscreenControl', 'zoomControl', 'typeSelector', 'rulerControl']"
+                        :placemarks="placemarks"
+                    >
+                    </yandex-map>
+                </div>
 
-            <div class="col-12 col-sm-12 col-md-6 col-lg-5 col-xl-4">
-                <div class="scrollable-info">
-                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                        <div class="row custom-list-header">
-                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
-                                Информация
-                            </div>
-                        </div>
-                        <div class="custom-list-body">
-                            <div class="row">
-                                <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
-                                    Широта:
+                <div class="col-12 col-sm-12 col-md-6 col-lg-5 col-xl-4">
+                    <div class="scrollable-info">
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="row custom-list-header">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    Информация
                                 </div>
-                                <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                            </div>
+                            <div class="custom-list-body">
+                                <div class="row">
+                                    <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                                        Широта:
+                                    </div>
+                                    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
                             <span v-if="selectedIndex !== null">
                                 {{elements[selectedIndex].latitude.toFixed(6)}}
                             </span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
-                                    Долгота:
-                                </div>
-                                <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                <div class="row">
+                                    <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                                        Долгота:
+                                    </div>
+                                    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
                             <span v-if="selectedIndex !== null">
                                 {{elements[selectedIndex].longitude.toFixed(6)}}
                             </span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
-                                    Количество:
-                                </div>
-                                <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                <div class="row">
+                                    <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                                        Количество:
+                                    </div>
+                                    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
                             <span v-if="selectedIndex !== null">
                                 {{elements[selectedIndex].count}}
                             </span>
-                                </div>
-                            </div>
-                            <div class="inverse-color" v-if="selectedIndex !== null">
-                                <div class="row" v-for="(elem, index) in elements[selectedIndex].average" :key="index">
-                                    <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8" style="word-wrap: break-word;">
-                                        Средн. {{elem.name.toLowerCase()}}:
-                                    </div>
-                                    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
-                                        {{elem.value | toFixedPrecision}}
                                     </div>
                                 </div>
-                            </div>
-                            <div class="inverse-color" v-else>
-                                <div class="row" v-for="(elem, index) in numericFields" :key="index">
-                                    <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8" style="word-wrap: break-word;">
-                                        Средн. {{elem.name.toLowerCase()}}:
+                                <div class="inverse-color" v-if="selectedIndex !== null">
+                                    <div class="row" v-for="(elem, index) in elements[selectedIndex].average" :key="index">
+                                        <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8" style="word-wrap: break-word;">
+                                            Средн. {{elem.name.toLowerCase()}}:
+                                        </div>
+                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                            {{elem.value | toFixedPrecision}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="inverse-color" v-else>
+                                    <div class="row" v-for="(elem, index) in numericFields" :key="index">
+                                        <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8" style="word-wrap: break-word;">
+                                            Средн. {{elem.name.toLowerCase()}}:
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="offset-md-6 offset-lg-7 offset-xl-7 col-12 col-sm-12 col-md-6 col-lg-5 col-xl-5 mt-2 mb-1">
-                                <button type="button" class="btn btn-primary btn-block" @click="redirectToTableStatistics" :disabled="selectedIndex === null">Подробнее</button>
+                            <div class="row">
+                                <div class="offset-md-6 offset-lg-7 offset-xl-7 col-12 col-sm-12 col-md-6 col-lg-5 col-xl-5 mt-2 mb-1">
+                                    <button type="button" class="btn btn-primary btn-block" @click="redirectToTableStatistics" :disabled="selectedIndex === null">Подробнее</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    <div v-else>
+        <h2>Карты недоступны</h2>
     </div>
 </template>
 
@@ -121,6 +126,7 @@ export default {
     components: { yandexMap },
     data() {
         return {
+            available: true,
             placemarks: [],
             elements: [],
             numericFields: [],
@@ -141,9 +147,12 @@ export default {
         async loadStartData() {
             this.loader = this.$loading.show();
 
-            await catchErrorsWrapper(this.$toaster, async () => {
-                this.numericFields = await this.$store.state.requestService.getStatisticsMapsData(this.robotName, this.databaseName, true);
-            });
+            this.available = window.navigator.onLine;
+            if (this.available) {
+                await catchErrorsWrapper(this.$toaster, async () => {
+                    this.numericFields = await this.$store.state.requestService.getStatisticsMapsData(this.robotName, this.databaseName, true);
+                });
+            }
 
             this.loader.hide();
         },
