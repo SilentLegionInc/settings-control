@@ -268,8 +268,10 @@ def api_get_system_info():
 @api_blueprint.route('/utils/info', methods=['GET'])
 @handle_api_errors
 def api_get_server_info():
+    robot_type = SettingsService().server_config['type']
     response_body = {
-        'robot_type': SettingsService().server_config['type'],
+        'robot_type': robot_type,
+        'robot_name': SettingsService().machines_configs[robot_type]['robot_name'],
         'ok': True
     }
     return jsonify(response_body), status.HTTP_200_OK

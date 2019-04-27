@@ -10,7 +10,8 @@ export default new Vuex.Store({
         authToken: null,
         url: Config.backendUrl,
         requestService: new RequestService(Config.backendUrl),
-        robotName: null
+        robotName: null,
+        robotLabel: null
     },
     getters: {
         isAuthenticated: state => {
@@ -37,6 +38,9 @@ export default new Vuex.Store({
         },
         setRobotName(ctxt, robotName) {
             this.state.robotName = robotName;
+        },
+        setRobotLabel(ctxt, robotLabel) {
+            this.state.robotLabel = robotLabel;
         }
     },
     actions: {
@@ -69,6 +73,7 @@ export default new Vuex.Store({
             const res = await this.state.requestService.getServerInfo();
             if (res.ok) {
                 this.commit('setRobotName', res.robotType);
+                this.commit('setRobotLabel', res.robotName);
             } else {
                 this.commit('setRobotName', null);
             }
