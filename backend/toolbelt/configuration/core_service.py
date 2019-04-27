@@ -26,6 +26,17 @@ class ProcessStatus(Enum):
 
 
 class CoreService(metaclass=Singleton):
+    def __call__(self):
+        # We need this to handle when config changed
+        repo_name = SettingsService().current_machine_config['core']['repo_name']
+        self.build_path = os.path.expanduser(os.path.join(SettingsService().server_config['builds_path'], repo_name))
+        if not os.path.exists(self.build_path):
+            os.makedirs(self.build_path)
+        self.qmake_path = os.path.expanduser(SettingsService().server_config['qmake_path'])
+        self.sources_path = os.path.join(
+            os.path.expanduser(SettingsService().server_config['sources_path']), repo_name)
+        self.repo_url = SettingsService().libraries['cores'][repo_name]
+
     def __init__(self):
         repo_name = SettingsService().current_machine_config['core']['repo_name']
         self.build_path = os.path.expanduser(os.path.join(SettingsService().server_config['builds_path'], repo_name))
@@ -96,11 +107,11 @@ class CoreService(metaclass=Singleton):
             config_file_name = SettingsService().current_machine_config['core']['config_path']
             config_file_path = os.path.join(self.sources_path, config_file_name)
             target_config_path = os.path.join(self.build_path, config_file_name)
-            self.compile_output += check_output('cp {} {}'.format(config_file_path, target_config_path), shell=True).decode(
+            self.compile_output += check_output('cp -f {} {}'.format(config_file_path, target_config_path), shell=True).decode(
                 'ascii')
         except Exception as e:
             self.compile_status = ProcessStatus.ERROR
-            raise e
+            return self.compile_status, self.compile_output
 
         regex = re.compile('(error)+', re.IGNORECASE)
         if regex.match(self.compile_output) is None:

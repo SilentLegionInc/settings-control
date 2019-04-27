@@ -48,7 +48,7 @@ class NetworkService(metaclass=Singleton):
             else:
                 return 'nmcli'
 
-        raise Exception('Unable to find compatible nmcli driver.')
+        raise ServerException('Не удалось найти подходящий драйвер nmcli')
 
     def refresh_interfaces(self):
         # attempt to auto detect the wifi interface if none was provided
@@ -272,6 +272,8 @@ class Nmcli0990(NetworkDriver):
         return result
 
     def _get_wifi_list(self):
+        if self.interface_wifi() is None:
+            return []
         response = cmd('nmcli -t -f SSID,MODE,CHAN,FREQ,RATE,SIGNAL,SECURITY,DEVICE,ACTIVE dev wifi list')
         if self._error_in_response(response):
             raise ServerException('Не удалось получить список беспроводных соеденений. Ответ команды: {}'
@@ -312,6 +314,8 @@ class Nmcli0990(NetworkDriver):
         return mapped
 
     def _get_eth_list(self):
+        if self.interface_eth() is None:
+            return []
         response = cmd('nmcli -t -f NAME,UUID,TYPE,DEVICE,ACTIVE,AUTOCONNECT con show | grep ethernet')
         if self._error_in_response(response):
             raise ServerException('Не удалось получить список проводных соеденений. Ответ команды: {}'.format(response))

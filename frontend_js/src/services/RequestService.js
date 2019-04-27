@@ -197,7 +197,7 @@ export class RequestService {
         const res = await axios.post(path);
         if (res.status === 200) {
             Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
-            return !res.data.ok;
+            return res.data.ok;
         } else {
             Logger.error(res.data.errorInfo);
             throw new ServerExceptionModel(res.data.errorInfo, res.status);

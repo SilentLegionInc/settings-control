@@ -108,7 +108,7 @@ class ModulesService(metaclass=Singleton):
         if not is_cloned:
             self._core_service.update_core_sync()
         # TODO check that core is not running if it is -> kill them?
-        (compile_status, compile_output) = self._core_service.compile_core()
+        (compile_status, compile_output) = self._core_service.compile_core_sync()
         if compile_status is ProcessStatus.SUCCESS:
             return True
         else:
@@ -126,7 +126,7 @@ class ModulesService(metaclass=Singleton):
             (is_cloned, _) = self._core_service.pull_info()
             if not is_cloned:
                 self._core_service.update_core_sync()
-            (compile_status, compile_output) = self._core_service.compile_core()
+            (compile_status, compile_output) = self._core_service.compile_core_sync()
 
         if compile_status is ProcessStatus.SUCCESS:
             return True
