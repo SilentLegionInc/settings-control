@@ -243,14 +243,14 @@ class Nmcli0990(NetworkDriver):
 
     def _get_detailed_record_info(self, search_str, connection_type=''):
         result = {}
-        response = cmd('nmcli -t -f NAME,UUID,AUTOCONNECT,TYPE con show | grep {} | grep -w {}'
+        response = cmd('nmcli -t -f NAME,UUID,AUTOCONNECT,TYPE con show | grep -w "{}:" | grep -w "{}"'
                        .format(connection_type, search_str))
         if self._error_in_response(response):
             Logger().error_message('Error in get detailed info {}'.format(response))
             return result
 
         if response:
-            Logger().debug_message('detail {} ({}): {}'.format(search_str, connection_type, response))
+            Logger().debug_message('Detail found for {} ({}): {}'.format(search_str, connection_type, response))
             splitted = response.split(':')
             result['id'] = splitted[1]
             result['autoconnect'] = splitted[2] == 'yes'
@@ -258,7 +258,7 @@ class Nmcli0990(NetworkDriver):
                 fields = ','.join(self._detail_connection_params)
                 detail_response = cmd('nmcli -t -f {} con show {}'.format(fields, result['id']))
                 if self._error_in_response(detail_response):
-                    Logger().error_message('Cant find detail fields {} of connection {}. Response: {}'.format(fields, result['id'], detail_response))
+                    Logger().error_message('Can\'t find detail fields {} of connection {}. Response: {}'.format(fields, result['id'], detail_response))
                     return result
                 params_fields = detail_response.splitlines()
                 result['params'] = {}
@@ -269,7 +269,7 @@ class Nmcli0990(NetworkDriver):
                     result['params'][field_key] = field_value
 
         else:
-            Logger().error_message('Cant find connection by {}'.format(search_str))
+            Logger().debug_message('Can\'t find connection by {}'.format(search_str))
             return result
         return result
 
@@ -331,6 +331,7 @@ class Nmcli0990(NetworkDriver):
             raise ServerException('Не удалось получить список проводных соеденений. Ответ команды: {}'.format(response))
         connections = response.splitlines()
         mapped = []
+        Logger().debug_message('Get eth res: {}'.format(response))
         for connection in connections:
             splitted_array = connection.split(':')
             record = {
@@ -394,12 +395,14 @@ class Nmcli0990(NetworkDriver):
         return True
 
     def delete_all_wireless_connections(self):
-        response = cmd('nmcli con delete {}'.format(' '.join(list(self.ssid_to_uuid))))
+        response = cmd('nmcli con delete {}'.format(' '.join(list(self.ssid_to_uuid.values()))))
         if self._error_in_response(response):
             raise ServerException('Не удалось очистить беспроводные соединения {}'.format(response), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         self.ssid_to_uuid = {}
         self._save_connection_map()
+        # Use it to escape from exception of nmcli (warning about proxy on eth list)
+        sleep(1)
         return True
 
     def current_wifi(self):
@@ -446,7 +449,7 @@ class Nmcli0990(NetworkDriver):
             # if connection already exists just up it
             return self.connection_up(self.ssid_to_uuid[ssid])
         # trying to connect
-        response = cmd('nmcli dev wifi connect {} password {} iface {}'.format(
+        response = cmd('nmcli dev wifi connect "{}" password "{}" iface {}'.format(
             ssid, password, self._interface_wifi))
         # parse response
         # TODO if error need to up old connection or autoconnect?
@@ -455,6 +458,7 @@ class Nmcli0990(NetworkDriver):
             Logger().debug_message(response)
             raise ServerException(response, status.HTTP_400_BAD_REQUEST)
         else:
+            Logger().debug_message('Response for creation: {}'.format(response))
             # trying to fetch uuid from response from nmcli
             # TODO change to regex
             connection_uuid = response.split(' ')[-1].replace("'", '').replace('.', '').replace('\n', '')
