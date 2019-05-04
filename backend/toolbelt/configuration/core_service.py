@@ -97,6 +97,7 @@ class CoreService(metaclass=Singleton):
 
         self.compile_status = None
         self.compile_output = ''
+        self.errors = []
         try:
             shutil.rmtree(self.build_path, ignore_errors=True)
             os.makedirs(self.build_path)
@@ -106,21 +107,24 @@ class CoreService(metaclass=Singleton):
             make_command = 'cd {} && make'.format(self.build_path)
             compile_output = check_output(qmake_command, shell=True, stderr=STDOUT).decode('utf-8')
             compile_output += check_output(make_command, shell=True, stderr=STDOUT).decode('utf-8')
+
             config_file_name = SettingsService().current_machine_config['core']['config_path']
             config_file_path = os.path.join(self.sources_path, config_file_name)
             target_config_path = os.path.join(self.build_path, config_file_name)
-            self.compile_output += check_output('cp -f {} {}'.format(config_file_path, target_config_path),
-                                                shell=True, stderr=STDOUT).decode('utf-8')
+            copy_config_command = 'cp -f {} {}'.format(config_file_path, target_config_path)
+            self.compile_output += check_output(copy_config_command, shell=True, stderr=STDOUT).decode('utf-8')
         except CalledProcessError as command_error:
             self.compile_status = ProcessStatus.ERROR
-            Logger().error_message('Command {} return non-zero code: {}'.format(command_error.cmd, command_error.output))
-            self.compile_output += command_error.output
+            error_info = command_error.output.decode('utf-8')
+            Logger().error_message('Command {} return non-zero code: {}'.format(command_error.cmd, error_info))
+            self.compile_output += error_info
+            self.errors.append(error_info)
         except Exception as e:
             self.compile_status = ProcessStatus.ERROR
             Logger().error_message('Exception while core building: {}'.format(e))
 
         real_errors_regex = r"^(?P<real_error>.*error.*(?<!\(ignored\)))$"
-        self.errors = re.findall(real_errors_regex, self.compile_output, re.IGNORECASE | re.MULTILINE) or []
+        self.errors.extend(re.findall(real_errors_regex, self.compile_output, re.IGNORECASE | re.MULTILINE))
         if self.errors:
             Logger().debug_message('Ошибки сборки вот такие: {}'.format(self.errors))
             self.compile_status = ProcessStatus.ERROR

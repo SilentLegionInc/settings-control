@@ -146,6 +146,7 @@ class UpdateService(metaclass=Singleton):
 
         compile_output = ''
         compile_status = ProcessStatus.SUCCESS
+        errors = []
         try:
             shutil.rmtree(build_path, ignore_errors=True)
             os.makedirs(build_path)
@@ -158,14 +159,17 @@ class UpdateService(metaclass=Singleton):
 
         except CalledProcessError as command_error:
             compile_status = ProcessStatus.ERROR
-            Logger().error_message('Command {} return non-zero code: {}'.format(command_error.cmd, command_error.output))
-            compile_output += command_error.output
+            errors_info = command_error.output.decode('utf-8')
+            Logger().error_message('Command {} return non-zero code: {}'.format(command_error.cmd,
+                                                                                errors_info))
+            compile_output += errors_info
+            errors.append(errors_info)
         except Exception as e:
             compile_status = ProcessStatus.ERROR
             Logger().error_message('Exception while building: {}'.format(e))
 
         real_errors_regex = r"^(?P<real_error>.*error.*(?<!\(ignored\)))$"
-        errors = re.findall(real_errors_regex, compile_output, re.IGNORECASE | re.MULTILINE) or []
+        errors.extend(re.findall(real_errors_regex, compile_output, re.IGNORECASE | re.MULTILINE))
         if errors:
             Logger().debug_message('Ошибки сборки вот такие: {}'.format(errors))
             compile_status = ProcessStatus.ERROR

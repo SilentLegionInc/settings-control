@@ -101,8 +101,7 @@ class ModulesService(metaclass=Singleton):
                 self._dependencies_service.update_lib_sync(dependency)
             (compile_status, compile_output, errors) = self._dependencies_service.upgrade_lib_sync(dependency)
             if compile_status is not ProcessStatus.SUCCESS:
-                raise ServerException('Ошибка сборки. Статус компиляции: {}. Текст ошибок: {}'
-                                      .format(compile_status, ';\n'.join(errors)), status.HTTP_500_INTERNAL_SERVER_ERROR)
+                raise ServerException('Ошибка сборки. Информация: {}'.format(';\n'.join(errors)), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         (is_cloned, _) = self._core_service.pull_info()
         if not is_cloned:
@@ -112,8 +111,7 @@ class ModulesService(metaclass=Singleton):
         if compile_status is ProcessStatus.SUCCESS:
             return True
         else:
-            raise ServerException('Ошибка сборки. Статус компиляции: {}. Текст ошибок: {}'
-                            .format(compile_status, ';\n'.join(errors)), status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise ServerException('Ошибка сборки. Информация: {}'.format(';\n'.join(errors)), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def build_module(self, module_name):
         # (compile_status, compile_output, errors) = (ProcessStatus.DEFAULT, None, [])
@@ -133,8 +131,7 @@ class ModulesService(metaclass=Singleton):
         if compile_status is ProcessStatus.SUCCESS:
             return True
         else:
-            raise ServerException('Ошибка сборки. Статус компиляции: {}. Текст ошибок: {}'
-                                  .format(compile_status, ';\n'.join(errors)), status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise ServerException('Ошибка сборки. Информация: {}'.format(';\n'.join(errors)), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def pull_module(self, module_name):
         if module_name in self._settings_service.libraries['dependencies']:
@@ -168,8 +165,7 @@ class ModulesService(metaclass=Singleton):
         if compile_status is ProcessStatus.SUCCESS:
             return True
         else:
-            raise ServerException('Ошибка сборки. Статус компиляции: {}. Текст ошибок: {}'
-                                  .format(compile_status, ';\n'.join(errors)), status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise ServerException('Ошибка сборки. Информация: {}'.format(';\n'.join(errors)), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def update_ssh_key(self, file_path):
         zip_archive = zipfile.ZipFile(file_path, 'r')
