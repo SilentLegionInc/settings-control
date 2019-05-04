@@ -153,6 +153,8 @@ class UpdateService(metaclass=Singleton):
         compile_status = ProcessStatus.SUCCESS
 
         regex = re.compile('(error)+', re.IGNORECASE)
+        ignored_errors_regex = r"(?P<ignored_error>.*Error.*\(ignored\).*)$"
+        real_errors_regex = r"(?P<error>.*Error.*(?!\(ignored\)).*)$"
         if regex.match(compile_output) is not None:
             compile_status = ProcessStatus.ERROR
 
