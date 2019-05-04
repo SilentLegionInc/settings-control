@@ -8,7 +8,7 @@ from toolbelt.configuration.core_service import ProcessStatus
 from multiprocessing import Process
 from toolbelt.support.settings_service import SettingsService
 from git import Repo
-from subprocess import check_output
+from subprocess import check_output, STDOUT, CalledProcessError
 import os
 import re
 import shutil
@@ -144,34 +144,43 @@ class UpdateService(metaclass=Singleton):
         lib_path = os.path.join(self.sources_path, lib_name)
         build_path = os.path.join(self.build_path, lib_name)
 
-        shutil.rmtree(build_path, ignore_errors=True)
-        os.makedirs(build_path)
-
-        qmake_command = '{} {} -o {}'.format(self.qmake_path, os.path.join(lib_path, '*.pro'), build_path)
-        make_command = 'cd {} && sudo make install'.format(build_path)
-
-        compile_output = check_output(qmake_command, shell=True).decode('ascii')
-        compile_output += check_output(make_command, shell=True).decode('ascii')
+        compile_output = ''
         compile_status = ProcessStatus.SUCCESS
+        try:
+            shutil.rmtree(build_path, ignore_errors=True)
+            os.makedirs(build_path)
 
-        regex = re.compile('(error)+', re.IGNORECASE)
-        ignored_errors_regex = r"(?P<ignored_error>.*Error.*\(ignored\).*)$"
-        real_errors_regex = r"(?P<error>.*Error.*(?!\(ignored\)).*)$"
-        Logger().debug_message(re.findall(ignored_errors_regex, compile_output))
-        Logger().debug_message(re.findall(real_errors_regex, compile_output))
-        if regex.match(compile_output) is not None:
+            qmake_command = '{} {} -o {}'.format(self.qmake_path, os.path.join(lib_path, '*.pro'), build_path)
+            make_command = 'cd {} && sudo make install'.format(build_path)
+
+            compile_output = check_output(qmake_command, shell=True, stderr=STDOUT).decode('utf-8')
+            compile_output += check_output(make_command, shell=True, stderr=STDOUT).decode('utf-8')
+
+        except CalledProcessError as command_error:
+            compile_status = ProcessStatus.ERROR
+            Logger().error_message('Command {} return non-zero code: {}'.format(command_error.cmd, command_error.output))
+            compile_output += command_error.output
+        except Exception as e:
+            compile_status = ProcessStatus.ERROR
+            Logger().error_message('Exception while building: {}'.format(e))
+
+        real_errors_regex = r"^(?P<real_error>.*error.*(?<!\(ignored\)))$"
+        errors = re.findall(real_errors_regex, compile_output, re.IGNORECASE | re.MULTILINE) or []
+        if errors:
+            Logger().debug_message('Ошибки сборки вот такие: {}'.format(errors))
             compile_status = ProcessStatus.ERROR
 
         if return_dict:
-            return_dict[key] = compile_status, compile_output
+            return_dict[key] = compile_status, compile_output, errors
 
-        return compile_status, compile_output
+        return compile_status, compile_output, errors
 
     def upgrade_lib_sync(self, lib_name):
         return self._upgrade_lib(lib_name)
 
     # return_dict - словарь, в который по ключу key складывается результат асинхронной операции.
-    # return_dict должен представлять собой инстанс multiprocessing.Manager().dict() иначе данные не будут расшарены между процессами
+    # return_dict должен представлять собой инстанс multiprocessing.Manager().dict()
+    # иначе данные не будут расшарены между процессами
     def upgrade_lib_async(self, lib_name, return_dict, key='upgrade_lib_result'):
         return_dict[key] = None
         p = Process(target=self._upgrade_lib, args=(lib_name, return_dict, key))

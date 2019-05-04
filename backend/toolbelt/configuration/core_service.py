@@ -7,7 +7,7 @@ from toolbelt.support.singleton import Singleton
 from toolbelt.support.logger import Logger
 from flask_api import status
 from enum import Enum
-from subprocess import Popen
+from subprocess import Popen, STDOUT, CalledProcessError
 from subprocess import check_output
 from subprocess import DEVNULL
 from threading import Thread
@@ -48,6 +48,7 @@ class CoreService(metaclass=Singleton):
         self.compile_status = ProcessStatus.DEFAULT
         self.compile_output = None
         self.compile_thread = None
+        self.errors = []
 
     def pull_info(self):
         is_cloned = os.path.isdir(self.sources_path) and os.listdir(self.sources_path)
@@ -95,39 +96,43 @@ class CoreService(metaclass=Singleton):
             return
 
         self.compile_status = None
-        self.compile_output = None
+        self.compile_output = ''
         try:
             shutil.rmtree(self.build_path, ignore_errors=True)
             os.makedirs(self.build_path)
-            self.compile_output = check_output('{} {} -o {}'.format(self.qmake_path,
-                                                                    os.path.join(self.sources_path, '*.pro'),
-                                                                    self.build_path), shell=True).decode('ascii')
-            self.compile_output += check_output('cd {} && make'.format(self.build_path), shell=True).decode('ascii')
+            qmake_command = '{} {} -o {}'.format(self.qmake_path,
+                                                 os.path.join(self.sources_path, '*.pro'),
+                                                 self.build_path)
+            make_command = 'cd {} && make'.format(self.build_path)
+            compile_output = check_output(qmake_command, shell=True, stderr=STDOUT).decode('utf-8')
+            compile_output += check_output(make_command, shell=True, stderr=STDOUT).decode('utf-8')
             config_file_name = SettingsService().current_machine_config['core']['config_path']
             config_file_path = os.path.join(self.sources_path, config_file_name)
             target_config_path = os.path.join(self.build_path, config_file_name)
-            self.compile_output += check_output('cp -f {} {}'.format(config_file_path, target_config_path), shell=True).decode(
-                'ascii')
+            self.compile_output += check_output('cp -f {} {}'.format(config_file_path, target_config_path),
+                                                shell=True, stderr=STDOUT).decode('utf-8')
+        except CalledProcessError as command_error:
+            self.compile_status = ProcessStatus.ERROR
+            Logger().error_message('Command {} return non-zero code: {}'.format(command_error.cmd, command_error.output))
+            self.compile_output += command_error.output
         except Exception as e:
             self.compile_status = ProcessStatus.ERROR
             Logger().error_message('Exception while core building: {}'.format(e))
-            return self.compile_status, self.compile_output
 
-        regex = re.compile('(error)+', re.IGNORECASE)
-        if regex.match(self.compile_output) is None:
-            self.compile_status = ProcessStatus.SUCCESS
-        else:
+        real_errors_regex = r"^(?P<real_error>.*error.*(?<!\(ignored\)))$"
+        self.errors = re.findall(real_errors_regex, self.compile_output, re.IGNORECASE | re.MULTILINE) or []
+        if self.errors:
+            Logger().debug_message('Ошибки сборки вот такие: {}'.format(self.errors))
             self.compile_status = ProcessStatus.ERROR
 
-        return self.compile_status, self.compile_output
+        return self.compile_status, self.compile_output, self.errors
 
     def compile_core_sync(self):
         # if self.core_is_active():
         #     Logger().error_message('Can\'t compile core while it\'s running.')
         #     raise ServerException('Невозможно собрать ядро когда оно запущено', status.HTTP_406_NOT_ACCEPTABLE)
 
-        self._compile_core()
-        return self.compile_status, self.compile_output
+        return self._compile_core()
 
     def compile_core(self):
         # if self.core_is_active():

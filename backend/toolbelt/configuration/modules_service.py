@@ -99,40 +99,42 @@ class ModulesService(metaclass=Singleton):
             (is_cloned, _) = self._dependencies_service.pull_info(dependency)
             if not is_cloned:
                 self._dependencies_service.update_lib_sync(dependency)
-            (compile_status, compile_output) = self._dependencies_service.upgrade_lib_sync(dependency)
+            (compile_status, compile_output, errors) = self._dependencies_service.upgrade_lib_sync(dependency)
             if compile_status is not ProcessStatus.SUCCESS:
-                raise ServerException('Ошибка сборки. Статус компиляции: {}. Информация о сборке: {}'
-                                      .format(compile_status, compile_output), status.HTTP_500_INTERNAL_SERVER_ERROR)
+                raise ServerException('Ошибка сборки. Статус компиляции: {}. Текст ошибок: {}'
+                                      .format(compile_status, ';\n'.join(errors)), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         (is_cloned, _) = self._core_service.pull_info()
         if not is_cloned:
             self._core_service.update_core_sync()
         # TODO check that core is not running if it is -> kill them?
-        (compile_status, compile_output) = self._core_service.compile_core_sync()
+        (compile_status, compile_output, errors) = self._core_service.compile_core_sync()
         if compile_status is ProcessStatus.SUCCESS:
             return True
         else:
-            raise ServerException('Ошибка сборки. Статус компиляции: {}. Информация о сборке: {}'
-                            .format(compile_status, compile_output), status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise ServerException('Ошибка сборки. Статус компиляции: {}. Текст ошибок: {}'
+                            .format(compile_status, ';\n'.join(errors)), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def build_module(self, module_name):
-        (compile_status, compile_output) = (ProcessStatus.DEFAULT, None)
+        # (compile_status, compile_output, errors) = (ProcessStatus.DEFAULT, None, [])
         if module_name in self._settings_service.libraries['dependencies']:
             (is_cloned, _) = self._dependencies_service.pull_info(module_name)
             if not is_cloned:
                 self._dependencies_service.update_lib_sync(module_name)
-            (compile_status, compile_output) = self._dependencies_service.upgrade_lib_sync(module_name)
+            (compile_status, compile_output, errors) = self._dependencies_service.upgrade_lib_sync(module_name)
         elif module_name in self._settings_service.libraries['cores']:
             (is_cloned, _) = self._core_service.pull_info()
             if not is_cloned:
                 self._core_service.update_core_sync()
-            (compile_status, compile_output) = self._core_service.compile_core_sync()
+            (compile_status, compile_output, errors) = self._core_service.compile_core_sync()
+        else:
+            raise ServerException('Неизвестный модуль {}'.format(module_name), status.HTTP_400_BAD_REQUEST)
 
         if compile_status is ProcessStatus.SUCCESS:
             return True
         else:
-            raise ServerException('Ошибка сборки. Статус компиляции: {}. Информация о сборке: {}'
-                                  .format(compile_status, compile_output), status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise ServerException('Ошибка сборки. Статус компиляции: {}. Текст ошибок: {}'
+                                  .format(compile_status, ';\n'.join(errors)), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def pull_module(self, module_name):
         if module_name in self._settings_service.libraries['dependencies']:
@@ -155,19 +157,19 @@ class ModulesService(metaclass=Singleton):
             shutil.rmtree(target_path, ignore_errors=True)
             os.makedirs(target_path)
         cmd('cp -Rf {}/* {}'.format(source_lib_path, target_path))
-        (compile_status, compile_output) = (ProcessStatus.DEFAULT, None)
+        # (compile_status, compile_output, errors) = (ProcessStatus.DEFAULT, None, [])
         if module_name in self._settings_service.libraries['dependencies']:
-            (compile_status, compile_output) = self._dependencies_service.upgrade_lib_sync(module_name)
+            (compile_status, compile_output, errors) = self._dependencies_service.upgrade_lib_sync(module_name)
         elif module_name in self._settings_service.libraries['cores']:
-            (compile_status, compile_output) = self._core_service.compile_core_sync()
+            (compile_status, compile_output, errors) = self._core_service.compile_core_sync()
         else:
             raise ServerException('Неизвестный модуль {}'.format(module_name), status.HTTP_400_BAD_REQUEST)
 
         if compile_status is ProcessStatus.SUCCESS:
             return True
         else:
-            raise ServerException('Ошибка сборки. Статус компиляции: {}. Информация о сборке: {}'
-                                  .format(compile_status, compile_output), status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise ServerException('Ошибка сборки. Статус компиляции: {}. Текст ошибок: {}'
+                                  .format(compile_status, ';\n'.join(errors)), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def update_ssh_key(self, file_path):
         zip_archive = zipfile.ZipFile(file_path, 'r')
