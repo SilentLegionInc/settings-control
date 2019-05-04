@@ -1,6 +1,8 @@
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend as crypto_default_backend
+
+from toolbelt.support.logger import Logger
 from toolbelt.support.singleton import Singleton
 from toolbelt.configuration.core_service import ProcessStatus
 from multiprocessing import Process
@@ -155,6 +157,8 @@ class UpdateService(metaclass=Singleton):
         regex = re.compile('(error)+', re.IGNORECASE)
         ignored_errors_regex = r"(?P<ignored_error>.*Error.*\(ignored\).*)$"
         real_errors_regex = r"(?P<error>.*Error.*(?!\(ignored\)).*)$"
+        Logger().debug_message(re.findall(ignored_errors_regex, compile_output))
+        Logger().debug_message(re.findall(real_errors_regex, compile_output))
         if regex.match(compile_output) is not None:
             compile_status = ProcessStatus.ERROR
 
