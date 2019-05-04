@@ -186,6 +186,7 @@ class Nmcli0990(NetworkDriver):
         self.interface_wifi(interface_wifi)
         self.interface_eth(interface_eth)
         self.ssid_to_uuid = {}
+        self._connection_timeout_secs = 10
         self._load_connection_map()
         Logger().debug_message(self.ssid_to_uuid)
         self._detail_connection_params = detail_connection_params
@@ -449,19 +450,25 @@ class Nmcli0990(NetworkDriver):
             # if connection already exists just up it
             return self.connection_up(self.ssid_to_uuid[ssid])
         # trying to connect
-        response = cmd('nmcli dev wifi connect "{}" password "{}" iface {}'.format(
-            ssid, password, self._interface_wifi))
+        # -w отвечает за таймаут операции, т.к. при неправильном пароле показывается гуй
+        response = cmd('nmcli -w {} dev wifi connect "{}" password "{}"'.format(
+            self._connection_timeout_secs, ssid, password, self._interface_wifi))
         # parse response
-        # TODO if error need to up old connection or autoconnect?
         if self._error_in_response(response):
-            # TODO check error type invalid password or smth another
-            Logger().debug_message(response)
-            raise ServerException(response, status.HTTP_400_BAD_REQUEST)
+            if 'Timeout' in response:
+                raise ServerException(
+                    'Превышен лимит ожидания ({} сек.). '
+                    'Вероятно был введен неверный пароль, либо к сети невозможно подключиться'
+                        .format(self._connection_timeout_secs),
+                    status.HTTP_400_BAD_REQUEST)
+            else:
+                Logger().error_message('Error in create wifi: {}'.format(response))
+                raise ServerException('Серверная ошибка')
         else:
             Logger().debug_message('Response for creation: {}'.format(response))
             # trying to fetch uuid from response from nmcli
-            # TODO change to regex
-            connection_uuid = response.split(' ')[-1].replace("'", '').replace('.', '').replace('\n', '')
+            uuid_regex = r".*(?P<uuid>[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}).*"
+            connection_uuid = re.findall(uuid_regex, response)[0]
             self.ssid_to_uuid[ssid] = connection_uuid
             self._save_connection_map()
             return True
