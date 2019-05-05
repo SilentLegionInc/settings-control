@@ -68,16 +68,6 @@ export default new Vuex.Store({
             } else {
                 // Exception fly away
             }
-        },
-        async syncRobotName(ctxt) {
-            const res = await this.state.requestService.getServerInfo();
-            if (res.ok) {
-                this.commit('setRobotName', res.robotType);
-                this.commit('setRobotLabel', res.robotName);
-            } else {
-                this.commit('setRobotName', null);
-                this.commit('setRobotLabel', 'UNK');
-            }
         }
     }
 })

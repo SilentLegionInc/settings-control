@@ -62,18 +62,31 @@ export default {
         async login() {
             const loader = this.$loading.show();
             try {
-                await this.$store.dispatch('authorize', this.password);
-                this.$toaster.success('Успешно авторизован');
-                loader.hide();
-                this.$emit('logged');
-                this.$router.push('/');
-            } catch (err) {
-                if (err instanceof ServerExceptionModel) {
-                    this.$toaster.error(err.message);
-                } else {
-                    this.$toaster.error('Серверная ошибка');
-                    Logger.error(err);
+                const connectionStatus = await this.$store.state.requestService.getServerInfo();
+                if (connectionStatus.ok) {
+                    this.$store.commit('setRobotName', connectionStatus.robotType);
+                    this.$store.commit('setRobotLabel', connectionStatus.robotName);
+                    this.$toaster.success('Успешно подключено');
                 }
+
+                try {
+                    await this.$store.dispatch('authorize', this.password);
+                    this.$toaster.success('Успешно авторизован');
+                    loader.hide();
+                    this.$emit('logged');
+                    this.$router.push('/');
+                } catch (err) {
+                    if (err instanceof ServerExceptionModel) {
+                        this.$toaster.error(err.message);
+                    } else {
+                        this.$toaster.error('Серверная ошибка');
+                        Logger.error(err);
+                    }
+                }
+            } catch (err) {
+                this.$store.commit('setRobotName', null);
+                this.$store.commit('setRobotLabel', 'UNK');
+                this.$toaster.error('Не удалось подключиться');
             }
             loader.hide();
         }
