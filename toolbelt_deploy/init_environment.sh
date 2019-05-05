@@ -50,5 +50,6 @@ cd /toolbelt/backend
 virtualenv venv -p python3.7
 source venv/bin/activate
 pip install toolbelt-1.0-py3-none-any.whl
+chmod -R -h 777 /toolbelt
 # TODO wrap server like a service
 screen -dmS toolbelt_backend waitress-serve --host=0.0.0.0 --port=5000 toolbelt:app
