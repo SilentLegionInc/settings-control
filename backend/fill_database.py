@@ -73,6 +73,8 @@ for key, table_config in sensors_config.items():
             for index in range(0, records_count):
                 number_values = [str(generate_close_value(base_number_value)) for i in range(0, len(number_fields))]
                 string_values = ['\'{}\''.format(base_string_value)] * len(string_fields)
+                temp_time = (time + datetime.timedelta(milliseconds=index * 500)).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+                temp_time = '\'{}\''.format(temp_time)
                 insert_query = 'INSERT INTO {} ({},{},{},{},{}) VALUES({},{},{},{},{})'.format(
                     real_table,
                     id_column_name,
@@ -81,7 +83,7 @@ for key, table_config in sensors_config.items():
                     longitude_column_name,
                     ','.join(number_fields + string_fields),
                     index,
-                    (time + datetime.timedelta(0, index)).strftime('\'%Y-%m-%d %H:%M:%S\''),
+                    temp_time,
                     random.uniform(-90, 90),
                     random.uniform(-180, 180),
                     ','.join(number_values + string_values)
