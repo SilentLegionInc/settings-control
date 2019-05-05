@@ -13,8 +13,16 @@ export class RequestService {
         }
     }
 
+    _persistConnectionInfo() {
+        const authToken = axios.defaults.headers.common['authorization'];
+        const serverUrl = this._shortServerUrl;
+        Vue.prototype.$cookies.set('toolBeltAuthToken', authToken, Config.cookiesTTL);
+        Vue.prototype.$cookies.set('toolbeltServerUrl', serverUrl, Config.cookiesTTL);
+    }
+
     _changeHostUrl(url) {
         this._serverUrl = `http://${url}`;
+        this._shortServerUrl = url;
     }
 
     _constructPath(route, anotherUrl = null) {
@@ -73,11 +81,13 @@ export class RequestService {
         }
     }
 
-    async getServerInfo(url = null) {
+    async getServerInfo(url = null, withPersist = true) {
         const path = this._constructPath('api/utils/info', url);
         const res = await axios.get(path, { timeout: 1000 });
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            if (withPersist) {
+                this._persistConnectionInfo();
+            }
             return MapperService.mapServerInfoResponse(res.data);
         } else {
             Logger.error(res.data.errorInfo);
@@ -89,7 +99,7 @@ export class RequestService {
         const path = this._constructPath('api/network');
         const res = await axios.get(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return MapperService.mapNetworksResponse(res.data);
         } else {
             Logger.error(res.data.errorInfo);
@@ -101,7 +111,7 @@ export class RequestService {
         const path = this._constructPath('api/modules');
         const res = await axios.get(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return MapperService.mapModulesResponse(res.data);
         } else {
             Logger.error(res.data.errorInfo);
@@ -113,7 +123,7 @@ export class RequestService {
         const path = this._constructPath('api/network/create_wifi_connection');
         const res = await axios.post(path, { name, password });
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return true
         } else {
             Logger.error(res.data.errorInfo);
@@ -125,7 +135,7 @@ export class RequestService {
         const path = this._constructPath(`api/network/connection/up/${id}`);
         const res = await axios.get(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return true
         } else {
             Logger.error(res.data.errorInfo);
@@ -137,7 +147,7 @@ export class RequestService {
         const path = this._constructPath(`api/network/connection/${id}`);
         const res = await axios.delete(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return true
         } else {
             Logger.error(res.data.errorInfo);
@@ -149,7 +159,7 @@ export class RequestService {
         const path = this._constructPath(`api/network/connection/drop_all_wireless`);
         const res = await axios.delete(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return true
         } else {
             Logger.error(res.data.errorInfo);
@@ -161,7 +171,7 @@ export class RequestService {
         const path = this._constructPath(`api/network/connection/${id}`);
         const res = await axios.put(path, params);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return true;
         } else {
             Logger.error(res.data.errorInfo);
@@ -173,7 +183,7 @@ export class RequestService {
         const path = this._constructPath('api/server_config');
         const res = await axios.get(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return MapperService.mapServerSettingsResponse(res.data);
         } else {
             Logger.error(res.data.errorInfo);
@@ -185,7 +195,7 @@ export class RequestService {
         const path = this._constructPath('api/core/run');
         const res = await axios.post(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return res.data.ok;
         } else {
             Logger.error(res.data.errorInfo);
@@ -196,7 +206,7 @@ export class RequestService {
         const path = this._constructPath('api/core/stop');
         const res = await axios.post(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return res.data.ok;
         } else {
             Logger.error(res.data.errorInfo);
@@ -209,7 +219,7 @@ export class RequestService {
         const res = await axios.post(path, newConfig);
         if (res.status === 200) {
             // TODO change answer format in backend
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return true;
         } else {
             Logger.error(res.data.errorInfo);
@@ -221,7 +231,7 @@ export class RequestService {
         const path = this._constructPath('api/core_config');
         const res = await axios.get(path);
         if (res.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return res.data;
         } else {
             Logger.error(res.data.errorInfo);
@@ -234,7 +244,7 @@ export class RequestService {
         const res = await axios.post(path, newConfig);
         if (res.status === 200) {
             // TODO change answer format in backend
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return true;
         } else {
             Logger.error(res.data.errorInfo);
@@ -282,7 +292,7 @@ export class RequestService {
 
         const result = await axios.post(path, body);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return MapperService.mapLogsResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -298,7 +308,7 @@ export class RequestService {
 
         const result = await axios.get(path);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return MapperService.mapDataStructureResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -314,7 +324,7 @@ export class RequestService {
 
         const result = await axios.get(path);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return MapperService.mapDatabasesInfoResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -330,7 +340,7 @@ export class RequestService {
 
         const result = await axios.get(path);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return MapperService.mapInitChartDataResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -359,7 +369,7 @@ export class RequestService {
 
         const result = await axios.post(path, body);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return MapperService.mapFilterChartDataResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -387,7 +397,7 @@ export class RequestService {
 
         const result = await axios.post(path, body);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return MapperService.mapPageChartDataResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -433,7 +443,7 @@ export class RequestService {
 
         const result = await axios.post(path, body);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return MapperService.mapTableDataResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -449,7 +459,7 @@ export class RequestService {
 
         const result = await axios.get(path);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return MapperService.mapSystemInfoResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -488,7 +498,7 @@ export class RequestService {
             result = await axios.post(path, body);
         }
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return MapperService.mapMapsDataResponse(result.data);
         } else {
             Logger.error(result.data.errorInfo);
@@ -504,7 +514,7 @@ export class RequestService {
 
         const result = await axios.post(path, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return true;
         } else {
             Logger.error(`Can't upload file`);
@@ -516,7 +526,7 @@ export class RequestService {
         const path = this._constructPath(`api/pull_module/${moduleName}`);
         const result = await axios.get(path);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return true;
         } else {
             throw new ServerExceptionModel(result.data.errorInfo, result.status);
@@ -527,7 +537,7 @@ export class RequestService {
         const path = this._constructPath(`api/build_module/${moduleName}`);
         const result = await axios.get(path);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return true;
         } else {
             throw new ServerExceptionModel(result.data.errorInfo, result.status);
@@ -538,7 +548,7 @@ export class RequestService {
         const path = this._constructPath(`api/build_machine`);
         const result = await axios.post(path);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return true;
         } else {
             throw new ServerExceptionModel(result.data.errorInfo, result.status);
@@ -549,7 +559,7 @@ export class RequestService {
         const path = this._constructPath(`api/pull_machine`);
         const result = await axios.post(path);
         if (result.status === 200) {
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return true;
         } else {
             throw new ServerExceptionModel(result.data.errorInfo, result.status);
@@ -561,7 +571,7 @@ export class RequestService {
         const result = await axios.post(path, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         if (result.status === 200) {
             // TODO change answer format in backend
-            Vue.prototype.$cookies.set('toolBeltAuthToken', axios.defaults.headers.common['authorization'], Config.cookiesTTL);
+            this._persistConnectionInfo();
             return true;
         } else {
             Logger.error(result.data.errorInfo);

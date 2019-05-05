@@ -37,7 +37,7 @@ export default {
             this.sidebarIsOpened = false;
         }
     },
-    created() {
+    async created() {
         // TODO check that is work as expected.
         axios.interceptors.response.use(undefined, function (err) {
             return new Promise(function (resolve, reject) {
@@ -51,6 +51,8 @@ export default {
                 throw err;
             });
         });
+
+        await this.$store.dispatch('initUrl');
     }
 }
 </script>

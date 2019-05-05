@@ -76,7 +76,6 @@ export default {
             this.$store.commit('changeHostAddress', this.url);
             try {
                 const connectionStatus = await this.$store.state.requestService.getServerInfo();
-                this.$emit('changedHost');
                 if (connectionStatus.ok) {
                     this.$toaster.success('Успешно подключено');
                     this.$store.commit('setRobotName', connectionStatus.robotType);
@@ -84,7 +83,7 @@ export default {
                 }
             } catch (err) {
                 this.$store.commit('setRobotName', null);
-                this.$store.commit('setRobotLabel', 'UNK')
+                this.$store.commit('setRobotLabel', 'UNK');
                 this.$toaster.error('Не удалось подключиться');
             }
         },
