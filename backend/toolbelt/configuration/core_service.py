@@ -154,12 +154,15 @@ class CoreService(metaclass=Singleton):
         if not os.path.isdir(path):
             need_clone = True
 
-        if need_clone:
-            Repo.clone_from(url, path)
-        else:
-            repo = Repo(path)
-            repo.git.reset('--hard')
-            repo.git.pull()
+        try:
+            if need_clone:
+                Repo.clone_from(url, path)
+            else:
+                repo = Repo(path)
+                repo.git.reset('--hard')
+                repo.git.pull()
+        except Exception as e:
+            raise ServerException('Ошибка работы с гит. Информация: {}'.format(str(e)), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def update_core_async(self):
         p = Process(target=self.update_core_sync)

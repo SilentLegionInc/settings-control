@@ -1,8 +1,10 @@
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend as crypto_default_backend
+from flask_api import status
 
 from toolbelt.support.logger import Logger
+from toolbelt.support.server_exception import ServerException
 from toolbelt.support.singleton import Singleton
 from toolbelt.configuration.core_service import ProcessStatus
 from multiprocessing import Process
@@ -122,15 +124,18 @@ class UpdateService(metaclass=Singleton):
         if not os.path.isdir(lib_path):
             need_clone = True
 
-        if need_clone:
-            Repo.clone_from(lib_url, lib_path)
-            repo = Repo(lib_path)
-            repo.git.checkout('develop')
-        else:
-            repo = Repo(lib_path)
-            repo.git.checkout('develop')
-            repo.git.reset('--hard')
-            repo.git.pull()
+        try:
+            if need_clone:
+                Repo.clone_from(lib_url, lib_path)
+                repo = Repo(lib_path)
+                repo.git.checkout('develop')
+            else:
+                repo = Repo(lib_path)
+                repo.git.checkout('develop')
+                repo.git.reset('--hard')
+                repo.git.pull()
+        except Exception as e:
+            raise ServerException('Ошибка работы с гит. Информация: {}'.format(str(e)), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def update_lib_sync(self, lib_name):
         return self._update_lib(lib_name)
