@@ -15,6 +15,7 @@ import Header from './components/Header.vue';
 import Sidebar from './components/Sidebar.vue';
 import Footer from './components/Footer.vue';
 import axios from 'axios';
+import { ServerExceptionModel } from './models/ServerExceptionModel'
 
 export default {
     name: 'App',
@@ -38,18 +39,15 @@ export default {
         }
     },
     async created() {
-        // TODO check that is work as expected.
-        axios.interceptors.response.use(undefined, function (err) {
-            return new Promise(function (resolve, reject) {
-                if (err.status === 401 && err.config && !err.config.__isRetryRequest) {
-                    // if you ever get an unauthorized, logout the user
-                    this.$store.dispatch('deauthorize');
-                    this.$toaster.error('You an unauthorize');
-                    this.$router.push('/');
-                    // you can also redirect to /login if needed !
-                }
-                throw err;
-            });
+        axios.interceptors.response.use((res) => res, (err) => {
+            if (err.response.status === 401) {
+                // if you ever get an unauthorized, logout the user
+                this.$store.commit('deleteAuthToken');
+                this.$router.push('/login');
+                throw new ServerExceptionModel(err.response.data.errorInfo, err.response.status);
+            } else {
+                throw new ServerExceptionModel(err.response.data.errorInfo, err.response.status);
+            }
         });
 
         await this.$store.dispatch('initUrl');

@@ -19,10 +19,10 @@
                 <li><a href="/modules">Модули</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                {% if not is_auth %}
-                    <li><a href="/login">Log in</a></li>
+                {% if not session.get('is_logged') %}
+                    <li><a href="/login">Войти</a></li>
                 {%  else %}
-                    <li><a href="/logout">Log out</a></li>
+                    <li><a href="/logout">Выйти</a></li>
                 {% endif %}
             </ul>
         </div>

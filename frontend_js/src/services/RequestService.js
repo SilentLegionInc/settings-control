@@ -9,7 +9,7 @@ export class RequestService {
     constructor(url) {
         this._serverUrl = `http://${url}`;
         axios.defaults.validateStatus = function (status) {
-            return status <= 500; // Reject only if the status code is greater than 500
+            return status !== 401 && status <= 500; // Reject only if the status code is greater than 500
         }
     }
 
@@ -52,7 +52,7 @@ export class RequestService {
         } else {
             // TODO Log normal. + Unauth
             Logger.info(result.data.errorInfo);
-            throw new ServerExceptionModel(result.data.errorInfo, result.status);
+            throw new ServerExceptionModel(result.data.errorInfo, result.response.status);
             // Logger.error(result);
             // return false;
         }

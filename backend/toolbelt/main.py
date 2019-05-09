@@ -82,7 +82,10 @@ def handle_errors(func):
                 Logger().error_message('Message: {}. Code: {}'.format(ex.message, ex.status_code))
                 Logger().error_message(traceback.format_exc())
                 flash(ex.message, FlashCategoriesClasses.error)
-                return redirect(request.path)
+                if ex.status_code is status.HTTP_401_UNAUTHORIZED:
+                    return redirect(url_for('login'))
+                else:
+                    return redirect(request.path)
             else:
                 Logger().error_message('Got an unknown exception')
                 Logger().error_message(traceback.format_exc())
@@ -106,43 +109,45 @@ def index():
 
 
 @app.route('/login', methods=['GET', 'POST'])
+@handle_errors
 def login():
-    pass
-    # if current_user.is_authenticated:
-    #     Logger().info_message('Already logged')
-    #     return redirect(url_for('index'))
-    #
-    # form = LoginForm()
-    # if form.validate_on_submit():
-    #     Logger().info_message('Submit login')
-    #     try:
-    #         if not AuthorizationService().authorize(form.password.data):
-    #             return redirect(url_for('login'))
-    #     except Exception as ex:
-    #         return redirect(url_for('index'))
-    #
-    #     # if we here then out credentials is valid
-    #     login_user(User())
-    #     next_page = request.args.get('next')
-    #     session['is_logged'] = True
-    #     session['timestamp'] = datetime.datetime.utcnow()
-    #
-    #     if not next_page or url_parse(next_page).netloc != '':
-    #         next_page = url_for('index')
-    #
-    #     return redirect(next_page)
-    # return render_template('login.html', title='Sign In', form=form)
+    if session.get('is_logged'):
+        Logger().info_message('Already logged')
+        flash('Уже авторизован', FlashCategoriesClasses.info)
+        return redirect(url_for('index'))
+
+    form = LoginForm()
+    if form.validate_on_submit():
+        Logger().info_message('Submit login')
+        token = AuthorizationService().authorize(form.password.data)
+
+        # if we here then out credentials is valid
+        next_page = request.args.get('next')
+
+        session['is_logged'] = True
+        session['token'] = token
+
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('index')
+
+        flash('Успешно авторизован', FlashCategoriesClasses.success)
+        return redirect(next_page)
+    return render_template('login.html', title='Sign In', form=form)
 
 
 @app.route('/logout')
+@handle_errors
+@auth_required
 def logout():
-    pass
-    # logout_user()
-    # session['is_logged'] = False
-    # return redirect(url_for('login'))
+    session['is_logged'] = False
+    session['token'] = None
+    flash('Успешно деавторизован')
+    return redirect(url_for('index'))
 
 
 @app.route('/config', methods=['GET', 'POST'])
+@handle_errors
+@auth_required
 def config():
     if request.method == 'GET':
         return render_template('config.html', config=SettingsService().get_core_config(reload_from_disk=True))
@@ -158,12 +163,15 @@ def config():
 
 
 @app.route('/networks', methods=['GET'])
+@handle_errors
+@auth_required
 def networks():
     return render_template('networks.html')
 
 
 @app.route('/modules', methods=['GET'])
 @handle_errors
+@auth_required
 def modules():
     res = ModulesService().get_modules_list()
     return render_template('modules.html', core=res['core'], dependencies=res['dependencies'])
@@ -171,6 +179,7 @@ def modules():
 
 @app.route('/core/run', methods=['POST'])
 @handle_errors
+@auth_required
 def run_core():
     if ModulesService().run_core():
         flash('Ядро успешно запущено')
@@ -181,6 +190,7 @@ def run_core():
 
 @app.route('/core/stop', methods=['POST'])
 @handle_errors
+@auth_required
 def stop_core():
     if ModulesService().stop_core():
         flash('Ядро успешно остановлено')
@@ -191,6 +201,7 @@ def stop_core():
 
 @app.route('/pull_machine', methods=['POST'])
 @handle_errors
+@auth_required
 def pull_current_machine():
     if ModulesService().pull_machine():
         flash('Текущая конфигурация успешно обвнолена')
@@ -201,6 +212,7 @@ def pull_current_machine():
 
 @app.route('/build_machine', methods=['POST'])
 @handle_errors
+@auth_required
 def build_current_machine():
     if ModulesService().build_machine():
         flash('Текущая конфигурация успешно собрана')
@@ -211,6 +223,7 @@ def build_current_machine():
 
 @app.route('/pull_module/<string:module_name>', methods=['POST'])
 @handle_errors
+@auth_required
 def pull_module(module_name):
     if ModulesService().pull_module(module_name):
         flash('Модуль {} успешно обновлен'.format(module_name))
@@ -221,6 +234,7 @@ def pull_module(module_name):
 
 @app.route('/build_module/<string:module_name>', methods=['POST'])
 @handle_errors
+@auth_required
 def build_module(module_name):
     if ModulesService().build_module(module_name):
         flash('Модуль {} успешно собран'.format(module_name))
@@ -231,6 +245,7 @@ def build_module(module_name):
 
 @app.route('/manual_module_update/<string:module_name>', methods=['POST'])
 @handle_errors
+@auth_required
 def manual_update_module(module_name):
     allowed_extensions = {'zip'}
 
@@ -258,6 +273,7 @@ def manual_update_module(module_name):
 
 @app.route('/server_config', methods=['GET'])
 @handle_errors
+@auth_required
 def server_config():
     import copy
     server_config_obj = copy.copy(SettingsService().server_config)
@@ -269,6 +285,7 @@ def server_config():
 
 @app.route('/server_config', methods=['POST'])
 @handle_errors
+@auth_required
 def update_server_config():
     new_server_config = request.get_json()
     machine_type = new_server_config.get('type')
