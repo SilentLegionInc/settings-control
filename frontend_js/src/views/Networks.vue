@@ -364,7 +364,7 @@ export default {
             wiredNetworks: [],
             wirelessNetworks: [],
             _loader: null,
-            _timeoutToRedirectMsecs: 7000,
+            timeoutToRedirectMsecs: 7000,
             collapseStatuses: {},
             tempNetwork: {},
             networkToDelete: {}
@@ -406,12 +406,12 @@ export default {
             try {
                 let res = false;
                 if (network.password) {
-                    Logger.info(`Connecting to ${network.name} with password ${network.password}`);
-                    timeout = setTimeout(() => this.timeoutRedirection(loader, network), this._timeoutToRedirectMsecs);
+                    Logger.info(`Connecting to ${network.name} with password ${network.password}. Timeout ${this.timeoutToRedirectMsecs} msecs.`);
+                    timeout = setTimeout(this.timeoutRedirection, this.timeoutToRedirectMsecs, loader, network);
                     res = await this.$store.state.requestService.createWifiConnection(network.name, network.password);
                 } else if (network.id) {
-                    Logger.info(`Connecting to ${network.name} via known id ${network.id}`);
-                    timeout = setTimeout(() => this.timeoutRedirection(loader, network), this._timeoutToRedirectMsecs);
+                    Logger.info(`Connecting to ${network.name} via known id ${network.id}. Timeout ${this.timeoutToRedirectMsecs} msecs.`);
+                    timeout = setTimeout(this.timeoutRedirection, this.timeoutToRedirectMsecs, loader, network);
                     res = await this.$store.state.requestService.connectionUp(network.id);
                 } else {
                     this.$toaster.error('Не введено никаких данных для подключения к сети');

@@ -355,7 +355,13 @@ class Nmcli0990(NetworkDriver):
     def connection_up(self, connection_uuid):
         response = cmd('nmcli -w {} con up {}'.format(self._connection_timeout_secs, connection_uuid))
         if self._error_in_response(response):
-            if 'unknown connection' in response:
+            if 'Timeout' in response:
+                raise ServerException(
+                    'Превышен лимит ожидания ({} сек.). '
+                    'Вероятно был изменен пароль, либо к сети невозможно подключиться'
+                        .format(self._connection_timeout_secs),
+                    status.HTTP_400_BAD_REQUEST)
+            elif 'unknown connection' in response:
                 raise ServerException('Неизвестный идентификатор соединения {}'.format(connection_uuid), status.HTTP_400_BAD_REQUEST)
             elif 'device could not be readied' in response:
                 raise ServerException('Не удалось активировать соединение. Девайс недоступен', status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -447,8 +453,8 @@ class Nmcli0990(NetworkDriver):
 
     def create_wifi_connection(self, ssid, password):
         if self.ssid_to_uuid.get(ssid):
-            # if connection already exists just up it
-            return self.connection_up(self.ssid_to_uuid[ssid])
+            # if connection already exists need to remove it (in reason of change password)
+            self.delete_connection(self.ssid_to_uuid[ssid])
         # trying to connect
         # -w отвечает за таймаут операции, т.к. при неправильном пароле показывается гуй
         response = cmd('nmcli -w {} dev wifi connect "{}" password "{}"'.format(
