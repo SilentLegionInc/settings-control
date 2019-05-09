@@ -186,7 +186,7 @@ class Nmcli0990(NetworkDriver):
         self.interface_wifi(interface_wifi)
         self.interface_eth(interface_eth)
         self.ssid_to_uuid = {}
-        self._connection_timeout_secs = 10
+        self._connection_timeout_secs = 5
         self._load_connection_map()
         Logger().debug_message(self.ssid_to_uuid)
         self._detail_connection_params = detail_connection_params
@@ -353,7 +353,7 @@ class Nmcli0990(NetworkDriver):
         return mapped
 
     def connection_up(self, connection_uuid):
-        response = cmd('nmcli con up {}'.format(connection_uuid))
+        response = cmd('nmcli -w {} con up {}'.format(self._connection_timeout_secs, connection_uuid))
         if self._error_in_response(response):
             if 'unknown connection' in response:
                 raise ServerException('Неизвестный идентификатор соединения {}'.format(connection_uuid), status.HTTP_400_BAD_REQUEST)

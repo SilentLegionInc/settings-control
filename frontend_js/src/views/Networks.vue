@@ -364,6 +364,7 @@ export default {
             wiredNetworks: [],
             wirelessNetworks: [],
             _loader: null,
+            _timeoutToRedirectMsecs: 7000,
             collapseStatuses: {},
             tempNetwork: {},
             networkToDelete: {}
@@ -389,24 +390,39 @@ export default {
             loader.hide();
         },
 
+        // По истечению таймаута мы вынуждены редиректить пользователя на домашнюю страницу, т.к. нет вомзможности
+        // получить ответ от сервера из другой сети
+        timeoutRedirection(loaderToHide, newNetwork) {
+            this.$router.push('/');
+            loaderToHide.hide();
+            newNetwork.password = '';
+            this.tempNetwork = {};
+            this.$toaster.success(`Текущая сеть: ${newNetwork.name}`);
+        },
+
         async connect(network) {
             const loader = this.$loading.show();
+            let timeout = null;
             try {
                 let res = false;
                 if (network.password) {
                     Logger.info(`Connecting to ${network.name} with password ${network.password}`);
+                    timeout = setTimeout(() => this.timeoutRedirection(loader, network), this._timeoutToRedirectMsecs);
                     res = await this.$store.state.requestService.createWifiConnection(network.name, network.password);
                 } else if (network.id) {
                     Logger.info(`Connecting to ${network.name} via known id ${network.id}`);
+                    timeout = setTimeout(() => this.timeoutRedirection(loader, network), this._timeoutToRedirectMsecs);
                     res = await this.$store.state.requestService.connectionUp(network.id);
                 } else {
                     this.$toaster.error('Не введено никаких данных для подключения к сети');
                 }
                 if (res) {
+                    clearTimeout(timeout);
                     await this.loadData();
                     this.$toaster.success(`Текущая сеть: ${network.name}`);
                 }
             } catch (err) {
+                clearTimeout(timeout);
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);
                 } else {
