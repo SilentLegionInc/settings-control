@@ -19,6 +19,7 @@ import NotFoundPage from './views/NotFoundPage'
 Vue.use(Router);
 
 const ifAuthenticated = (to, from, next) => {
+    // TODO add check serverIsConnected
     if (store.getters.isAuthenticated) {
         next();
         return
@@ -51,14 +52,6 @@ export default new Router({
             path: '/',
             name: 'home',
             component: Home
-        },
-        {
-            path: '/test',
-            name: 'test',
-            // route level code-splitting
-            // this generates a separate chunk (about.[hash].js) for this route
-            // which is lazy-loaded when the route is visited.
-            component: () => import('./test/Test.vue')
         },
         {
             path: '/settings',

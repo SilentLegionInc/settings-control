@@ -85,6 +85,7 @@ export default {
         UpdateConfig: async function () {
             try {
                 this._loader = this.$loading.show();
+                Logger.info('Setting config: ' + JSON.stringify(this.settings, null, 2));
                 const result = await this.$store.state.requestService.setCoreConfig(this.settings);
                 if (result) {
                     this.$toaster.success('Успешно обновлено');

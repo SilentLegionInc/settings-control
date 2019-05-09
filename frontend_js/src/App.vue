@@ -15,7 +15,6 @@ import Header from './components/Header.vue';
 import Sidebar from './components/Sidebar.vue';
 import Footer from './components/Footer.vue';
 import axios from 'axios';
-import { ServerExceptionModel } from './models/ServerExceptionModel'
 
 export default {
     name: 'App',
@@ -38,19 +37,30 @@ export default {
             this.sidebarIsOpened = false;
         }
     },
-    async created() {
+    beforeCreate() {
         axios.interceptors.response.use((res) => res, (err) => {
-            if (err.response.status === 401) {
-                // if you ever get an unauthorized, logout the user
-                this.$store.commit('deleteAuthToken');
-                this.$router.push('/login');
-                throw new ServerExceptionModel(err.response.data.errorInfo, err.response.status);
+            if (err.response != null) {
+                if (err.response.status === 401) {
+                    // if you ever get an unauthorized, logout the user
+                    this.$store.commit('deleteAuthToken');
+                    // this.$toaster.error(err.response.data.errorInfo);
+                    this.$router.push('/login');
+                } else {
+                    // this.$toaster.error('Что-то страшное: ' + err.response.data.errorInfo)
+                }
+                return err.response;
             } else {
-                throw new ServerExceptionModel(err.response.data.errorInfo, err.response.status);
+                return {
+                    data: {
+                        errorInfo: 'Неизвестная ошибка клиента'
+                    },
+                    status: 418
+                };
             }
         });
-
-        await this.$store.dispatch('initUrl');
+        Promise.resolve().then(async () => {
+            await this.$store.dispatch('initUrl');
+        });
     }
 }
 </script>

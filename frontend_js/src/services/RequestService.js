@@ -52,7 +52,7 @@ export class RequestService {
         } else {
             // TODO Log normal. + Unauth
             Logger.info(result.data.errorInfo);
-            throw new ServerExceptionModel(result.data.errorInfo, result.response.status);
+            throw new ServerExceptionModel(result.data.errorInfo, result.status);
             // Logger.error(result);
             // return false;
         }
@@ -240,7 +240,7 @@ export class RequestService {
     }
 
     async setCoreConfig(newConfig) {
-        const path = this._constructPath('api/config');
+        const path = this._constructPath('api/core_config');
         const res = await axios.post(path, newConfig);
         if (res.status === 200) {
             // TODO change answer format in backend

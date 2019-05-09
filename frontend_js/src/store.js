@@ -74,19 +74,21 @@ export default new Vuex.Store({
             if (!this.state.robotName) {
                 const urlFromCookies = Vue.prototype.$cookies.get('toolbeltServerUrl');
                 try {
-                    if (this.state.url) {
-                        const res = await this.state.requestService.getServerInfo(null, false);
-                        if (res.ok) {
-                            this.commit('setRobotName', res.robotType);
-                            this.commit('setRobotLabel', res.robotName);
-                        }
-                    } else if (urlFromCookies && urlFromCookies !== 'undefined') {
+                    if (urlFromCookies && urlFromCookies !== 'undefined') {
                         const tempUrl = urlFromCookies;
                         const res = await this.state.requestService.getServerInfo(tempUrl, false);
                         if (res.ok) {
+                            Logger.info('Success url ' + tempUrl);
                             this.commit('changeHostAddress', tempUrl);
                             this.commit('setRobotName', res.robotType);
                             this.commit('setRobotLabel', res.robotName);
+                        }
+                    } else if (this.state.url) {
+                        // TODO catch
+                        const res = await this.state.requestService.getServerInfo(null, false)
+                        if (res.ok) {
+                            this.commit('setRobotName', res.robotType)
+                            this.commit('setRobotLabel', res.robotName)
                         }
                     } else {
                         Logger.info(`Can't find persisted url. Need to connect.`);
