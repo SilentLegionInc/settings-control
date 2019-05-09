@@ -9,9 +9,11 @@
                 </li>
             </ul>
 
-            <div class="navbar-brand">
-                ToolBelt
-            </div>
+            <router-link class="clickable" to="/">
+                <div class="navbar-brand">
+                    ToolBelt
+                </div>
+            </router-link>
 
             <ul class="navbar-nav ml-auto">
                 <li>

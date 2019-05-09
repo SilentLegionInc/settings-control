@@ -14,6 +14,7 @@ import SystemInfo from './views/SystemInfo';
 import ServerSettings from './views/ServerSettings';
 import LoginPage from './views/LoginPage';
 import Home from './views/Home';
+import NotFoundPage from './views/NotFoundPage'
 
 Vue.use(Router);
 
@@ -129,6 +130,11 @@ export default new Router({
             path: '/login',
             name: 'login-page',
             component: LoginPage
+        },
+        {
+            path: '*',
+            name: 'not-found',
+            component: NotFoundPage
         }
     ]
 })
