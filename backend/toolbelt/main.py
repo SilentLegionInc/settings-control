@@ -2,7 +2,7 @@ import os
 import datetime
 from functools import wraps
 
-from flask import Flask, flash, request, redirect, url_for, render_template, session
+from flask import Flask, flash, request, redirect, url_for, render_template, session, jsonify
 from flask_api import status
 from flask_cors import CORS
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
@@ -70,11 +70,11 @@ def index():
     return render_template('index.html')
 
 
-@app.context_processor
-def set_is_auth():
-    # TODO refactored to g?
-    return dict(is_auth=session.get('is_logged', False),
-                user_timestamp=session.get('timestamp', None))
+# @app.context_processor
+# def set_is_auth():
+#     # TODO refactored to g?
+#     return dict(is_auth=session.get('is_logged', False),
+#                 user_timestamp=session.get('timestamp', None))
 
 
 @app.route('/login', methods=['GET', 'POST'])
