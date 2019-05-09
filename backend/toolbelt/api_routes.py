@@ -8,7 +8,7 @@ from flask_api import status
 from werkzeug.exceptions import HTTP_STATUS_CODES
 from werkzeug.utils import secure_filename
 
-from toolbelt.configuration.authoriztaion_service import AuthorizationService
+from toolbelt.configuration.authorization_service import AuthorizationService
 from toolbelt.configuration.modules_service import ModulesService
 from toolbelt.support.helper import allowed_file_extension
 from toolbelt.support.logger import Logger

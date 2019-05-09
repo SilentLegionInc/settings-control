@@ -11,7 +11,7 @@ from flask_bcrypt import Bcrypt
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
 
-from toolbelt.configuration.authoriztaion_service import AuthorizationService
+from toolbelt.configuration.authorization_service import AuthorizationService
 from toolbelt.api_routes import api_blueprint as api_endpoints
 from toolbelt.support.helper import allowed_file_extension
 from toolbelt.support.logger import Logger
@@ -45,6 +45,30 @@ class FlashCategoriesClasses:
     warning = 'alert-warning'
     error = 'alert-danger'
     success = 'alert-success'
+
+
+def auth_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if session['is_logged']:
+            token = session.get('token', 'Basic Og==')
+            token_uuid, password = AuthorizationService().parse_token(token)
+
+            try:
+                AuthorizationService().check_token(token_uuid, password)
+                session['is_logged'] = True
+            except ServerException:
+                session['is_logged'] = False
+                session['token'] = None
+                raise
+        else:
+            session['is_logged'] = False
+            session['token'] = None
+            raise ServerException('Необходимо авторизироваться', status.HTTP_401_UNAUTHORIZED)
+
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 def handle_errors(func):

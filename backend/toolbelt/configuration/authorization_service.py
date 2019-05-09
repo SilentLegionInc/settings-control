@@ -1,6 +1,5 @@
 from toolbelt.support.singleton import Singleton
 from toolbelt.support.settings_service import SettingsService
-from flask import flash
 import base64
 from flask_api import status
 import uuid
@@ -16,8 +15,7 @@ class AuthorizationService(metaclass=Singleton):
     def _check_password(self, password):
         stored_pass = SettingsService().server_config.get('password')
         if not stored_pass:
-            err_text = 'Ошибка аутентификации. Проверьте пароль на сервере'
-            flash(err_text)
+            err_text = 'Ошибка аутентификации. Настройте серверный пароль'
             raise ServerException(err_text, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return password == stored_pass
@@ -33,52 +31,46 @@ class AuthorizationService(metaclass=Singleton):
         expiration_time = SettingsService().server_config.get('token_expiration_time')
         return ((now - self.last_token_use).seconds / 60) > expiration_time
 
+    def parse_token(self, token):
+        splitted_token = token[6:].encode('utf-8')
+        temp_str = base64.b64decode(splitted_token).decode()
+        return tuple(temp_str.split(':'))
+
     def authorize(self, password):
         if self._check_password(password):
             self.last_token_use = datetime.datetime.now()
             return self._generate_token(password)
         else:
-            err_text = 'Неправильный пароль'
-            flash(err_text)
-            raise ServerException(err_text, status.HTTP_401_UNAUTHORIZED)
+            raise ServerException('Неправильный пароль', status.HTTP_401_UNAUTHORIZED)
 
     def deauthorize(self):
         if self.token_uuid:
             self.token_uuid = None
             return True
         else:
-            err_text = 'Токен не найден, необходимо авторизироваться'
-            flash(err_text)
-            raise ServerException(err_text, status.HTTP_401_UNAUTHORIZED)
+            raise ServerException('Необходимо авторизироваться', status.HTTP_401_UNAUTHORIZED)
 
     def check_token(self, token_uuid, password):
         if self.token_uuid:
             token_correct = self.token_uuid == token_uuid
             if not token_correct:
-                err_text = 'Токен не найден, необходимо авторизироваться'
-                flash(err_text)
-                raise ServerException(err_text, status.HTTP_401_UNAUTHORIZED)
+                raise ServerException('Необходимо авторизироваться', status.HTTP_401_UNAUTHORIZED)
 
             if self._check_password(password):
                 if not self._is_token_expired():
                     self.last_token_use = datetime.datetime.now()
                     return True
                 else:
-                    return False
+                    raise ServerException('Необходимо авторизироваться', status.HTTP_401_UNAUTHORIZED)
             else:
-                err_text = 'Неправильный пароль'
-                flash(err_text)
-                raise ServerException(err_text, status.HTTP_401_UNAUTHORIZED)
+                raise ServerException('Неправильный пароль', status.HTTP_401_UNAUTHORIZED)
         else:
-            err_text = 'Токен не найден, необходимо авторизироваться'
-            flash(err_text)
-            raise ServerException(err_text, status.HTTP_401_UNAUTHORIZED)
+            raise ServerException('Необходимо авторизироваться', status.HTTP_401_UNAUTHORIZED)
 
     def change_password(self, old_password, new_password):
         stored_pass = SettingsService().server_config.get('password')
         if not stored_pass:
-            err_text = 'Ошибка аутентификации. Проверьте пароль на сервере'
-            flash(err_text)
+            err_text = 'Ошибка аутентификации. Настройте серверный пароль'
             raise ServerException(err_text, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         if old_password == stored_pass:
@@ -87,6 +79,4 @@ class AuthorizationService(metaclass=Singleton):
             self.last_token_use = datetime.datetime.now()
             return self._generate_token(new_password)
         else:
-            err_text = 'Неправильный пароль'
-            flash(err_text)
-            raise ServerException(err_text, status.HTTP_401_UNAUTHORIZED)
+            raise ServerException('Неправильный пароль', status.HTTP_401_UNAUTHORIZED)
