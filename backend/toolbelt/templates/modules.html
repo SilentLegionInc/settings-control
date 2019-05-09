@@ -1,39 +1,125 @@
 {% extends 'base.html' %}
-{% block content %}
-    <div class="container-fluid mt-3">
-        <div class="row">
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    <ul class=flashes>
-                        {% for message in messages %}
-                            <li>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endwith %}
+{% block page_content %}
+    <div class="row">
+        <div class="col-xs-offset-0 col-sm-offset-0 col-md-offset-1 col-lg-offset-3 col-xs-12 col-sm-12 col-md-10 col-lg-6">
+            <div class="card mb-3">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <h3 align="center" style="margin-top: 0;">{{ core.name }}</h3>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <b>Имя конфига:</b>
+                        <form action="/test" method="POST">
+                                <button class="btn btn-primary btn-block" type="submit">ТЕСТ</button>
+                        </form>
+                    </div>
+                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                        {{ core.config_path }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <b>Имя исполняемого файла:</b>
+                    </div>
+                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                        {{ core.execute }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <b>Адрес git:</b>
+                    </div>
+                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                        {{ core.url }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <b>Время последней сборки:</b>
+                    </div>
+                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                        {% if core.is_built %}
+                            {{ core.build_modify_time }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <b>Время последнего пула:</b>
+                    </div>
+                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                        {% if core.is_cloned %}
+                            {{ core.src_modify_time }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mt-3 mb-3">
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        {% if core.is_active %}
+                            <form action="/core/stop" method="POST">
+                                <button class="btn btn-primary btn-block" type="submit">Остановить</button>
+                            </form>
+                        {% else %}
+                            {% if core.is_built %}
+                                <form action="/core/run" method="POST">
+                                    <button class="btn btn-primary btn-block" type="submit">Запустить</button>
+                                </form>
+                            {% else %}
+                                <button class="btn btn-primary btn-block" type="submit" disabled>Запустить</button>
+                            {% endif %}
+                        {% endif %}
+
+                    </div>
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <form action="/pull_module/{{ core.name }}" method="POST">
+                            <button class="btn btn-primary btn-block" type="submit">Обновить</button>
+                        </form>
+                    </div>
+                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                        <form action="/pull_machine" method="POST">
+                            <button class="btn btn-primary btn-block" type="submit">Обновить все</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <form action="/build_module/{{ core.name }}" method="POST">
+                            <button class="btn btn-primary btn-block" type="submit">Собрать</button>
+                        </form>
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                        <form action="/build_machine" method="POST">
+                            <button class="btn btn-primary btn-block" type="submit">Собрать все</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <form action="/manual_module_update/{{ core.name }}" method="POST" enctype="multipart/form-data">
+                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                            <input class="form-control" type="file" name="file">
+                        </div>
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <button class="btn btn-primary btn-block" type="submit">Ручное обновление</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
+    </div>
+
+    {% for dependency in dependencies %}
         <div class="row">
             <div class="col-xs-offset-0 col-sm-offset-0 col-md-offset-1 col-lg-offset-3 col-xs-12 col-sm-12 col-md-10 col-lg-6">
                 <div class="card mb-3">
                     <div class="row">
                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                            <h3 align="center" style="margin-top: 0;">{{ core.name }}</h3>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                            <b>Имя конфига:</b>
-                        </div>
-                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                            {{ core.config_path }}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                            <b>Имя исполняемого файла:</b>
-                        </div>
-                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                            {{ core.execute }}
+                            <h3 align="center" style="margin-top: 0;">{{ dependency.name }}</h3>
                         </div>
                     </div>
                     <div class="row">
@@ -41,7 +127,7 @@
                             <b>Адрес git:</b>
                         </div>
                         <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                            {{ core.url }}
+                            {{ dependency.url }}
                         </div>
                     </div>
                     <div class="row">
@@ -49,8 +135,8 @@
                             <b>Время последней сборки:</b>
                         </div>
                         <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                            {% if core.is_built %}
-                                {{ core.build_modify_time }}
+                            {% if dependency.is_built %}
+                                {{ dependency.build_modify_time }}
                             {% else %}
                                 -
                             {% endif %}
@@ -61,55 +147,27 @@
                             <b>Время последнего пула:</b>
                         </div>
                         <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                            {% if core.is_cloned %}
-                                {{ core.src_modify_time }}
+                            {% if dependency.is_cloned %}
+                                {{ dependency.src_modify_time }}
                             {% else %}
                                 -
                             {% endif %}
                         </div>
                     </div>
                     <div class="row mt-3 mb-3">
-                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                            {% if core.is_active %}
-                                <form action="/core/stop" method="POST">
-                                    <button class="btn btn-primary btn-block" type="submit">Остановить</button>
-                                </form>
-                            {% else %}
-                                {% if core.is_built %}
-                                    <form action="/core/run" method="POST">
-                                        <button class="btn btn-primary btn-block" type="submit">Запустить</button>
-                                    </form>
-                                {% else %}
-                                    <button class="btn btn-primary btn-block" type="submit" disabled>Запустить</button>
-                                {% endif %}
-                            {% endif %}
-
-                        </div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                            <form action="/pull_module/{{ core.name }}" method="POST">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <form action="/pull_module/{{ dependency.name }}" method="POST">
                                 <button class="btn btn-primary btn-block" type="submit">Обновить</button>
                             </form>
                         </div>
-                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                            <form action="/pull_machine" method="POST">
-                                <button class="btn btn-primary btn-block" type="submit">Обновить все</button>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
                         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                            <form action="/build_module/{{ core.name }}" method="POST">
+                            <form action="/build_module/{{ dependency.name }}" method="POST">
                                 <button class="btn btn-primary btn-block" type="submit">Собрать</button>
-                            </form>
-                        </div>
-                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                            <form action="/build_machine" method="POST">
-                                <button class="btn btn-primary btn-block" type="submit">Собрать все</button>
                             </form>
                         </div>
                     </div>
                     <div class="row">
-                        <form action="/manual_module_update/{{ core.name }}" method="POST" enctype="multipart/form-data">
+                        <form action="/manual_module_update/{{ dependency.name }}" method="POST" enctype="multipart/form-data">
                             <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
                                 <input class="form-control" type="file" name="file">
                             </div>
@@ -121,73 +179,5 @@
                 </div>
             </div>
         </div>
-
-        {% for dependency in dependencies %}
-            <div class="row">
-                <div class="col-xs-offset-0 col-sm-offset-0 col-md-offset-1 col-lg-offset-3 col-xs-12 col-sm-12 col-md-10 col-lg-6">
-                    <div class="card mb-3">
-                        <div class="row">
-                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                <h3 align="center" style="margin-top: 0;">{{ dependency.name }}</h3>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                                <b>Адрес git:</b>
-                            </div>
-                            <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                                {{ dependency.url }}
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                                <b>Время последней сборки:</b>
-                            </div>
-                            <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                                {% if dependency.is_built %}
-                                    {{ dependency.build_modify_time }}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                                <b>Время последнего пула:</b>
-                            </div>
-                            <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                                {% if dependency.is_cloned %}
-                                    {{ dependency.src_modify_time }}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="row mt-3 mb-3">
-                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                                <form action="/pull_module/{{ dependency.name }}" method="POST">
-                                    <button class="btn btn-primary btn-block" type="submit">Обновить</button>
-                                </form>
-                            </div>
-                            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                                <form action="/build_module/{{ dependency.name }}" method="POST">
-                                    <button class="btn btn-primary btn-block" type="submit">Собрать</button>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <form action="/manual_module_update/{{ dependency.name }}" method="POST" enctype="multipart/form-data">
-                                <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                                    <input class="form-control" type="file" name="file">
-                                </div>
-                                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                                    <button class="btn btn-primary btn-block" type="submit">Ручное обновление</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
-    </div>
+    {% endfor %}
 {% endblock %}

@@ -15,15 +15,15 @@
 {% endblock %}
 
 {% block content %}
-    <div class="row">
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul class=flashes>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+    <div class="container-fluid">
+        <div class="mt-1">
+        {% for category, message in get_flashed_messages(with_categories=True) %}
+            <div class="alert {{ category if not category == 'message' else 'alert-info' }}" style="margin-bottom: 5px">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message }}
+            </div>
+        {% endfor %}
+        </div>
+        {% block page_content %}{% endblock %}
     </div>
 {% endblock %}

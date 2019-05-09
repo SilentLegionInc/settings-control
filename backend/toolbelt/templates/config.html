@@ -1,23 +1,21 @@
 {% extends 'base.html' %}
-{% block content %}
-    <div class="container">
-        <form method="post" action="/config">
-            {% for key in config %}
-                <div class="row" style="margin-top: 10px">
-                    <div class="col-md-3 col-md-offset-2">
-                    {{ key }}:
-                    </div>
-                    <div class="col-md-5">
-                        <input class="form-control" type="text" name="{{ key }}" value="{{ config[key] }}">
-                    </div>
-                </div>
-            {% endfor %}
+{% block page_content %}
+    <form method="post" action="/config">
+        {% for key in config %}
             <div class="row" style="margin-top: 10px">
-                <div class="col-md-5 col-md-offset-5" align="right">
-                    <button class="btn btn-success" type="submit">Update</button>
-                    <button class="btn btn-danger" type="reset">Reset</button>
+                <div class="col-md-3 col-md-offset-2">
+                {{ key }}:
+                </div>
+                <div class="col-md-5">
+                    <input class="form-control" type="text" name="{{ key }}" value="{{ config[key] }}">
                 </div>
             </div>
-        </form>
-    </div>
+        {% endfor %}
+        <div class="row" style="margin-top: 10px">
+            <div class="col-md-5 col-md-offset-5" align="right">
+                <button class="btn btn-success" type="submit">Update</button>
+                <button class="btn btn-danger" type="reset">Reset</button>
+            </div>
+        </div>
+    </form>
 {% endblock %}
