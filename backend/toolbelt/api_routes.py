@@ -72,9 +72,11 @@ def api_authorization(func):
 @api_authorization
 def api_config():
     if request.method == 'GET':
-        return jsonify(SettingsService().get_core_config(reload_from_disk=True))
+        ans = SettingsService().get_core_config(reload_from_disk=True)
+        return jsonify(ans)
     elif request.method == 'POST':
-        return jsonify(SettingsService().save_core_config(request.get_json()))
+        ans = SettingsService().save_core_config(request.get_json())
+        return jsonify(ans)
 
 # NETWORKS API #
 

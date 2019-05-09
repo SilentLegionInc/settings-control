@@ -37,7 +37,7 @@ export default {
             this.sidebarIsOpened = false;
         }
     },
-    beforeCreate() {
+    async beforeCreate() {
         axios.interceptors.response.use((res) => res, (err) => {
             if (err.response != null) {
                 if (err.response.status === 401) {
@@ -58,9 +58,10 @@ export default {
                 };
             }
         });
-        Promise.resolve().then(async () => {
-            await this.$store.dispatch('initUrl');
-        });
+        await this.$store.dispatch('initUrl');
+        if (!this.$store.state.url) {
+            this.$router.push('/');
+        }
     }
 }
 </script>

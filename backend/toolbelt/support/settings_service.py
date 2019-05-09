@@ -112,8 +112,8 @@ class SettingsService(metaclass=Singleton):
             )
             Logger().info_message('Saving core config for {} to {}'.format(self.server_config['type'],
                                                                            path_to_current_core_config))
-            if not os.path.exists(path_to_current_core_config):
-                raise Exception('Файл конфигурации ядра не найден в: {}'.format(path_to_current_core_config))
+            # if not os.path.exists(path_to_current_core_config):
+            #     raise Exception('Файл конфигурации ядра не найден в: {}'.format(path_to_current_core_config))
             self._core_config = config
             config_file = open(path_to_current_core_config, 'w')
             config_file.write(json.dumps(self._core_config))

@@ -18,8 +18,17 @@ import NotFoundPage from './views/NotFoundPage'
 
 Vue.use(Router);
 
-const ifAuthenticated = (to, from, next) => {
-    // TODO add check serverIsConnected
+const ifAuthenticated = async (to, from, next) => {
+    if (store.state.url) {
+        next();
+    } else {
+        const connected = await store.dispatch('initUrl');
+        if (!connected) {
+            Vue.prototype.$toaster.error('Для доступа к этой странице необходимо подключиться к серверу');
+            next('/');
+        }
+    }
+
     if (store.getters.isAuthenticated) {
         next();
         return
@@ -35,12 +44,15 @@ const ifAuthenticated = (to, from, next) => {
     next('/login');
 };
 
-const isServerConnected = (to, from, next) => {
-    if (store.state.robotName) {
+const isServerConnected = async (to, from, next) => {
+    if (store.state.url) {
         next();
     } else {
-        Vue.prototype.$toaster.error('Для доступа к этой странице необходимо подключиться к серверу');
-        next('/');
+        const connected = await store.dispatch('initUrl');
+        if (!connected) {
+            Vue.prototype.$toaster.error('Для доступа к этой странице необходимо подключиться к серверу');
+            next('/');
+        }
     }
 };
 

@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import Config from './config';
+// import Config from './config';
 import { RequestService } from './services/RequestService';
 import Logger from './logger';
 
@@ -9,8 +9,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         authToken: null,
-        url: Config.backendUrl,
-        requestService: new RequestService(Config.backendUrl),
+        url: null,
+        requestService: new RequestService(null),
         robotName: null,
         robotLabel: 'UNK'
     },
@@ -71,31 +71,38 @@ export default new Vuex.Store({
             }
         },
         async initUrl(ctxt) {
-            if (!this.state.robotName) {
+            let connected = false;
+            if (!this.state.url) {
                 const urlFromCookies = Vue.prototype.$cookies.get('toolbeltServerUrl');
                 try {
                     if (urlFromCookies && urlFromCookies !== 'undefined') {
                         const tempUrl = urlFromCookies;
                         const res = await this.state.requestService.getServerInfo(tempUrl, false);
                         if (res.ok) {
-                            Logger.info('Success url ' + tempUrl);
+                            connected = true;
                             this.commit('changeHostAddress', tempUrl);
                             this.commit('setRobotName', res.robotType);
                             this.commit('setRobotLabel', res.robotName);
                         }
-                    } else if (this.state.url) {
+                    }
+                    if (!connected) {
                         // TODO catch
-                        const res = await this.state.requestService.getServerInfo(null, false)
+                        const tempUrl = '127.0.0.1:5000';
+                        const res = await this.state.requestService.getServerInfo(tempUrl, false)
                         if (res.ok) {
+                            connected = true;
+                            this.commit('changeHostAddress', tempUrl);
                             this.commit('setRobotName', res.robotType)
                             this.commit('setRobotLabel', res.robotName)
                         }
-                    } else {
-                        Logger.info(`Can't find persisted url. Need to connect.`);
+                    }
+                    if (!connected) {
+                        Logger.info('Not connected');
                     }
                 } catch {
                     // do nothing
                 }
+                return connected;
             }
         }
     }

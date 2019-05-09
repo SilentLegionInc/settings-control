@@ -6,7 +6,6 @@ class ServerException(Exception):
         super(ServerException, self).__init__(exception)
         self._message = message
         self._status_code = status_code
-        pass
 
     @property
     def message(self):
