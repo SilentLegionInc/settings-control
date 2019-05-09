@@ -87,7 +87,7 @@ def login():
     if form.validate_on_submit():
         Logger().info_message('Submit login')
         try:
-            if not AuthorizationService().check_password(form.password.data, False):
+            if not AuthorizationService().authorize(form.password.data):
                 return redirect(url_for('login'))
         except Exception as ex:
             return redirect(url_for('index'))

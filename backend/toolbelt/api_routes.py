@@ -158,7 +158,7 @@ def api_modify_connection(uuid):
 @handle_api_errors
 def api_login():
     info = request.get_json()
-    result = AuthorizationService().check_password(info.get('password', ''), True)
+    result = AuthorizationService().authorize(info.get('password', ''))
     if result:
         return jsonify({'token': result}), status.HTTP_200_OK
 
@@ -167,7 +167,7 @@ def api_login():
 @handle_api_errors
 @api_authorization
 def api_logout():
-    if AuthorizationService().delete_token():
+    if AuthorizationService().deauthorize():
         return jsonify({'ok': True}), status.HTTP_200_OK
 
 
