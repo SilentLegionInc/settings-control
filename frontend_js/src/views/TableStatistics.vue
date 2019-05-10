@@ -76,7 +76,7 @@
                     <td>{{ dataElement.time | moment("DD.MM.YYYY HH:mm:ss.SSS") }}</td>
                     <td>{{ dataElement.latitude }}</td>
                     <td>{{ dataElement.longitude }}</td>
-                    <td v-for="(structElement, structElementIndex) in dataStructure" :key="structElementIndex">{{ dataElement.data[structElement.systemName] }}</td>
+                    <td v-for="(structElement, structElementIndex) in dataStructure" :key="structElementIndex">{{ dataElement.data[structElement.systemName] | toFixedPrecision}}</td>
                 </tr>
                 </tbody>
             </table>
