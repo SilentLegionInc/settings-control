@@ -29,13 +29,6 @@
             </div>
         </div>
         <div class="row mb-2">
-            <label class="col-xl-3 col-lg-3 col-form-label" for="sshName">Имя файла ssh ключа:</label>
-            <div class="col-xl-9 col-lg-9 col-12">
-                <input class="form-control" type="text" id="sshName" v-model="data.sshName"
-                       :placeholder="'...'"/>
-            </div>
-        </div>
-        <div class="row mb-2">
             <label class="col-xl-3 col-lg-3 col-form-label" for="repositoriesPlatform">Платформа git:</label>
             <div class="col-xl-9 col-lg-9 col-12">
                 <input class="form-control" type="text" id="repositoriesPlatform" v-model="data.repositoriesPlatform"

@@ -197,7 +197,7 @@ class Nmcli0990(NetworkDriver):
     def _save_connection_map(self):
         Logger().info_message('saving connections map')
         with open('settings_tool_backend_connection_map', 'w') as f:
-            f.write(json.dumps(self.ssid_to_uuid))
+            f.write(json.dumps(self.ssid_to_uuid, indent=4))
         return True
 
     def _load_connection_map(self):

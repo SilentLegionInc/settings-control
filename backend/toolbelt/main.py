@@ -25,9 +25,6 @@ app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
 app.config['SECRET_KEY'] = SettingsService().private_server_config['secret']
-app.config['UPLOAD_FOLDER'] = os.path.expanduser(SettingsService().server_config['upload_path'])
-if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'])
 app.secret_key = app.config['SECRET_KEY']
 
 cors = CORS(app)
@@ -261,7 +258,10 @@ def manual_update_module(module_name):
                               status.HTTP_406_NOT_ACCEPTABLE)
 
     file_name = secure_filename(file.filename)
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+    download_path = os.path.expanduser(SettingsService().server_config['upload_path'])
+    if not os.path.exists(download_path):
+        os.makedirs(download_path)
+    file_path = os.path.join(download_path, file_name)
     file.save(file_path)
 
     if ModulesService().manual_module_update(file_path, module_name):

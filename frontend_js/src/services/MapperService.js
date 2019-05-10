@@ -66,8 +66,7 @@ export class MapperService {
     static mapServerSettingsResponse(responseBody) {
         return new ServerSettingsModel(responseBody['type'], responseBody['sources_path'],
             responseBody['builds_path'], responseBody['upload_path'], responseBody['qmake_path'],
-            responseBody['ssh_key_name'], responseBody['repositories_platform'],
-            responseBody['possible_machines_types']);
+            responseBody['repositories_platform'], responseBody['possible_machines_types']);
     }
 
     static mapInitChartDataResponse(responseBody) {

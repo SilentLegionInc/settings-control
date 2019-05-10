@@ -361,7 +361,10 @@ def api_update_ssh():
                               status.HTTP_406_NOT_ACCEPTABLE)
 
     file_name = secure_filename(file.filename)
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+    download_path = os.path.expanduser(SettingsService().server_config['upload_path'])
+    if not os.path.exists(download_path):
+        os.makedirs(download_path)
+    file_path = os.path.join(download_path, file_name)
     file.save(file_path)
     if ModulesService().update_ssh_key(file_path):
         return jsonify({'ok': True}), status.HTTP_200_OK
@@ -435,7 +438,10 @@ def api_manual_module_update(module_name):
                               status.HTTP_406_NOT_ACCEPTABLE)
 
     file_name = secure_filename(file.filename)
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+    download_path = os.path.expanduser(SettingsService().server_config['upload_path'])
+    if not os.path.exists(download_path):
+        os.makedirs(download_path)
+    file_path = os.path.join(download_path, file_name)
     file.save(file_path)
 
     if ModulesService().manual_module_update(file_path, module_name):

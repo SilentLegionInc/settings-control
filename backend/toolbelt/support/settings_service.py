@@ -72,7 +72,7 @@ class SettingsService(metaclass=Singleton):
         Logger().info_message('Saving server config')
         try:
             config_file = open(self._server_config_path, 'w')
-            config_file.write(json.dumps(self._server_config))
+            config_file.write(json.dumps(self._server_config, indent=4))
             config_file.close()
         except Exception as ex:
             error_text = 'Ошибка загрузки конфигурации сервера: {}'.format(str(ex))
@@ -116,7 +116,7 @@ class SettingsService(metaclass=Singleton):
             #     raise Exception('Файл конфигурации ядра не найден в: {}'.format(path_to_current_core_config))
             self._core_config = config
             config_file = open(path_to_current_core_config, 'w')
-            config_file.write(json.dumps(self._core_config))
+            config_file.write(json.dumps(self._core_config, indent=4))
             config_file.close()
         except Exception as ex:
             error_text = 'Ошибка сохранения конфигурации ядра: {}'.format(str(ex))
