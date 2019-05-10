@@ -26,6 +26,8 @@ const ifAuthenticated = async (to, from, next) => {
         if (!connected) {
             Vue.prototype.$toaster.error('Для доступа к этой странице необходимо подключиться к серверу');
             next('/');
+        } else {
+            next();
         }
     }
 
@@ -52,6 +54,8 @@ const isServerConnected = async (to, from, next) => {
         if (!connected) {
             Vue.prototype.$toaster.error('Для доступа к этой странице необходимо подключиться к серверу');
             next('/');
+        } else {
+            next();
         }
     }
 };
