@@ -93,7 +93,7 @@ class CoreService(metaclass=Singleton):
     def _compile_core(self):
         if self.compile_status is None:
             Logger().error_message('Can\'t run several compile processes at time.')
-            return
+            raise ServerException('Нельзя запустить несколько процессов сборки одновременно')
 
         self.compile_status = None
         self.compile_output = ''
@@ -123,6 +123,7 @@ class CoreService(metaclass=Singleton):
             self.compile_status = ProcessStatus.ERROR
             Logger().error_message('Exception while core building: {}'.format(e))
 
+        self.compile_status = ProcessStatus.SUCCESS
         real_errors_regex = r"^(?P<real_error>.*error.*(?<!\(ignored\)))$"
         self.errors.extend(re.findall(real_errors_regex, self.compile_output, re.IGNORECASE | re.MULTILINE))
         if self.errors:

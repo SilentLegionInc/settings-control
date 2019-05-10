@@ -260,6 +260,7 @@ export default {
             try {
                 this._loader = this.$loading.show();
                 await this.$store.state.requestService.ManualUpdateModule(formData, moduleName);
+                this.$toaster.success(`Модуль ${moduleName} успешно обновлен из архива`);
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);

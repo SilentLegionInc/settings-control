@@ -3,12 +3,10 @@ import shutil
 import zipfile
 from collections import OrderedDict
 
-from toolbelt.support.logger import Logger
 from toolbelt.configuration.core_service import CoreService, ProcessStatus
 from toolbelt.support.settings_service import SettingsService
 from toolbelt.configuration.update_service import UpdateService
 from flask_api import status
-from flask import current_app as app
 from toolbelt.support.helper import cmd
 from toolbelt.support.server_exception import ServerException
 from toolbelt.support.singleton import Singleton
@@ -16,7 +14,6 @@ from toolbelt.support.singleton import Singleton
 
 class ModulesService(metaclass=Singleton):
     def __call__(self):
-        Logger().info_message('Refreshing from config')
         self._core_service.refresh_from_config()
         self._dependencies_service.refresh_from_config()
         self._download_path = os.path.expanduser(SettingsService().server_config['upload_path'])
