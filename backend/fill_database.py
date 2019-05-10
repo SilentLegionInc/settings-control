@@ -19,7 +19,7 @@ robot_name = 'AMTS'
 table_names_prefix = ''
 base_number_value = 245.6
 base_string_value = 'sousage'
-base_time_value = '2019-04-10T12:00:00'
+base_time_value = '2019-05-10T12:00:00'
 records_count = 5000
 
 monitoring_config_path = os.path.join(os.getcwd(), 'config.conf')
@@ -84,8 +84,8 @@ for key, table_config in sensors_config.items():
                     ','.join(number_fields + string_fields),
                     index,
                     temp_time,
-                    random.uniform(-90, 90),
-                    random.uniform(-180, 180),
+                    round(random.uniform(-90, 90), 3),
+                    round(random.uniform(-180, 180), 3),
                     ','.join(number_values + string_values)
                 )
                 cursor.execute(insert_query)
