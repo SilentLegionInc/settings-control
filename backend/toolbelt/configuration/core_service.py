@@ -27,7 +27,7 @@ class ProcessStatus(Enum):
 
 
 class CoreService(metaclass=Singleton):
-    def __call__(self):
+    def refresh_from_config(self):
         # We need this to handle when config changed
         repo_name = SettingsService().current_machine_config['core']['repo_name']
         self.build_path = os.path.expanduser(os.path.join(SettingsService().server_config['builds_path'], repo_name))

@@ -15,10 +15,17 @@ from toolbelt.support.singleton import Singleton
 
 
 class ModulesService(metaclass=Singleton):
+    def __call__(self):
+        Logger().info_message('Refreshing from config')
+        self._core_service.refresh_from_config()
+        self._dependencies_service.refresh_from_config()
+        self._download_path = os.path.expanduser(SettingsService().server_config['upload_path'])
+
     def __init__(self):
         self._settings_service = SettingsService()
         self._core_service = CoreService()
         self._dependencies_service = UpdateService()
+        self._download_path = os.path.expanduser(SettingsService().server_config['upload_path'])
 
     def get_modules_list(self):
         machine_config = self._settings_service.current_machine_config
@@ -142,14 +149,14 @@ class ModulesService(metaclass=Singleton):
 
     def manual_module_update(self, file_path, module_name):
         zip_archive = zipfile.ZipFile(file_path, 'r')
-        zip_archive.extractall(app.config['UPLOAD_FOLDER'])
+        zip_archive.extractall(self._download_path)
         zip_archive.close()
 
         target_path = os.path.join(
             os.path.expanduser(SettingsService().server_config['sources_path']),
             module_name
         )
-        source_lib_path = os.path.join(app.config['UPLOAD_FOLDER'], module_name)
+        source_lib_path = os.path.join(self._download_path, module_name)
         if not os.path.isdir(target_path):
             shutil.rmtree(target_path, ignore_errors=True)
             os.makedirs(target_path)
@@ -169,7 +176,7 @@ class ModulesService(metaclass=Singleton):
 
     def update_ssh_key(self, file_path):
         zip_archive = zipfile.ZipFile(file_path, 'r')
-        zip_archive.extractall(app.config['UPLOAD_FOLDER'])
+        zip_archive.extractall(self._download_path)
         zip_archive.close()
         file_path = file_path.replace('.zip', '')
         ssh_path = os.path.expanduser('~/.ssh')
