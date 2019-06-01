@@ -28,10 +28,10 @@ class UpdateService(metaclass=Singleton):
         self.ssh_key_name = 'id_rsa'
         self.repositories_platform = SettingsService().server_config['repositories_platform']
         if not os.path.isdir(self.sources_path):
-            os.mkdir(self.sources_path)
+            os.makedirs(self.sources_path)
 
         if not os.path.isdir(self.build_path):
-            os.mkdir(self.build_path)
+            os.makedirs(self.build_path)
 
     def __init__(self):
         self.repos = {}
@@ -46,14 +46,14 @@ class UpdateService(metaclass=Singleton):
         self.update_thread = None
 
         if not os.path.isdir(self.sources_path):
-            os.mkdir(self.sources_path)
+            os.makedirs(self.sources_path)
 
         if not os.path.isdir(self.build_path):
-            os.mkdir(self.build_path)
+            os.makedirs(self.build_path)
 
         self.ssh_path = os.path.expanduser('~/.ssh')
         if not os.path.isdir(self.ssh_path):
-            os.mkdir(self.ssh_path)
+            os.makedirs(self.ssh_path)
 
     def generate_ssh_key(self):
         key = rsa.generate_private_key(

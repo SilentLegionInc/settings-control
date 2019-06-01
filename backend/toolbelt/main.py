@@ -47,7 +47,7 @@ class FlashCategoriesClasses:
 def auth_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if session['is_logged']:
+        if session.get('is_logged'):
             token = session.get('token', 'Basic Og==')
             token_uuid, password = AuthorizationService().parse_token(token)
 
@@ -146,17 +146,23 @@ def logout():
 @handle_errors
 @auth_required
 def config():
+    import json
     if request.method == 'GET':
-        return render_template('config.html', config=SettingsService().get_core_config(reload_from_disk=True))
+        configuration = json.dumps(SettingsService().get_core_config(reload_from_disk=True), indent=4)
+        return render_template('config.html', config=configuration)
     elif request.method == 'POST':
-        result = SettingsService().get_core_config(reload_from_disk=True)
-        for key in request.form:
-            result[key] = request.form.get(key)
-        if SettingsService().save_core_config(result):
-            Logger().info_message('Saved')
-        else:
-            Logger().info_message('Error')
-        return render_template('config.html', config=SettingsService().get_core_config(reload_from_disk=True))
+        new_config_str = request.form['config']
+        try:
+            parsed = json.loads(new_config_str)
+        except Exception as e:
+            Logger().error_message('Cant parse config json {}'.format(e))
+            raise ServerException('Некорректный формат конфигурации', status.HTTP_400_BAD_REQUEST, e)
+
+        if SettingsService().save_core_config(parsed):
+            Logger().info_message('Config successfully saved')
+
+        configuration = json.dumps(SettingsService().get_core_config(reload_from_disk=True), indent=4)
+        return render_template('config.html', config=configuration)
 
 
 @app.route('/networks', methods=['GET'])
