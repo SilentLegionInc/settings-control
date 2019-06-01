@@ -68,11 +68,11 @@ class CoreService(metaclass=Singleton):
             return True, mtime
         return False, None
 
-    def run_core(self, exec_output=DEVNULL):
+    def run_core(self, cmd_params='', exec_output=DEVNULL):
         if not self.core_is_active():
             run_file_name = SettingsService().current_machine_config['core']['executable_name']
             run_file_path = os.path.expanduser(os.path.join(self.build_path, run_file_name))
-            self.main_proc = Popen(run_file_path, stdout=exec_output, stderr=exec_output)
+            self.main_proc = Popen([run_file_path, cmd_params], stdout=exec_output, stderr=exec_output)
             return True
         else:
             Logger().error_message('Core is already running. You can\'t run more than one per time.')

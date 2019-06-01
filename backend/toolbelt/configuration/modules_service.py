@@ -186,8 +186,8 @@ class ModulesService(metaclass=Singleton):
         cmd('ssh-keyscan {} >> {}'.format(self._settings_service.server_config['repositories_platform'], hosts_file_name))
         return True
 
-    def run_core(self):
-        self._core_service.run_core()
+    def run_core(self, cmd_params=''):
+        self._core_service.run_core(cmd_params=cmd_params)
         if self._core_service.core_is_active():
             return True
         else:

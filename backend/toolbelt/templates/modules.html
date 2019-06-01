@@ -60,15 +60,15 @@
                     <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
                         {% if core.is_active %}
                             <form action="/core/stop" method="POST">
-                                <button class="btn btn-primary btn-block" type="submit">Остановить</button>
+                                <button class="btn btn-danger btn-block" type="submit">Остановить</button>
                             </form>
                         {% else %}
                             {% if core.is_built %}
                                 <form action="/core/run" method="POST">
-                                    <button class="btn btn-primary btn-block" type="submit">Запустить</button>
+                                    <button class="btn btn-success btn-block" type="submit">Запустить</button>
                                 </form>
                             {% else %}
-                                <button class="btn btn-primary btn-block" type="submit" disabled>Запустить</button>
+                                <button class="btn btn-success btn-block" type="submit" disabled>Запустить</button>
                             {% endif %}
                         {% endif %}
 
