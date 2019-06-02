@@ -52,6 +52,14 @@
                                         <span v-else class="ml-1">Не был склонирован</span>
                                     </div>
                                 </div>
+                                <div class="row mb-2">
+                                    <label class="col-xl-12 col-lg-12 col-form-label mb-1" for="core_params">
+                                        <b>Параметры запуска ядра:</b>
+                                    </label>
+                                    <div class="col-xl-12 col-lg-12 col-12 mb-1">
+                                        <input class="form-control" id="core_params" type="text" v-model="runParams" placeholder="Введите параметры запуска">
+                                    </div>
+                                </div>
                                 <div class="row">
                                     <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-12 mb-1">
                                         <button v-if="!core.isActive" :disabled="!core.isBuilt" class="btn btn-block btn-success" @click="runCore()">
@@ -119,6 +127,7 @@
                                         </div>
                                     </div>
                                 </b-collapse>
+
                             </b-card-body>
                         </b-collapse>
                     </b-card>
@@ -227,6 +236,7 @@ export default {
             core: {},
             modules: [],
             file: null,
+            runParams: null,
             collapseStatuses: {},
             _loader: null
         }
@@ -316,7 +326,7 @@ export default {
                     return;
                 }
                 this._loader = this.$loading.show();
-                const res = await this.$store.state.requestService.runCore();
+                const res = await this.$store.state.requestService.runCore(this.runParams);
                 await this.loadData();
                 if (res) {
                     this.$toaster.success('Ядро запущено');

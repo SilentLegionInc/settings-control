@@ -191,9 +191,9 @@ export class RequestService {
         }
     }
 
-    async runCore() {
+    async runCore(cmdParams = null) {
         const path = this._constructPath('api/core/run');
-        const res = await axios.post(path);
+        const res = await axios.post(path, { cmd_params: cmdParams });
         if (res.status === 200) {
             this._persistConnectionInfo();
             return res.data.ok;
