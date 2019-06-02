@@ -3,135 +3,228 @@
     <h2 align="center">Беспроводные соединения</h2>
     <div class="row">
         <div class="col-xs-offset-0 col-sm-offset-0 col-md-offset-1 col-lg-offset-3 col-xs-12 col-sm-12 col-md-10 col-lg-6">
-            <div class="card mb-3">
-                <div class="row">
-                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                        <b>Имя сети:</b>
-                    </div>
-                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                        ИМЯ СЕТИ
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                        <b>Идентификатор сети:</b>
-                    </div>
-                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                        ИДЕНТИФИКАТОР СЕТИ
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                        <b>Режим:</b>
-                    </div>
-                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                        РЕЖИМ
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                        <b>Канал:</b>
-                    </div>
-                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                        КАНАЛ
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                        <b>Частота:</b>
-                    </div>
-                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                        ЧАСТОТА
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                        <b>Пропускная способность:</b>
-                    </div>
-                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                        ПРОПУСКНАЯ СПОСОБНОСТЬ
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                        <b>Интерфейс:</b>
-                    </div>
-                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                        ИНТЕРФЕЙС
-                    </div>
-                </div>
-                <div class="row mt-3 mb-3">
-                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                        <form action="/" method="POST">
-                            <button class="btn btn-danger btn-block" type="submit">Забыть подключение</button>
-                        </form>
-                    </div>
-                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                        <form action="/" method="POST">
-                            <button class="btn btn-success btn-block" type="submit">Подключиться</button>
-                        </form>
-                    </div>
-                </div>
-                <form action="/" method="POST">
+            {% for wireless_elem in wireless %}
+                <div class="card mb-3">
                     <div class="row">
                         <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                            <b>DHCP:</b>
+                            <b>Имя сети:</b>
                         </div>
                         <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                            <div class="custom-control custom-switch">
-                              <input type="checkbox" class="custom-control-input" id="dhcpCheckbox">
+                            {{ wireless_elem.name }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <b>Мощность сети:</b>
+                        </div>
+                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                            {{ wireless_elem.signal_level }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <b>Идентификатор сети:</b>
+                        </div>
+                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                            {{ wireless_elem.id }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <b>Режим:</b>
+                        </div>
+                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                            {{ wireless_elem.mode }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <b>Канал:</b>
+                        </div>
+                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                            {{ wireless_elem.channel }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <b>Частота:</b>
+                        </div>
+                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                            {{ wireless_elem.frequency }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <b>Пропускная способность:</b>
+                        </div>
+                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                            {{ wireless_elem.speed_rate }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <b>Интерфейс:</b>
+                        </div>
+                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                            {{ wireless_elem.device }}
+                        </div>
+                    </div>
+                    <div class="row mt-3 mb-3">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <form action="/" method="POST">
+                                <button class="btn btn-danger btn-block" type="submit">Забыть подключение</button>
+                            </form>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <form action="/" method="POST">
+                                <button class="btn btn-success btn-block" type="submit">Подключиться</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% if wireless_elem.params %}
+                        <form action="/" method="POST">
+                            <div class="row">
+                                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                    <b>DHCP:</b>
+                                </div>
+                                <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                                    <div class="custom-control custom-switch">
+                                      <input type="checkbox" class="custom-control-input" id="dhcpCheckbox" {% if wireless_elem.params['ipv4.method'] == 'auto' %}checked{% endif %}>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                            <b>Ipv4:</b>
-                        </div>
-                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                            <input class="form-control" type="text" id="ip" value="IPV4">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                            <b>Ipv4 gateway:</b>
-                        </div>
-                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                            <input class="form-control" type="text" id="gateway" value="IPV4 GATEWAY">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                            <b>Ipv4 dns:</b>
-                        </div>
-                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                            <input class="form-control" type="text" id="dns" value="IPV4 DNS">
-                        </div>
-                    </div>
-                    <div class="row mt-3">
-                        <div class="col-xs-offset-6 col-sm-offset-6 col-md-offset-6 col-lg-offset-6 col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                            <button type="submit" class="btn btn-success btn-block">
-                                Сбросить
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+                            <div class="row">
+                                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                    <b>Ipv4:</b>
+                                </div>
+                                <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                                    <input class="form-control" type="text" id="ip" value="{{ wireless_elem.params['ipv4.addresses'] }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                    <b>Ipv4 gateway:</b>
+                                </div>
+                                <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                                    <input class="form-control" type="text" id="gateway" value="{{ wireless_elem.params['ipv4.gateway'] }}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                    <b>Ipv4 dns:</b>
+                                </div>
+                                <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                                    <input class="form-control" type="text" id="dns" value="{{ wireless_elem.params['ipv4.dns'] }}">
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-xs-offset-6 col-sm-offset-6 col-md-offset-6 col-lg-offset-6 col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                    <button type="submit" class="btn btn-info btn-block">
+                                        Принять
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+            {% endfor %}
         </div>
     </div>
 
     <h2 align="center">Проводные соединения</h2>
     <div class="row">
         <div class="col-xs-offset-0 col-sm-offset-0 col-md-offset-1 col-lg-offset-3 col-xs-12 col-sm-12 col-md-10 col-lg-6">
-            <div class="card mb-3">
-                <div class="row">
-                    <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-                        <b>Идентификатор сети:</b>
+            {% for wired_elem in wired %}
+                <div class="card mb-3">
+                    <div class="row">
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <b>Идентификатор сети:</b>
+                        </div>
+                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                            {{ wired_elem.id }}
+                        </div>
                     </div>
-                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-                        ИДЕНТИФИКАТОР СЕТИ
+                    <div class="row">
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <b>Интерфейс:</b>
+                        </div>
+                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                            {{ wired_elem.device }}
+                        </div>
                     </div>
+                    <div class="row">
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <b>Активна:</b>
+                        </div>
+                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                            {{ wired_elem.active }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                            <b>Автоподключение:</b>
+                        </div>
+                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                            {{ wired_elem.autoconnect }}
+                        </div>
+                    </div>
+                    <div class="row mt-3 mb-3">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <form action="/" method="POST">
+                                <button class="btn btn-danger btn-block" type="submit">Забыть подключение</button>
+                            </form>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                            <form action="/" method="POST">
+                                <button class="btn btn-success btn-block" type="submit">Подключиться</button>
+                            </form>
+                        </div>
+                    </div>
+                    <form action="/" method="POST">
+                        <div class="row">
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                <b>DHCP:</b>
+                            </div>
+                            <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                                <div class="custom-control custom-switch">
+                                  <input type="checkbox" class="custom-control-input" id="dhcpCheckbox" {% if wired_elem.params['ipv4.method'] == 'auto' %}checked{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                <b>Ipv4:</b>
+                            </div>
+                            <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                                <input class="form-control" type="text" id="ip" value="{{ wired_elem.params['ipv4.addresses'] }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                <b>Ipv4 gateway:</b>
+                            </div>
+                            <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                                <input class="form-control" type="text" id="gateway" value="{{ wired_elem.params['ipv4.gateway'] }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                <b>Ipv4 dns:</b>
+                            </div>
+                            <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                                <input class="form-control" type="text" id="dns" value="{{ wired_elem.params['ipv4.dns'] }}">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-xs-offset-6 col-sm-offset-6 col-md-offset-6 col-lg-offset-6 col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                <button type="submit" class="btn btn-info btn-block">
+                                    Принять
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-            </div>
+            {% endfor %}
         </div>
     </div>
 {% endblock %}
