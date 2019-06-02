@@ -367,6 +367,11 @@ class MonitoringDataService(metaclass=Singleton):
                 filter_conditions.append('datetime({}) <= datetime("{}")'.format(time_column_name, filter_params['end_time']))
             if filter_params.get('type') is not None:
                 filter_conditions.append('{} = {}'.format(type_column_name, filter_params['type']))
+            if filter_params.get('text') is not None:
+                filter_conditions.append('(LOWER({}) LIKE "%{}%" OR LOWER({}) LIKE "%{}%")'.format(
+                    title_column_name, filter_params['text'].lower(),
+                    message_column_name, filter_params['text'].lower()
+                ))
 
             filter_query = ''
             if filter_conditions:
