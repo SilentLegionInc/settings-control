@@ -188,7 +188,7 @@ def modules():
 def run_core():
     cmd_params = request.form.get('cmd_params') or ''
     if ModulesService().run_core(cmd_params=cmd_params):
-        flash('Ядро успешно запущено с параметрами {}'.format(cmd_params))
+        flash('Ядро успешно запущено')
         return redirect(url_for('modules'))
     else:
         raise ServerException('Не удалось запустить ядро', status.HTTP_500_INTERNAL_SERVER_ERROR)
