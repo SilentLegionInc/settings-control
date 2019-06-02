@@ -68,27 +68,29 @@ def auth_required(func):
     return wrapper
 
 
-def handle_errors(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as ex:
-            if isinstance(ex, ServerException):
-                Logger().error_message('Got an exception')
-                Logger().error_message('Message: {}. Code: {}'.format(ex.message, ex.status_code))
-                Logger().error_message(traceback.format_exc())
-                flash(ex.message, FlashCategoriesClasses.error)
-                if ex.status_code is status.HTTP_401_UNAUTHORIZED:
-                    return redirect(url_for('login'))
+def handle_errors(redirect_path):
+    def _handle_errors(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as ex:
+                if isinstance(ex, ServerException):
+                    Logger().error_message('Got an exception')
+                    Logger().error_message('Message: {}. Code: {}'.format(ex.message, ex.status_code))
+                    Logger().error_message(traceback.format_exc())
+                    flash(ex.message, FlashCategoriesClasses.error)
+                    if ex.status_code is status.HTTP_401_UNAUTHORIZED:
+                        return redirect(url_for('login'))
+                    else:
+                        return redirect(redirect_path)
                 else:
+                    Logger().error_message('Got an unknown exception')
+                    Logger().error_message(traceback.format_exc())
+                    flash('Серверная ошибка', FlashCategoriesClasses.error)
                     return redirect(request.path)
-            else:
-                Logger().error_message('Got an unknown exception')
-                Logger().error_message(traceback.format_exc())
-                flash('Серверная ошибка', FlashCategoriesClasses.error)
-                return redirect(request.path)
-    return wrapper
+        return wrapper
+    return _handle_errors
 # Here routes starts.
 
 
@@ -106,7 +108,7 @@ def index():
 
 
 @app.route('/login', methods=['GET', 'POST'])
-@handle_errors
+@handle_errors(redirect_path='/login')
 def login():
     if session.get('is_logged'):
         Logger().info_message('Already logged')
@@ -133,7 +135,7 @@ def login():
 
 
 @app.route('/logout')
-@handle_errors
+@handle_errors(redirect_path='/')
 @auth_required
 def logout():
     session['is_logged'] = False
@@ -143,7 +145,7 @@ def logout():
 
 
 @app.route('/config', methods=['GET', 'POST'])
-@handle_errors
+@handle_errors(redirect_path='/config')
 @auth_required
 def config():
     import json
@@ -166,14 +168,14 @@ def config():
 
 
 @app.route('/networks', methods=['GET'])
-@handle_errors
+@handle_errors(redirect_path='/networks')
 @auth_required
 def networks():
     return render_template('networks.html')
 
 
 @app.route('/modules', methods=['GET'])
-@handle_errors
+@handle_errors(redirect_path='/modules')
 @auth_required
 def modules():
     res = ModulesService().get_modules_list()
@@ -181,10 +183,11 @@ def modules():
 
 
 @app.route('/core/run', methods=['POST'])
-@handle_errors
+@handle_errors(redirect_path='/modules')
 @auth_required
 def run_core():
-    if ModulesService().run_core():
+    cmd_params = request.form.get('cmd_params') or ''
+    if ModulesService().run_core(cmd_params=cmd_params):
         flash('Ядро успешно запущено')
         return redirect(url_for('modules'))
     else:
@@ -192,7 +195,7 @@ def run_core():
 
 
 @app.route('/core/stop', methods=['POST'])
-@handle_errors
+@handle_errors(redirect_path='/modules')
 @auth_required
 def stop_core():
     if ModulesService().stop_core():
@@ -203,7 +206,7 @@ def stop_core():
 
 
 @app.route('/pull_machine', methods=['POST'])
-@handle_errors
+@handle_errors(redirect_path='/modules')
 @auth_required
 def pull_current_machine():
     if ModulesService().pull_machine():
@@ -214,7 +217,7 @@ def pull_current_machine():
 
 
 @app.route('/build_machine', methods=['POST'])
-@handle_errors
+@handle_errors(redirect_path='/modules')
 @auth_required
 def build_current_machine():
     if ModulesService().build_machine():
@@ -225,7 +228,7 @@ def build_current_machine():
 
 
 @app.route('/pull_module/<string:module_name>', methods=['POST'])
-@handle_errors
+@handle_errors(redirect_path='/modules')
 @auth_required
 def pull_module(module_name):
     if ModulesService().pull_module(module_name):
@@ -236,7 +239,7 @@ def pull_module(module_name):
 
 
 @app.route('/build_module/<string:module_name>', methods=['POST'])
-@handle_errors
+@handle_errors(redirect_path='/modules')
 @auth_required
 def build_module(module_name):
     if ModulesService().build_module(module_name):
@@ -247,7 +250,7 @@ def build_module(module_name):
 
 
 @app.route('/manual_module_update/<string:module_name>', methods=['POST'])
-@handle_errors
+@handle_errors(redirect_path='/modules')
 @auth_required
 def manual_update_module(module_name):
     allowed_extensions = {'zip'}
@@ -278,7 +281,7 @@ def manual_update_module(module_name):
 
 
 @app.route('/server_config', methods=['GET'])
-@handle_errors
+@handle_errors(redirect_path='/server_config')
 @auth_required
 def server_config():
     import copy
@@ -290,7 +293,7 @@ def server_config():
 
 
 @app.route('/server_config', methods=['POST'])
-@handle_errors
+@handle_errors(redirect_path='/server_config')
 @auth_required
 def update_server_config():
     new_server_config = request.get_json()

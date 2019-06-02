@@ -72,7 +72,10 @@ class CoreService(metaclass=Singleton):
         if not self.core_is_active():
             run_file_name = SettingsService().current_machine_config['core']['executable_name']
             run_file_path = os.path.expanduser(os.path.join(self.build_path, run_file_name))
-            self.main_proc = Popen([run_file_path, cmd_params], stdout=exec_output, stderr=exec_output)
+            try:
+                self.main_proc = Popen([run_file_path, *cmd_params.split(' ')], stdout=exec_output, stderr=exec_output)
+            except FileNotFoundError as file_error:
+                raise ServerException('Не удалось найти файл для запуска, возможно его имя некорректно', status.HTTP_500_INTERNAL_SERVER_ERROR, file_error)
             return True
         else:
             Logger().error_message('Core is already running. You can\'t run more than one per time.')

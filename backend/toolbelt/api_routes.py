@@ -377,7 +377,6 @@ def api_update_ssh():
 @api_authorization
 def api_run_core():
     cmd_params = request.json.get('cmd_params', '') or ''
-    Logger().info_message('cmd params is {}'.format(cmd_params))
     if ModulesService().run_core(cmd_params=cmd_params):
         return jsonify({'ok': True}), status.HTTP_200_OK
     else:
