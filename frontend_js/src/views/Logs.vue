@@ -27,7 +27,7 @@
                         </div>
                         <div class="col-12 col-sm-12 col-md-5 col-lg-4 col-xl-2 pl-1 pr-1">
                             <span>Текст: </span>
-                            <input type="text" class="form-control" :class="{'mb-3': !$isWideScreen()}">
+                            <input type="text" class="form-control" :class="{'mb-3': !$isWideScreen()}" v-model="filterText">
                         </div>
 
                         <div class="d-none d-lg-block d-xl-none col-lg-4"></div>
@@ -135,6 +135,7 @@ export default {
             this.filterStartTime = null;
             this.filterEndTime = null;
             this.filterType = null;
+            this.filterText = null;
         },
 
         changeElementsPerPage(event) {
@@ -151,8 +152,9 @@ export default {
                 const filterStartTime = this.filterStartTime ? new Date(this.filterStartTime) : null;
                 const filterEndTime = this.filterEndTime ? new Date(this.filterEndTime) : null;
                 const filterType = this.filterType ? parseInt(this.filterType) : null;
+                const filterText = this.filterText ? this.filterText : null;
 
-                const response = await this.$store.state.requestService.getLogs('AMTS', limit, offset, filterStartTime, filterEndTime, filterType);
+                const response = await this.$store.state.requestService.getLogs('AMTS', limit, offset, filterStartTime, filterEndTime, filterType, filterText);
                 this.dbElementsCount = response.count;
                 this.logs = response.result;
             });

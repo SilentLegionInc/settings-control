@@ -252,7 +252,7 @@ export class RequestService {
         }
     }
 
-    async getLogs(robotName, limit = 1, offset = 0, startTime = null, endTime = null, type = null, sortByTime = null, sortByType = null) {
+    async getLogs(robotName, limit = 1, offset = 0, startTime = null, endTime = null, type = null, text = null, sortByTime = null, sortByType = null) {
         const path = this._constructPath(`api/monitoring/logs/${robotName}`);
 
         const body = {};
@@ -272,6 +272,9 @@ export class RequestService {
         }
         if (type != null) {
             body['filter']['type'] = type;
+        }
+        if (text != null) {
+            body['filter']['text'] = text;
         }
         if (sortByTime != null) {
             body['sort']['time'] = sortByTime ? 1 : 0;
