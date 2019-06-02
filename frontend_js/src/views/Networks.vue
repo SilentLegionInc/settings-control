@@ -73,6 +73,14 @@
                                     </div>
                                     <div class="row mb-2">
                                         <div class="col-xl-3 col-4">
+                                            Тип защиты:
+                                        </div>
+                                        <div class="col-xl-9 col-8">
+                                            {{network.security || '-'}}
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-xl-3 col-4">
                                             Интерфейс:
                                         </div>
                                         <div class="col-xl-9 col-8">
