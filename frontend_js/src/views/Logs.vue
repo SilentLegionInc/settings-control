@@ -2,30 +2,37 @@
     <div>
         <div class="container-fluid">
             <div class="row">
-                <div class="col-12 col-sm-12 col-md-12 col-lg-11 col-xl-10">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                     <div class="row">
-                        <div class="col-12 col-sm-12 col-md-4 col-lg-3 col-xl-3 pl-1 pr-1">
+                        <div class="col-12 col-sm-12 col-md-5 col-lg-4 col-xl-2 pl-1 pr-1">
                             <span>Нач. время: </span>
                             <datetime v-model="filterStartTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                         </div>
 
-                        <div class="col-12 col-sm-12 col-md-4 col-lg-3 col-xl-3 pl-1 pr-1">
+                        <div class="col-12 col-sm-12 col-md-5 col-lg-4 col-xl-2 pl-1 pr-1">
                             <span>Кон. время: </span>
                             <datetime v-model="filterEndTime" type="datetime" zone="utc" value-zone="utc" input-class="form-control"></datetime>
                         </div>
 
-                        <div class="d-none d-md-block d-lg-none col-md-4"></div>
+                        <div class="d-none d-lg-block d-xl-none col-lg-4"></div>
 
-                        <div class="col-12 col-sm-12 col-md-4 col-lg-3 col-xl-3 pl-1 pr-1">
+                        <div class="col-12 col-sm-12 col-md-5 col-lg-4 col-xl-2 pl-1 pr-1">
                             <span>Тип: </span>
-                            <select class="form-control" :class="{'mb-3': !$isWideScreen()}" v-model="filterType">
+                            <select class="form-control" v-model="filterType">
                                 <option value=0>Critical</option>
                                 <option value=1>Warning</option>
                                 <option value=2>Debug</option>
                                 <option value=3>Info</option>
                             </select>
                         </div>
-                        <div class="col-12 col-sm-12 col-md-4 col-lg-3 col-xl-3">
+                        <div class="col-12 col-sm-12 col-md-5 col-lg-4 col-xl-2 pl-1 pr-1">
+                            <span>Текст: </span>
+                            <input type="text" class="form-control" :class="{'mb-3': !$isWideScreen()}">
+                        </div>
+
+                        <div class="d-none d-lg-block d-xl-none col-lg-4"></div>
+
+                        <div class="col-12 col-sm-12 col-md-5 col-lg-4 col-xl-3">
                             <div class="row">
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-6 col-xl-6 pl-1 pr-1">
                                     <span v-if="$isWideScreen()">&nbsp;</span>
