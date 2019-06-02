@@ -383,11 +383,76 @@ def update_ssh():
         os.makedirs(download_path)
     file_path = os.path.join(download_path, file_name)
     file.save(file_path)
-    # if ModulesService().update_ssh_key(file_path):
-    flash('Ключи успешно обновлены')
-    return redirect(url_for('server_config'))
-    # else:
-    #     raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
+    if ModulesService().update_ssh_key(file_path):
+        flash('Ключи успешно обновлены')
+        return redirect(url_for('server_config'))
+    else:
+        raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@app.route('/network/create_wifi_connection', methods=['POST'])
+@handle_errors(redirect_path='/networks')
+@auth_required
+def connect_to_new_wifi():
+    # TODO refactor
+    params = request.form
+    ssid = params.get('name')
+    password = params.get('password')
+    if NetworkService().create_wifi_connection(ssid, password):
+        flash('Успешно подключено к сети {}'.format(ssid), FlashCategoriesClasses.success)
+        return redirect(url_for('networks'))
+
+
+@app.route('/network/connection/up/<string:uuid>', methods=['GET'])
+@handle_errors(redirect_path='/networks')
+@auth_required
+def connection_up(uuid):
+    # This is connect to known connection
+    if NetworkService().connection_up(uuid):
+        flash('Успешно подключено')
+        return redirect(url_for('networks'))
+
+
+@app.route('/network/connection/down/<string:uuid>', methods=['GET'])
+@handle_errors(redirect_path='/networks')
+@auth_required
+def connection_down(uuid):
+    # This is connect to known connection
+    if NetworkService().connection_down(uuid):
+        flash('Успешно отключено')
+        return redirect(url_for('networks'))
+
+
+@app.route('/network/connection/<string:uuid>', methods=['DELETE'])
+@handle_errors(redirect_path='/networks')
+@auth_required
+def connection_delete(uuid):
+    # delete connection
+    if NetworkService().delete_connection(uuid):
+        flash('Успешно удалено соединение с id {}'.format(uuid))
+        return redirect(url_for('networks'))
+
+
+@app.route('/network/connection/drop_all_wireless', methods=['DELETE'])
+@handle_errors(redirect_path='/networks')
+@auth_required
+def connections_delete_all_wireless():
+    # delete connection
+    if NetworkService().delete_all_wireless_connections():
+        flash('Успешно удалены все беспроводные соединения')
+        return redirect(url_for('networks'))
+
+
+@app.route('/network/connection/<string:uuid>', methods=['PUT'])
+@handle_errors(redirect_path='/networks')
+@auth_required
+def connection_modify(uuid):
+    # modify connection
+    # params = request.get_json()
+    # TODO refactor
+    # if NetworkService().modify_connection_params(uuid, params):
+    flash('Успешно обновлено')
+    return redirect(url_for('networks'))
 
 
 @app.route('/test', methods=['POST'])

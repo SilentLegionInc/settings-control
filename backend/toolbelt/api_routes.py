@@ -117,16 +117,6 @@ def api_connection_down(uuid):
         return jsonify({'ok': True}), status.HTTP_200_OK
 
 
-@api_blueprint.route('/network/connection/<string:uuid>', methods=['POST'])
-@handle_api_errors
-@api_authorization
-def api_connection_modify(uuid):
-    # modify connection
-    params = request.get_json()
-    if NetworkService().modify_connection_params(uuid, params):
-        return jsonify({'ok': True}), status.HTTP_200_OK
-
-
 @api_blueprint.route('/network/connection/<string:uuid>', methods=['DELETE'])
 @handle_api_errors
 @api_authorization
@@ -148,7 +138,7 @@ def api_connections_delete_all_wireless():
 @api_blueprint.route('/network/connection/<string:uuid>', methods=['PUT'])
 @handle_api_errors
 @api_authorization
-def api_modify_connection(uuid):
+def api_connection_modify(uuid):
     params = request.get_json()
     if NetworkService().modify_connection_params(uuid, params):
         return jsonify({'ok': True}), status.HTTP_200_OK
