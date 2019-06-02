@@ -82,7 +82,8 @@ class Mapper:
             return {
                 'start_time': parser.parse(obj['start_time']) if obj.get('start_time') else None,
                 'end_time': parser.parse(obj['end_time']) if obj.get('end_time') else None,
-                'type': obj.get('type')
+                'type': obj.get('type'),
+                'text': obj.get('text')
             }
 
         def map_sort(obj):
