@@ -68,7 +68,7 @@ def auth_required(func):
     return wrapper
 
 
-def handle_errors(redirect_path):
+def handle_errors(redirect_path, no_401_redirect=False):
     def _handle_errors(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -80,7 +80,7 @@ def handle_errors(redirect_path):
                     Logger().error_message('Message: {}. Code: {}'.format(ex.message, ex.status_code))
                     Logger().error_message(traceback.format_exc())
                     flash(ex.message, FlashCategoriesClasses.error)
-                    if ex.status_code is status.HTTP_401_UNAUTHORIZED:
+                    if ex.status_code is status.HTTP_401_UNAUTHORIZED and not no_401_redirect:
                         return redirect(url_for('login'))
                     else:
                         return redirect(redirect_path)
@@ -98,13 +98,6 @@ def handle_errors(redirect_path):
 @app.route('/index')
 def index():
     return render_template('index.html')
-
-
-# @app.context_processor
-# def set_is_auth():
-#     # TODO refactored to g?
-#     return dict(is_auth=session.get('is_logged', False),
-#                 user_timestamp=session.get('timestamp', None))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -296,7 +289,7 @@ def server_config():
 @handle_errors(redirect_path='/server_config')
 @auth_required
 def update_server_config():
-    new_server_config = request.get_json()
+    new_server_config = request.form
     machine_type = new_server_config.get('type')
     if machine_type:
         if machine_type not in SettingsService().machines_configs.keys():
@@ -304,6 +297,56 @@ def update_server_config():
     SettingsService().server_config.update(new_server_config)
     SettingsService().save_server_config()
     return redirect(url_for('server_config'))
+
+
+@app.route('/password', methods=['POST'])
+@handle_errors(redirect_path='/server_config', no_401_redirect=True)
+@auth_required
+def change_password():
+    info = request.form
+    old_password = info.get('old_password', '')
+    new_password = info.get('new_password', '')
+    check_new_pass = info.get('new_password_again', '')
+    if not new_password:
+        raise ServerException('Пароль не может быть пустым', status.HTTP_400_BAD_REQUEST)
+    if not (new_password == check_new_pass):
+        raise ServerException('Пароли не совпадают', status.HTTP_400_BAD_REQUEST)
+
+    new_token = AuthorizationService().change_password(old_password, new_password)
+    session['is_logged'] = True
+    session['token'] = new_token
+    flash('Пароль успешно изменен', FlashCategoriesClasses.success)
+    return redirect(url_for('server_config'))
+
+
+@app.route('/update_ssh', methods=['POST'])
+@handle_errors(redirect_path='/server_config')
+@auth_required
+def update_ssh():
+    allowed_extensions = {'zip'}
+
+    if 'file' not in request.files:
+        raise ServerException('В форме отсутсвтвуют файлы', status.HTTP_400_BAD_REQUEST)
+
+    file = request.files['file']
+    if not file or not file.filename:
+        raise ServerException('Не найден файл', status.HTTP_400_BAD_REQUEST)
+
+    if not allowed_file_extension(file.filename, allowed_extensions):
+        raise ServerException('Некорректный формат файла. Разрешены только: {}'.format(allowed_extensions),
+                              status.HTTP_406_NOT_ACCEPTABLE)
+
+    file_name = secure_filename(file.filename)
+    download_path = os.path.expanduser(SettingsService().server_config['upload_path'])
+    if not os.path.exists(download_path):
+        os.makedirs(download_path)
+    file_path = os.path.join(download_path, file_name)
+    file.save(file_path)
+    # if ModulesService().update_ssh_key(file_path):
+    flash('Ключи успешно обновлены')
+    return redirect(url_for('server_config'))
+    # else:
+    #     raise ServerException('Серверная ошибка', status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @app.route('/test', methods=['POST'])
