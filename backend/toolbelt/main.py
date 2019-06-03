@@ -394,7 +394,6 @@ def update_ssh():
 @handle_errors(redirect_path='/networks')
 @auth_required
 def connect_to_new_wifi():
-    # TODO refactor
     params = request.form
     ssid = params.get('name')
     password = params.get('password')
