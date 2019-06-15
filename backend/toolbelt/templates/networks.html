@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block page_content %}
-    <h2 align="center">Беспроводные соединения</h2>
+    <h3 align="center">Беспроводные соединения</h3>
+    <hr>
     <div class="row">
         <div class="col-xs-offset-0 col-sm-offset-0 col-md-offset-1 col-lg-offset-3 col-xs-12 col-sm-12 col-md-10 col-lg-6">
             {% for wireless_elem in wireless %}
@@ -181,13 +182,13 @@
                     </div>
                     <div class="row mt-3 mb-3">
                         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                            <form action="/" method="POST">
-                                <button class="btn btn-danger btn-block" type="submit" {% if not wired_elem.active %}disabled{% endif %}>Забыть подключение</button>
+                            <form action="/network/connection/{{ wired_elem.id }}/delete" method="POST">
+                                <button class="btn btn-danger btn-block" type="submit" {% if wired_elem.active or not wired_elem.id %}disabled{% endif %}>Забыть подключение</button>
                             </form>
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                            <form action="/" method="POST">
-                                <button class="btn btn-success btn-block" type="submit" {% if wired_elem.active %}disabled{% endif %}>Подключиться</button>
+                            <form action="/network/connection/up/{{ wired_elem.id }}" method="POST">
+                                <button class="btn btn-success btn-block" type="submit" {% if wired_elem.active or not wired_elem.id %}disabled{% endif %}>Подключиться</button>
                             </form>
                         </div>
                     </div>

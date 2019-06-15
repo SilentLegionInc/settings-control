@@ -16,7 +16,7 @@ class AuthorizationService(metaclass=Singleton):
         stored_pass = SettingsService().server_config.get('password')
         if not stored_pass:
             err_text = 'Ошибка аутентификации. Настройте серверный пароль'
-            raise ServerException(err_text, status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise ServerException(err_text, status.HTTP_401_UNAUTHORIZED)
 
         return password == stored_pass
 
@@ -71,7 +71,7 @@ class AuthorizationService(metaclass=Singleton):
         stored_pass = SettingsService().server_config.get('password')
         if not stored_pass:
             err_text = 'Ошибка аутентификации. Настройте серверный пароль'
-            raise ServerException(err_text, status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise ServerException(err_text, status.HTTP_401_UNAUTHORIZED)
 
         if old_password == stored_pass:
             SettingsService().server_config['password'] = new_password

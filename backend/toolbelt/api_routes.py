@@ -170,6 +170,8 @@ def api_change_password():
     info = request.get_json()
     old_password = info.get('oldPassword', '')
     new_password = info.get('newPassword', '')
+    if not new_password:
+        raise ServerException('Новый пароль не может быть пустым', status.HTTP_400_BAD_REQUEST)
     new_token = AuthorizationService().change_password(old_password, new_password)
     return jsonify({'token': new_token}), status.HTTP_200_OK
 

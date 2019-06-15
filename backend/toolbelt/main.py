@@ -170,7 +170,7 @@ def networks():
         "wired": [
             {
                 'name': 'name',
-                'id': '788984558485158',
+                # 'id': '788984558485158',
                 'type': 'eth',
                 'device': 'dva_dolboeba',
                 'active': False,
@@ -186,7 +186,7 @@ def networks():
         "wireless": [
             {
                 'name': 'name',
-                'id': '788984558485858',
+                # 'id': '788984558485858',
                 'type': 'wifi',
                 'mode': 'Infra',
                 'channel': 3,
@@ -195,7 +195,7 @@ def networks():
                 'signal_level': '|||||',
                 'security_type': 'wpa-psk',
                 'device': 'biba_and_boba',
-                'active': True,
+                'active': False,
                 'params': {
                     "ipv4.addresses": "127.0.0.1",
                     "ipv4.method": "manual",
@@ -213,7 +213,8 @@ def networks():
 @auth_required
 def modules():
     res = ModulesService().get_modules_list()
-    return render_template('modules.html', core=res['core'], dependencies=res['dependencies'])
+    robot_name = SettingsService().current_machine_config.get('robot_name')
+    return render_template('modules.html', core=res['core'], dependencies=res['dependencies'], name=robot_name)
 
 
 @app.route('/core/run', methods=['POST'])

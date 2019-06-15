@@ -247,7 +247,7 @@
                                             </button>
                                         </div>
                                         <div class="col-xl-3 col-4">
-                                            <button :disabled="(!wiredNetwork.id && !password) || wiredNetwork.active" class="btn btn-block btn-success" @click="connect(wiredNetwork)">
+                                            <button :disabled="!wiredNetwork.id || wiredNetwork.active" class="btn btn-block btn-success" @click="connect(wiredNetwork)">
                                                 Подключиться
                                             </button>
                                         </div>

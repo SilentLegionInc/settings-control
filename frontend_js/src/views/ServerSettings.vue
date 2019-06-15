@@ -143,8 +143,10 @@ export default {
             }
             try {
                 this._loader = this.$loading.show();
-                await this.$store.dispatch('changePassword', this.oldPassword, this.newPassword);
+                console.log(this.oldPassword, this.newPassword);
+                await this.$store.dispatch('changePassword', { 'oldPassword': this.oldPassword, 'newPassword': this.newPassword });
                 this.$toaster.success('Пароль успешно обновлен');
+                this._loader.hide();
             } catch (err) {
                 if (err instanceof ServerExceptionModel) {
                     this.$toaster.error(err.message);

@@ -71,6 +71,7 @@ export class RequestService {
 
     async _changePassword(oldPassword, newPassword) {
         const path = this._constructPath(`api/password`);
+        console.log({ oldPassword, newPassword });
         const res = await axios.post(path, { oldPassword, newPassword });
         if (res.status === 200) {
             const body = res.data;

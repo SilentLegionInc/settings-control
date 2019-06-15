@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 {% block page_content %}
+    <h3 class="mb-3" align="center">Конфигурация ядра</h3>
+    <hr>
     <form method="post" action="/config">
-        <div class="row mb-3 mt-1">
+        <div class="row mb-3">
                 <textarea class="col-xs-offset-0 col-sm-offset-0 col-md-offset-1 col-lg-offset-2 col-xs-12 col-sm-12 col-md-10 col-lg-8"
                           rows="30" type="textarea" name="config">{{ config }}</textarea>
         </div>

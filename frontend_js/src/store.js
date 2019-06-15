@@ -62,8 +62,8 @@ export default new Vuex.Store({
                 // Exception fly away
             }
         },
-        async changePassword(ctxt, oldPassword, newPassword) {
-            const token = await this.state.requestService._changePassword(oldPassword, newPassword);
+        async changePassword(ctxt, passwordsPayload) {
+            const token = await this.state.requestService._changePassword(passwordsPayload.oldPassword, passwordsPayload.newPassword);
             if (token) {
                 this.commit('setAuthToken', token);
             } else {
