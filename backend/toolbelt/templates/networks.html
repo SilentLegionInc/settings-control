@@ -93,7 +93,7 @@
                             </div>
                         </div>
                     </form>
-                    {% if wireless_elem.params %}
+                    {% if wireless_elem.id %}
                         <form action="/network/connection/{{ wireless_elem.id }}/modify" method="POST">
                             <div class="row mb-2">
                                 <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
@@ -143,7 +143,8 @@
         </div>
     </div>
 
-    <h2 align="center">Проводные соединения</h2>
+    <h3 align="center">Проводные соединения</h3>
+    <hr>
     <div class="row">
         <div class="col-xs-offset-0 col-sm-offset-0 col-md-offset-1 col-lg-offset-3 col-xs-12 col-sm-12 col-md-10 col-lg-6">
             {% for wired_elem in wired %}

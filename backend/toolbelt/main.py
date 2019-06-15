@@ -165,46 +165,46 @@ def config():
 @handle_errors(redirect_path='/networks')
 @auth_required
 def networks():
-    # res = NetworkService().list_of_connections()
-    res = {
-        "wired": [
-            {
-                'name': 'name',
-                # 'id': '788984558485158',
-                'type': 'eth',
-                'device': 'dva_dolboeba',
-                'active': False,
-                'autoconnect': False,
-                'params': {
-                    "ipv4.addresses": "127.0.0.1",
-                    "ipv4.method": "manual",
-                    "ipv4.gateway": '0.0.0.0',
-                    "ipv4.dns": '127.0.0.2'
-                }
-            }
-        ],
-        "wireless": [
-            {
-                'name': 'name',
-                # 'id': '788984558485858',
-                'type': 'wifi',
-                'mode': 'Infra',
-                'channel': 3,
-                'frequency': '2422 MHz',
-                'speed_rate': '720 Mbit/s',
-                'signal_level': '|||||',
-                'security_type': 'wpa-psk',
-                'device': 'biba_and_boba',
-                'active': False,
-                'params': {
-                    "ipv4.addresses": "127.0.0.1",
-                    "ipv4.method": "manual",
-                    "ipv4.gateway": '0.0.0.0',
-                    "ipv4.dns": '127.0.0.2'
-                }
-            }
-        ]
-    }
+    res = NetworkService().list_of_connections()
+    # res = {
+    #     "wired": [
+    #         {
+    #             'name': 'name',
+    #             # 'id': '788984558485158',
+    #             'type': 'eth',
+    #             'device': 'dva_dolboeba',
+    #             'active': False,
+    #             'autoconnect': False,
+    #             'params': {
+    #                 "ipv4.addresses": "127.0.0.1",
+    #                 "ipv4.method": "manual",
+    #                 "ipv4.gateway": '0.0.0.0',
+    #                 "ipv4.dns": '127.0.0.2'
+    #             }
+    #         }
+    #     ],
+    #     "wireless": [
+    #         {
+    #             'name': 'name',
+    #             # 'id': '788984558485858',
+    #             'type': 'wifi',
+    #             'mode': 'Infra',
+    #             'channel': 3,
+    #             'frequency': '2422 MHz',
+    #             'speed_rate': '720 Mbit/s',
+    #             'signal_level': '|||||',
+    #             'security_type': 'wpa-psk',
+    #             'device': 'biba_and_boba',
+    #             'active': False,
+    #             'params': {
+    #                 "ipv4.addresses": "127.0.0.1",
+    #                 "ipv4.method": "manual",
+    #                 "ipv4.gateway": '0.0.0.0',
+    #                 "ipv4.dns": '127.0.0.2'
+    #             }
+    #         }
+    #     ]
+    # }
     return render_template('networks.html', wireless=res['wireless'], wired=res['wired'])
 
 
