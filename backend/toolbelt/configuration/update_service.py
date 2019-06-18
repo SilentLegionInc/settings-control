@@ -229,17 +229,3 @@ class UpdateService(metaclass=Singleton):
         p = Process(target=self._update_and_upgrade_lib, args=(lib_name, return_dict, key))
         p.start()
         return p
-
-
-if __name__ == '__main__':
-    service = UpdateService()
-    service.update_lib_sync('fomodel')
-    out = service.upgrade_lib_sync('fomodel')
-    print('Status: {}\nOutput: {}'.format(out[0], out[1]))
-
-    # from multiprocessing import Manager
-    # manager = Manager()
-    # d = manager.dict()
-    # process = service.create_ssh_key_async(d, 'qwerty')
-    # process.join()
-    # print(d)

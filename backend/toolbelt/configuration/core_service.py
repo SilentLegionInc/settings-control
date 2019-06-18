@@ -173,12 +173,3 @@ class CoreService(metaclass=Singleton):
         p.start()
         return p
 
-
-if __name__ == '__main__':
-    core = CoreService()
-    core.compile_core()
-    while core.compile_status is None:
-        print('wait')
-        time.sleep(1)
-    print(core.compile_output)
-

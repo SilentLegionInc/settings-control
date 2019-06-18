@@ -21,7 +21,6 @@
 </template>
 
 <script>
-// TODO think where this component must be.
 import { ServerExceptionModel } from '../models/ServerExceptionModel';
 import Logger from '../logger';
 

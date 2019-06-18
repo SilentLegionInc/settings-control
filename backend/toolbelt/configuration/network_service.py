@@ -27,7 +27,7 @@ class NetworkService(metaclass=Singleton):
         # detect and init appropriate driver
         self._driver_name = self._detect_driver()
         if self._driver_name == 'nmcli0990':
-            self._driver = Nmcli0990(interface_wifi=interface_wifi, interface_eth=interface_eth,
+            self._driver = NmcliActual(interface_wifi=interface_wifi, interface_eth=interface_eth,
                                      detail_connection_params=detail_connection_params)
 
         self.refresh_interfaces()
@@ -46,8 +46,6 @@ class NetworkService(metaclass=Singleton):
             ver = parts[-1]
             if version.parse(ver) > version.parse('0.9.9.0'):
                 return 'nmcli0990'
-            else:
-                return 'nmcli'
 
         raise ServerException('Не удалось найти подходящий драйвер nmcli')
 
@@ -176,7 +174,7 @@ class NetworkDriver(metaclass=ABCMeta):
 
 
 # Linux nmcli Driver >= 0.9.9.0 (Actual driver)
-class Nmcli0990(NetworkDriver):
+class NmcliActual(NetworkDriver):
     _interface_wifi = None
     _interface_eth = None
 
@@ -191,7 +189,6 @@ class Nmcli0990(NetworkDriver):
         Logger().debug_message(self.ssid_to_uuid)
         self._detail_connection_params = detail_connection_params
         # register destructor method
-        # TODO doesn't work
         atexit.register(self._save_connection_map)
 
     def _save_connection_map(self):
@@ -214,7 +211,6 @@ class Nmcli0990(NetworkDriver):
     # 'maximum number of pending replies per connection has been reached'
     def _delete_connection_by_name(self, name):
         # list matching connections
-        # TODO check what will be if we delete last wired connection?
         command = 'nmcli -t -f UUID,NAME con show | grep wireless | grep -w {}'.format(name)
         if self.ssid_to_uuid.get(name):
             del self.ssid_to_uuid[name]
@@ -512,7 +508,6 @@ class Nmcli0990(NetworkDriver):
         # return list
         return interfaces
 
-    # TODO refactor to get\set
     # return the current wireless adapter
     def interface_wifi(self, interface=None):
         if interface is not None:

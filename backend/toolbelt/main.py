@@ -31,7 +31,6 @@ app.secret_key = app.config['SECRET_KEY']
 cors = CORS(app)
 
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
-# will try to save current token here
 bootstrap = Bootstrap(app)
 
 # registering api endpoints
