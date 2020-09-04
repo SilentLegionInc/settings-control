@@ -22,7 +22,7 @@
     "vue-datetime": "^1.0.0-beta.8",
     "vue-json-editor": "^1.2.3",
     "vue-loading-overlay": "^3.2.0",
-    "vue-moment": "^4.0.0",
+    "vue-moment": "^4.1.0",
     "vue-router": "^3.0.1",
     "vue-scrollto": "^2.14.0",
     "vue-yandex-maps": "^0.8.3",
