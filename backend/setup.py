@@ -10,7 +10,7 @@ setup(
         'bcrypt==3.1.4',
         'cffi==1.11.5',
         'click==6.7',
-        'cryptography==2.3.1',
+        'cryptography==3.2',
         'dominate==2.3.1',
         'filelock==3.0.10',
         'flake8==3.6.0',
