@@ -26,7 +26,7 @@ setup(
         'GitPython==2.1.11',
         'idna==2.7',
         'itsdangerous==0.24',
-        'Jinja2==2.10',
+        'Jinja2==2.11.3',
         'MarkupSafe==1.0',
         'mccabe==0.6.1',
         'nose==1.3.7',
