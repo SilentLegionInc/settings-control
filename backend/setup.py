@@ -34,7 +34,7 @@ setup(
         'pbkdf2==1.3',
         'pluggy==0.8.0',
         'psutil==5.5.0',
-        'py==1.7.0',
+        'py==1.10.0',
         'pycodestyle==2.4.0',
         'pycparser==2.18',
         'pyflakes==2.0.0',
