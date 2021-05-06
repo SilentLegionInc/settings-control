@@ -18,7 +18,7 @@ setup(
         'Flask-API==1.1',
         'Flask-Bcrypt==0.7.1',
         'Flask-Bootstrap==3.3.7.1',
-        'Flask-Cors==3.0.6',
+        'Flask-Cors==3.0.9',
         'Flask-Login==0.4.1',
         'Flask-SQLAlchemy==2.3.2',
         'Flask-WTF==0.14.2',
