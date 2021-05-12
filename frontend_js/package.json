@@ -11,7 +11,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "bootstrap-vue": "^2.0.0-rc.14",
-    "chart.js": "^2.7.3",
+    "chart.js": "^2.9.4",
     "chartjs-plugin-zoom": "^0.6.6",
     "js-logger": "^1.6.0",
     "luxon": "^1.9.0",
