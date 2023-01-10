@@ -14,7 +14,7 @@
     "chart.js": "^2.7.3",
     "chartjs-plugin-zoom": "^0.6.6",
     "js-logger": "^1.6.0",
-    "luxon": "^1.9.0",
+    "luxon": "^1.28.1",
     "v-toaster": "^1.0.3",
     "vue": "^2.5.18",
     "vue-chartjs": "^3.4.0",
